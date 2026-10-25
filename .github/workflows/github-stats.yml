@@ -25,12 +25,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Prepare generated assets
+        run: mkdir --parents src/static/images/cards src/static/images/badges
+
       - name: Generate user card
         uses: h1s97x/gh-readme-card@728289370d8bb82c07b83a142e91d6a493fc2e0e
         with:
           card: user
           params: username=guesant&show_icons=true&theme=dark&hide_rank=true&include_all_commits=true&disable_animations=true
           path: src/static/images/cards/github-stats.svg
+          token: ${{ github.token }}
 
       - name: Refresh Shields
         run: |

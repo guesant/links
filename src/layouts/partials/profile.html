@@ -3,6 +3,11 @@
 {{ $theme := .theme }}
 {{ $ui := .ui }}
 {{ $languages := .languages }}
+{{ $sitePath := replaceRE "/$" "" site.Home.RelPermalink }}
+{{ if ne $language "en" }}
+  {{ $languageSuffix := printf "(?i)/%s$" $language }}
+  {{ $sitePath = replaceRE $languageSuffix "" $sitePath }}
+{{ end }}
 {{ $basePath := replaceRE "/$" "" site.Home.RelPermalink }}
 {{ if ne $language "en" }}
   {{ $languageSuffix := printf "/%s$" $language }}
@@ -29,7 +34,7 @@
         {{ $alt := index .alt $language }}
         {{ if not $alt }}{{ $alt = index .alt "en" }}{{ end }}
         {{ $badgeSrc := .src }}
-        {{ if hasPrefix $badgeSrc "/" }}{{ $badgeSrc = $badgeSrc | relURL }}{{ end }}
+        {{ if hasPrefix $badgeSrc "/" }}{{ $badgeSrc = printf "%s%s" $sitePath $badgeSrc }}{{ end }}
         <a class="profile-badge" href="{{ .href }}" target="_blank" rel="noopener noreferrer">
           <img src="{{ $badgeSrc }}" alt="{{ $alt }}" width="{{ index . "width" }}" height="{{ index . "height" }}" loading="lazy" decoding="async" fetchpriority="low">
         </a>

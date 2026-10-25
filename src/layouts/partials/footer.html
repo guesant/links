@@ -3,8 +3,8 @@
 {{ $repository := getenv "HUGO_GITHUB_REPOSITORY" | default "guesant/links" }}
 {{ $serverURL := getenv "HUGO_GITHUB_SERVER_URL" | default "https://github.com" }}
 {{ $repositoryURL := printf "%s/%s" $serverURL $repository }}
-{{ $commit := getenv "HUGO_GITHUB_SHA" | default "local" }}
-{{ $commitLabel := $commit }}
+{{ $commit := getenv "HUGO_GITHUB_SHA" }}
+{{ $commitLabel := $commit | default "local" }}
 {{ if gt (len $commit) 7 }}
   {{ $commitLabel = substr $commit 0 7 }}
 {{ end }}
@@ -21,9 +21,13 @@
     <a class="site-footer-repository" href="{{ $repositoryURL }}" aria-label="{{ $localized.ui.footer_repository }}">
       {{ partial "icon.html" "github" }}
     </a>
-    <a class="site-footer-link" href="{{ $commitURL }}" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">
-      <span>{{ $commitLabel }}</span>
-    </a>
+    {{ if $commit }}
+      <a class="site-footer-link" href="{{ $commitURL }}" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">
+        <span>{{ $commitLabel }}</span>
+      </a>
+    {{ else }}
+      <span class="site-footer-link">{{ $commitLabel }}</span>
+    {{ end }}
     <a class="site-footer-link" href="{{ $buildURL }}" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">
       <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>
     </a>

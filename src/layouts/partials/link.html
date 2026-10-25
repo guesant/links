@@ -1,5 +1,11 @@
 {{ $href := .url }}
 {{ $lowerURL := lower $href }}
+{{ $sitePath := replaceRE "/$" "" site.Home.RelPermalink }}
+{{ $currentLanguage := lower site.Language.Lang }}
+{{ if ne $currentLanguage "en" }}
+  {{ $languageSuffix := printf "(?i)/%s$" $currentLanguage }}
+  {{ $sitePath = replaceRE $languageSuffix "" $sitePath }}
+{{ end }}
 {{ $isExternal := or (hasPrefix $lowerURL "http://") (hasPrefix $lowerURL "https://") (hasPrefix $lowerURL "mailto:") (hasPrefix $lowerURL "tel:") }}
 {{ if not $isExternal }}
   {{ $href = $href | relURL }}
@@ -24,7 +30,7 @@
   {{ with .badge }}<span class="link-badge">{{ . }}</span>{{ end }}
   {{ with .visual }}
     {{ $visualSrc := .src }}
-    {{ if hasPrefix $visualSrc "/" }}{{ $visualSrc = $visualSrc | relURL }}{{ end }}
+    {{ if hasPrefix $visualSrc "/" }}{{ $visualSrc = printf "%s%s" $sitePath $visualSrc }}{{ end }}
     <span class="link-visual">
       <img src="{{ $visualSrc }}" alt="{{ .alt }}" width="{{ index . "width" }}" height="{{ index . "height" }}" loading="lazy" decoding="async" fetchpriority="low">
     </span>
