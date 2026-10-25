@@ -25,6 +25,7 @@
         {{ $linkLabels := index .labels $.language }}
         {{ if not $linkLabels }}{{ errorf "links.yaml: link %q needs labels for %s" .id $.language }}{{ end }}
         {{ if not $linkLabels.title }}{{ errorf "links.yaml: link %q needs a title for %s" .id $.language }}{{ end }}
+        {{ if not $linkLabels.description }}{{ errorf "links.yaml: link %q needs a description for %s" .id $.language }}{{ end }}
         {{ if not .url }}{{ errorf "links.yaml: link %q needs a URL" $linkLabels.title }}{{ end }}
         {{ $url := lower (trim .url " ") }}
         {{ $safeProtocol := false }}

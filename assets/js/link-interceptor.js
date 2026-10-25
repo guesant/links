@@ -31,9 +31,17 @@
 
     event.preventDefault();
 
+    const linkPreview = [
+      link.dataset.linkTitle,
+      link.dataset.linkUrl || link.href,
+      link.dataset.linkDescription,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
     window.Swal.fire({
       title: "Abrir link?",
-      text: link.dataset.linkTitle,
+      text: linkPreview,
       icon: "question",
       showDenyButton: true,
       showCancelButton: true,

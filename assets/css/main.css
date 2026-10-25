@@ -1,14 +1,8 @@
-@font-face {
-  font-family: "Press Start 2P";
-  src: url("../fonts/PressStart2P-Regular.ttf") format("truetype");
-  font-display: swap;
-  font-weight: 400;
-}
-
 :root {
   --color-background: #111111;
   --color-background-deep: #080808;
   --color-surface: #252525;
+  --color-surface-link: #1d2b3b;
   --color-surface-hover: #303030;
   --color-border-light: #f4f4f4;
   --color-border-dark: #101010;
@@ -18,7 +12,7 @@
   --color-accent-strong: #a7d4ff;
   --color-focus: #ffe37a;
   --font-pixel: "Press Start 2P", "Courier New", monospace;
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "Roboto Slab", Georgia, serif;
   --font-size-small: 0.75rem;
   --font-size-body: 0.9375rem;
   --font-size-title: 1rem;
@@ -254,13 +248,15 @@ a {
 
 .link-button {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--space-4);
+  width: 100%;
+  gap: var(--space-5);
   min-height: var(--button-min-height);
-  padding: var(--space-3) var(--space-4);
-  border: var(--pixel-border) solid var(--color-border-light);
-  background: var(--color-surface);
+  min-width: 0;
+  padding: var(--space-4) var(--space-5);
+  border: var(--pixel-border) solid var(--color-accent);
+  background: var(--color-surface-link);
   box-shadow: var(--pixel-shadow) var(--pixel-shadow) 0 var(--color-border-dark);
   color: var(--color-text);
   text-decoration: none;
@@ -292,11 +288,6 @@ a {
   outline-offset: var(--space-1);
 }
 
-.link-button-featured {
-  border-color: var(--color-accent);
-  background: #1d2b3b;
-}
-
 .link-icon {
   display: grid;
   width: var(--icon-box-size);
@@ -318,7 +309,7 @@ a {
 
 .link-copy {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--space-2);
   min-width: 0;
 }
 
@@ -331,6 +322,33 @@ a {
 }
 
 .link-button:visited .link-title {
+  color: var(--color-accent-strong);
+}
+
+.link-url {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-body);
+}
+
+.link-url-icon {
+  flex: 0 0 var(--font-size-small);
+  color: var(--color-accent-strong);
+}
+
+.link-url-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.link-button:visited .link-url {
+  color: var(--color-text-muted);
+}
+
+.link-button:visited .link-url-icon {
   color: var(--color-accent-strong);
 }
 
@@ -379,6 +397,8 @@ a {
 .swal2-html-container {
   color: var(--color-text-muted);
   font-size: var(--font-size-body);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .swal2-actions {
@@ -392,13 +412,13 @@ a {
 }
 
 .swal2-styled.swal2-confirm {
-  background: var(--color-accent);
-  color: var(--color-background-deep);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .swal2-styled.swal2-deny {
-  background: var(--color-surface-hover);
-  color: var(--color-text);
+  background: var(--color-accent);
+  color: var(--color-background-deep);
 }
 
 .swal2-styled.swal2-cancel {
@@ -429,8 +449,8 @@ a {
   }
 
   .link-button {
-    gap: var(--space-3);
-    padding-inline: var(--space-3);
+    gap: var(--space-4);
+    padding: var(--space-4);
   }
 
   .link-badge {

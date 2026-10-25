@@ -44,7 +44,7 @@ Links em nova aba recebem rel="noopener noreferrer". Protocolos inseguros, como 
 
 Os ícones disponíveis são academic, code, document, education, email, github, gitlab, link, linkedin, website e youtube. Eles são renderizados pelo Font Awesome Free, carregado do cdnjs com SRI.
 
-As propriedades theme.preset, theme.appearance e theme.background estão no YAML para manter a preferência visual declarativa. O preset atual é minecraft, com aparência escura e fundo CSS próprio. A fonte pixelada é local e não depende de CDN.
+As propriedades theme.preset, theme.appearance e theme.background estão no YAML para manter a preferência visual declarativa. O preset atual é minecraft, com aparência escura e fundo CSS próprio. A fonte pixelada Press Start 2P e a fonte de corpo Roboto Slab são carregadas pelo Google Fonts com display=swap, sem fontes vendorizadas no repositório.
 
 ## Publicação
 
