@@ -4,6 +4,7 @@
     "runners": ["axe", "htmlcs"],
     "standard": "WCAG2AA",
     "timeout": 30000,
+    "wait": 1000,
     "threshold": 0,
     "chromeLaunchConfig": {
       "args": ["--no-sandbox", "--disable-dev-shm-usage"],

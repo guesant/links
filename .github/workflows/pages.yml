@@ -71,11 +71,10 @@ jobs:
         run: |
           docker run --rm \
             --volume "$PWD/public:/input/public:ro" \
-            --volume "$PWD/public:/input/links:ro" \
             lycheeverse/lychee:0.24.2 \
             --verbose \
             --no-progress \
-            --root-dir /input \
+            --root-dir /input/public \
             --index-files index.html \
             --accept 200,206,301,302,403,999 \
             --accept-timeouts \
@@ -93,11 +92,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Download site artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: site-public
-          path: public
+      - name: Build Hugo image
+        run: docker build --file .config/container/Dockerfile --target site --tag guesant-links-site:ci .
+      - name: Build local site
+        run: |
+          mkdir -p public
+          docker create \
+            --name guesant-links-accessibility \
+            guesant-links-site:ci \
+            --minify \
+            --cleanDestinationDir \
+            --baseURL http://127.0.0.1:4173/ \
+            --destination /tmp/public
+          trap 'docker rm --force guesant-links-accessibility >/dev/null 2>&1 || true' EXIT
+          docker start --attach guesant-links-accessibility
+          docker cp guesant-links-accessibility:/tmp/public/. public/
+          if [ -d public/pt-BR ] && [ ! -e public/pt-br ]; then
+            cp --recursive public/pt-BR public/pt-br
+          fi
       - name: Build quality image
         run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
       - name: Check ARIA and accessibility
