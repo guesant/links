@@ -46,9 +46,9 @@ As propriedades theme.preset, theme.appearance e theme.background estão no YAML
 
 O workflow .github/workflows/pages.yml roda em todo push para main e também pode ser iniciado manualmente. Ele constrói a imagem definida no Dockerfile, valida o YAML, executa hugo --minify --cleanDestinationDir dentro dela e publica o diretório public usando as Actions oficiais do GitHub Pages.
 
-No repositório, configure GitHub Pages com a origem GitHub Actions. O domínio personalizado é declarado em static/CNAME e deve apontar para o Pages conforme a configuração de DNS do projeto.
+No repositório, configure GitHub Pages com a origem GitHub Actions. A primeira publicação usa o endereço padrão https://guesant.github.io/links/.
 
-O domínio principal planejado é https://guesant.net/. O blog será servido separadamente em https://blog.guesant.net/.
+Depois da validação visual, o domínio personalizado poderá ser configurado separadamente para https://guesant.net/. O blog será servido em https://blog.guesant.net/.
 
 ## Estrutura
 
@@ -58,7 +58,6 @@ O domínio principal planejado é https://guesant.net/. O blog será servido sep
 - assets/css/main.css, tokens, layout e estética;
 - static/icons, ícones locais;
 - static/favicon.svg, favicon original;
-- static/CNAME, domínio do GitHub Pages;
 - .github/workflows/pages.yml, build e publicação;
 - Dockerfile, imagem única usada para o build local e pelo CI;
 - LICENSES, atribuições dos assets externos.

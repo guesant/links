@@ -1,4 +1,4 @@
-baseURL = 'https://guesant.net/'
+baseURL = 'https://guesant.github.io/links/'
 defaultContentLanguage = 'pt-br'
 title = 'Gabriel R. Antunes | Links'
 enableRobotsTXT = true
