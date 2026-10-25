@@ -21,21 +21,25 @@ sections:
     links:
       - id: email
         title: Email
+        description: gabrielrodantunes@gmail.com
         url: mailto:gabrielrodantunes@gmail.com
         icon: email
         enabled: true
       - id: linkedin
         title: LinkedIn
+        description: in/gabrielrodantunes
         url: https://www.linkedin.com/in/gabrielrodantunes/
         icon: linkedin
         enabled: true
       - id: github
         title: GitHub
+        description: github.com/guesant
         url: https://github.com/guesant
         icon: github
         enabled: true
       - id: gitlab
         title: GitLab
+        description: gitlab.com/guesant
         url: https://gitlab.com/guesant
         icon: gitlab
         enabled: true
@@ -47,16 +51,15 @@ sections:
     links:
       - id: blog
         title: Blog
-        description: Technical writing, findings and projects.
+        description: blog.guesant.net, technical writing and projects
         url: https://blog.guesant.net
         icon: website
         featured: true
         badge: Blog
-        target: _self
         enabled: true
       - id: atlas
         title: Atlas
-        description: Personal catalog of saved links.
+        description: atlas.guesant.net, personal link catalog
         url: https://atlas.guesant.net
         icon: link
         featured: true
@@ -64,13 +67,13 @@ sections:
         enabled: true
       - id: curriculum
         title: Curriculum
-        description: Declarative curriculum in PDF and HTML.
+        description: curriculum.guesant.net, PDF and HTML curriculum
         url: https://curriculum.guesant.net
         icon: document
         enabled: true
       - id: github-repositories
         title: GitHub repositories
-        description: Open-source projects and experiments.
+        description: github.com/guesant?tab=repositories
         url: https://github.com/guesant?tab=repositories
         icon: github
         badge: Open Source
@@ -83,27 +86,31 @@ sections:
     links:
       - id: lattes
         title: Lattes
+        description: lattes.cnpq.br/5981427817317311
         url: http://lattes.cnpq.br/5981427817317311
         icon: academic
         enabled: true
       - id: orcid
         title: ORCID
+        description: 0009-0009-0221-943X
         url: https://orcid.org/0009-0009-0221-943X
         icon: academic
         enabled: true
       - id: youtube
         title: YouTube
-        description: Technical projects, software and homelab.
+        description: channel/UClhOZhND0Rr0BHWDhXo1KrA
         url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
         icon: youtube
         enabled: true
       - id: leetcode
         title: LeetCode
+        description: leetcode.com/u/guesant/
         url: https://leetcode.com/u/guesant/
         icon: code
         enabled: true
       - id: hyperskill
         title: Hyperskill
+        description: hyperskill.org/my-learning/621241218
         url: https://hyperskill.org/my-learning/621241218
         icon: education
         enabled: true

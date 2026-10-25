@@ -32,7 +32,7 @@ Campos disponíveis para links:
 - icon, nome de um SVG local;
 - badge, selo textual opcional;
 - featured, destaque visual opcional;
-- target, _self por padrão ou _blank.
+- target, _blank por padrão ou _self quando uma exceção for necessária.
 
 Links em nova aba recebem rel="noopener noreferrer". Protocolos inseguros, como javascript:, são rejeitados durante o build.
 
