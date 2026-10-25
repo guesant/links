@@ -8,6 +8,179 @@ theme:
   appearance: dark
   background: default
 
+sections:
+  - id: start-here
+    enabled: true
+    labels:
+      en:
+        title: Start here
+        description: The main places to find my work and its context.
+      pt-br:
+        title: Comece por aqui
+        description: Os principais lugares para conhecer meu trabalho e seu contexto.
+    links:
+      - id: blog
+        url: https://guesant.net
+        icon: website
+        featured: true
+        enabled: true
+        labels:
+          en:
+            title: Blog
+            description: guesant.net, technical writing and projects
+            badge: Writing
+          pt-br:
+            title: Blog
+            description: guesant.net, escritos técnicos e projetos
+            badge: Escritos
+      - id: curriculum
+        url: https://curriculum.guesant.net
+        icon: document
+        featured: true
+        enabled: true
+        labels:
+          en:
+            title: Curriculum
+            description: curriculum.guesant.net, PDF and HTML curriculum
+            badge: Profile
+          pt-br:
+            title: Currículo
+            description: curriculum.guesant.net, currículo em PDF e HTML
+            badge: Perfil
+      - id: atlas
+        url: https://atlas.guesant.net
+        icon: link
+        featured: true
+        enabled: true
+        labels:
+          en:
+            title: Atlas
+            description: atlas.guesant.net, personal link catalog
+            badge: References
+          pt-br:
+            title: Atlas
+            description: atlas.guesant.net, catálogo pessoal de referências
+            badge: Referências
+      - id: github-repositories
+        url: https://github.com/guesant?tab=repositories
+        icon: github
+        enabled: true
+        labels:
+          en:
+            title: GitHub repositories
+            description: github.com/guesant?tab=repositories, open-source code and projects
+            badge: Open Source
+          pt-br:
+            title: Repositórios no GitHub
+            description: github.com/guesant?tab=repositories, código e projetos open source
+            badge: Open Source
+      - id: youtube
+        url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
+        icon: youtube
+        enabled: true
+        labels:
+          en:
+            title: '@JipaCoding'
+            description: Experiments, infrastructure, algorithms and tutorials
+            badge: Video
+          pt-br:
+            title: '@JipaCoding'
+            description: Experimentos, infraestrutura, algoritmos e tutoriais
+            badge: Vídeos
+  - id: contact
+    enabled: true
+    labels:
+      en:
+        title: Contact
+        description: Ways to reach me and follow my work.
+      pt-br:
+        title: Contato
+        description: Formas de falar comigo e acompanhar meu trabalho.
+    links:
+      - id: email
+        url: mailto:gabrielrodantunes@gmail.com
+        icon: email
+        enabled: true
+        labels:
+          en:
+            title: gabrielrodantunes@gmail.com
+          pt-br:
+            title: gabrielrodantunes@gmail.com
+      - id: linkedin
+        url: https://www.linkedin.com/in/gabrielrodantunes/
+        icon: linkedin
+        enabled: true
+        labels:
+          en:
+            title: in/gabrielrodantunes
+          pt-br:
+            title: in/gabrielrodantunes
+      - id: gitlab
+        url: https://gitlab.com/guesant
+        icon: gitlab
+        enabled: true
+        labels:
+          en:
+            title: guesant
+            description: gitlab.com/guesant, additional code and experiments
+          pt-br:
+            title: guesant
+            description: gitlab.com/guesant, código e experimentos adicionais
+  - id: networks
+    enabled: true
+    labels:
+      en:
+        title: Networks
+        description: Academic profiles, learning platforms and practice.
+      pt-br:
+        title: Redes
+        description: Perfis acadêmicos, plataformas de estudo e prática.
+    links:
+      - id: lattes
+        url: http://lattes.cnpq.br/5981427817317311
+        icon: academic
+        enabled: true
+        labels:
+          en:
+            title: Lattes
+            description: lattes.cnpq.br/5981427817317311
+          pt-br:
+            title: Lattes
+            description: lattes.cnpq.br/5981427817317311
+      - id: orcid
+        url: https://orcid.org/0009-0009-0221-943X
+        icon: academic
+        enabled: true
+        labels:
+          en:
+            title: ORCID
+            description: 0009-0009-0221-943X
+          pt-br:
+            title: ORCID
+            description: 0009-0009-0221-943X
+      - id: leetcode
+        url: https://leetcode.com/u/guesant/
+        icon: code
+        enabled: true
+        labels:
+          en:
+            title: LeetCode
+            description: leetcode.com/u/guesant/
+          pt-br:
+            title: LeetCode
+            description: leetcode.com/u/guesant/
+      - id: hyperskill
+        url: https://hyperskill.org/my-learning/621241218
+        icon: education
+        enabled: true
+        labels:
+          en:
+            title: Hyperskill
+            description: hyperskill.org/my-learning/621241218
+          pt-br:
+            title: Hyperskill
+            description: hyperskill.org/my-learning/621241218
+
 locales:
   en:
     seo:
@@ -31,100 +204,6 @@ locales:
           description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
         - title: Where this work lives
           description: Technical writing, a declarative curriculum, a curated reference catalog and experiments published through JipaCoding.
-    sections:
-      - id: start-here
-        title: Start here
-        description: The main places to find my work and its context.
-        enabled: true
-        links:
-          - id: blog
-            title: Blog
-            description: guesant.net, technical writing and projects
-            url: https://guesant.net
-            icon: website
-            featured: true
-            badge: Writing
-            enabled: true
-          - id: curriculum
-            title: Curriculum
-            description: curriculum.guesant.net, PDF and HTML curriculum
-            url: https://curriculum.guesant.net
-            icon: document
-            featured: true
-            badge: Profile
-            enabled: true
-          - id: atlas
-            title: Atlas
-            description: atlas.guesant.net, personal link catalog
-            url: https://atlas.guesant.net
-            icon: link
-            featured: true
-            badge: References
-            enabled: true
-          - id: github-repositories
-            title: GitHub repositories
-            description: github.com/guesant?tab=repositories, open-source code and projects
-            url: https://github.com/guesant?tab=repositories
-            icon: github
-            badge: Open Source
-            enabled: true
-          - id: youtube
-            title: '@JipaCoding'
-            description: Experiments, infrastructure, algorithms and tutorials
-            url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
-            icon: youtube
-            badge: Video
-            enabled: true
-      - id: contact
-        title: Contact
-        description: Ways to reach me and follow my work.
-        enabled: true
-        links:
-          - id: email
-            title: gabrielrodantunes@gmail.com
-            url: mailto:gabrielrodantunes@gmail.com
-            icon: email
-            enabled: true
-          - id: linkedin
-            title: in/gabrielrodantunes
-            url: https://www.linkedin.com/in/gabrielrodantunes/
-            icon: linkedin
-            enabled: true
-          - id: gitlab
-            title: guesant
-            description: gitlab.com/guesant, additional code and experiments
-            url: https://gitlab.com/guesant
-            icon: gitlab
-            enabled: true
-      - id: networks
-        title: Networks
-        description: Academic profiles, learning platforms and practice.
-        enabled: true
-        links:
-          - id: lattes
-            title: Lattes
-            description: lattes.cnpq.br/5981427817317311
-            url: http://lattes.cnpq.br/5981427817317311
-            icon: academic
-            enabled: true
-          - id: orcid
-            title: ORCID
-            description: 0009-0009-0221-943X
-            url: https://orcid.org/0009-0009-0221-943X
-            icon: academic
-            enabled: true
-          - id: leetcode
-            title: LeetCode
-            description: leetcode.com/u/guesant/
-            url: https://leetcode.com/u/guesant/
-            icon: code
-            enabled: true
-          - id: hyperskill
-            title: Hyperskill
-            description: hyperskill.org/my-learning/621241218
-            url: https://hyperskill.org/my-learning/621241218
-            icon: education
-            enabled: true
   pt-br:
     seo:
       title: Gabriel R. Antunes | Links
@@ -147,97 +226,3 @@ locales:
           description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
         - title: Onde esse trabalho está
           description: Escritos técnicos, um currículo declarativo, um catálogo curado de referências e experimentos publicados pela JipaCoding.
-    sections:
-      - id: start-here
-        title: Comece por aqui
-        description: Os principais lugares para conhecer meu trabalho e seu contexto.
-        enabled: true
-        links:
-          - id: blog
-            title: Blog
-            description: guesant.net, escritos técnicos e projetos
-            url: https://guesant.net
-            icon: website
-            featured: true
-            badge: Escritos
-            enabled: true
-          - id: curriculum
-            title: Currículo
-            description: curriculum.guesant.net, currículo em PDF e HTML
-            url: https://curriculum.guesant.net
-            icon: document
-            featured: true
-            badge: Perfil
-            enabled: true
-          - id: atlas
-            title: Atlas
-            description: atlas.guesant.net, catálogo pessoal de referências
-            url: https://atlas.guesant.net
-            icon: link
-            featured: true
-            badge: Referências
-            enabled: true
-          - id: github-repositories
-            title: Repositórios no GitHub
-            description: github.com/guesant?tab=repositories, código e projetos open source
-            url: https://github.com/guesant?tab=repositories
-            icon: github
-            badge: Open Source
-            enabled: true
-          - id: youtube
-            title: '@JipaCoding'
-            description: Experimentos, infraestrutura, algoritmos e tutoriais
-            url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
-            icon: youtube
-            badge: Vídeos
-            enabled: true
-      - id: contact
-        title: Contato
-        description: Formas de falar comigo e acompanhar meu trabalho.
-        enabled: true
-        links:
-          - id: email
-            title: gabrielrodantunes@gmail.com
-            url: mailto:gabrielrodantunes@gmail.com
-            icon: email
-            enabled: true
-          - id: linkedin
-            title: in/gabrielrodantunes
-            url: https://www.linkedin.com/in/gabrielrodantunes/
-            icon: linkedin
-            enabled: true
-          - id: gitlab
-            title: guesant
-            description: gitlab.com/guesant, código e experimentos adicionais
-            url: https://gitlab.com/guesant
-            icon: gitlab
-            enabled: true
-      - id: networks
-        title: Redes
-        description: Perfis acadêmicos, plataformas de estudo e prática.
-        enabled: true
-        links:
-          - id: lattes
-            title: Lattes
-            description: lattes.cnpq.br/5981427817317311
-            url: http://lattes.cnpq.br/5981427817317311
-            icon: academic
-            enabled: true
-          - id: orcid
-            title: ORCID
-            description: 0009-0009-0221-943X
-            url: https://orcid.org/0009-0009-0221-943X
-            icon: academic
-            enabled: true
-          - id: leetcode
-            title: LeetCode
-            description: leetcode.com/u/guesant/
-            url: https://leetcode.com/u/guesant/
-            icon: code
-            enabled: true
-          - id: hyperskill
-            title: Hyperskill
-            description: hyperskill.org/my-learning/621241218
-            url: https://hyperskill.org/my-learning/621241218
-            icon: education
-            enabled: true

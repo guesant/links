@@ -24,7 +24,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
       - name: Build Hugo image
-        run: docker build --tag guesant-links:ci .
+        run: docker build --file .config/container/Dockerfile --tag guesant-links:ci .
       - name: Build static site
         run: |
           mkdir -p public
@@ -82,7 +82,7 @@ jobs:
           name: site-public
           path: public
       - name: Build quality image
-        run: docker build --target quality --tag guesant-links-quality:ci .
+        run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
       - name: Check ARIA and accessibility
         run: |
           docker run --rm \
@@ -103,7 +103,7 @@ jobs:
           name: site-public
           path: public
       - name: Build quality image
-        run: docker build --target quality --tag guesant-links-quality:ci .
+        run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
       - name: Run Lighthouse CI
         run: |
           mkdir -p .lighthouseci

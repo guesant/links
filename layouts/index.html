@@ -3,7 +3,7 @@
   {{ $locale := lower .Site.Language.Lang }}
   {{ $localized := index $data.locales $locale }}
   {{ $profile := dict "name" $data.profile.name "username" $data.profile.username "avatar" $data.profile.avatar "bio" $localized.profile.bio }}
-  {{ $config := dict "profile" $profile "seo" $localized.seo "presentation" $localized.presentation "sections" $localized.sections }}
+  {{ $config := dict "profile" $profile "seo" $localized.seo "presentation" $localized.presentation "sections" $data.sections "language" $locale }}
   {{ partial "validate.html" $config }}
   <main class="site-shell" id="main-content">
     {{ partial "profile.html" (dict "profile" $profile "languageLabel" $localized.ui.language_label "languageHref" $localized.ui.language_href "languageAriaLabel" $localized.ui.language_aria_label) }}
@@ -15,7 +15,7 @@
           {{ $enabled = .enabled }}
         {{ end }}
         {{ if $enabled }}
-          {{ partial "section.html" . }}
+          {{ partial "section.html" (dict "section" . "language" $locale) }}
         {{ end }}
       {{ end }}
     </div>

@@ -1,17 +1,32 @@
-{{ $sectionID := .id | default .title | urlize }}
+{{ $section := .section }}
+{{ $language := .language }}
+{{ $sectionLabels := index $section.labels $language }}
+{{ if not $sectionLabels }}{{ $sectionLabels = index $section.labels "en" }}{{ end }}
+{{ $sectionID := $section.id | default $sectionLabels.title | urlize }}
 <section class="link-section" id="{{ $sectionID }}">
   <header class="section-heading">
-    <h2>{{ .title }}</h2>
-    {{ with .description }}<p>{{ . }}</p>{{ end }}
+    <h2>{{ $sectionLabels.title }}</h2>
+    {{ with $sectionLabels.description }}<p>{{ . }}</p>{{ end }}
   </header>
   <div class="link-list">
-    {{ range .links }}
+    {{ range $section.links }}
       {{ $enabled := true }}
       {{ if isset . "enabled" }}
         {{ $enabled = .enabled }}
       {{ end }}
       {{ if $enabled }}
-        {{ partial "link.html" . }}
+        {{ $linkLabels := index .labels $language }}
+        {{ if not $linkLabels }}{{ $linkLabels = index .labels "en" }}{{ end }}
+        {{ $link := dict
+          "title" $linkLabels.title
+          "description" $linkLabels.description
+          "badge" $linkLabels.badge
+          "url" .url
+          "icon" .icon
+          "featured" .featured
+          "target" .target
+        }}
+        {{ partial "link.html" $link }}
       {{ end }}
     {{ end }}
   </div>
