@@ -1,0 +1,17 @@
+{{ define "main" }}
+  {{ $data := hugo.Data.links }}
+  {{ $locale := lower .Site.Language.Lang }}
+  {{ $localized := index $data.locales $locale }}
+  {{ $profile := dict "name" $data.profile.name "username" $data.profile.username "avatar" $data.profile.avatar "bio" $localized.profile.bio "badges" $data.profile.badges }}
+  {{ $config := dict "profile" $profile "seo" $localized.seo "presentation" $localized.presentation "sections" $data.sections "audiences" $data.audiences "language" $locale "languages" $data.language_options }}
+  {{ partial "validate.html" $config }}
+  <main class="site-shell" id="main-content">
+    {{ partial "profile.html" (dict "profile" $profile "language" $locale "theme" $data.theme "ui" $localized.ui "languages" $data.language_options) }}
+    {{ partial "presentation.html" $config.presentation }}
+    <div class="link-sections">
+      {{ range $config.audiences }}
+        {{ partial "audience.html" (dict "audience" . "sections" $config.sections "language" $locale) }}
+      {{ end }}
+    </div>
+  </main>
+{{ end }}

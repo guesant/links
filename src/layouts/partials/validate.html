@@ -1,0 +1,89 @@
+{{ if not .profile }}{{ errorf "links.yaml: profile is required" }}{{ end }}
+{{ if not .profile.name }}{{ errorf "links.yaml: profile.name is required" }}{{ end }}
+{{ if not .seo }}{{ errorf "links.yaml: seo is required" }}{{ end }}
+{{ if not .seo.title }}{{ errorf "links.yaml: seo.title is required" }}{{ end }}
+{{ if not .seo.description }}{{ errorf "links.yaml: seo.description is required" }}{{ end }}
+{{ if not .presentation }}{{ errorf "links.yaml: presentation is required" }}{{ end }}
+{{ if not .presentation.title }}{{ errorf "links.yaml: presentation.title is required" }}{{ end }}
+{{ if not .presentation.intro }}{{ errorf "links.yaml: presentation.intro is required" }}{{ end }}
+{{ if not .presentation.focus }}{{ errorf "links.yaml: presentation.focus needs items" }}{{ end }}
+{{ if not .audiences }}{{ errorf "links.yaml: at least one audience is required" }}{{ end }}
+{{ if not .sections }}{{ errorf "links.yaml: at least one section is required" }}{{ end }}
+{{ if not .language }}{{ errorf "links.yaml: language is required" }}{{ end }}
+{{ if not .languages }}{{ errorf "links.yaml: language_options is required" }}{{ end }}
+{{ $allowedProtocols := slice "http://" "https://" "mailto:" "tel:" }}
+{{ with .profile.badges }}
+  {{ range . }}
+    {{ if not .src }}{{ errorf "links.yaml: profile badge %q needs an image URL" .id }}{{ end }}
+    {{ if not .href }}{{ errorf "links.yaml: profile badge %q needs a destination URL" .id }}{{ end }}
+    {{ if not .alt }}{{ errorf "links.yaml: profile badge %q needs alt text" .id }}{{ end }}
+    {{ if not .width }}{{ errorf "links.yaml: profile badge %q needs an image width" .id }}{{ end }}
+    {{ if not .height }}{{ errorf "links.yaml: profile badge %q needs an image height" .id }}{{ end }}
+    {{ if le .width 0 }}{{ errorf "links.yaml: profile badge %q needs a positive image width" .id }}{{ end }}
+    {{ if le .height 0 }}{{ errorf "links.yaml: profile badge %q needs a positive image height" .id }}{{ end }}
+    {{ $badgeURL := lower (trim .src " ") }}
+    {{ if not (or (hasPrefix $badgeURL "https://") (hasPrefix $badgeURL "/")) }}{{ errorf "links.yaml: profile badge %q uses an unsupported image URL" .id }}{{ end }}
+    {{ if not (hasPrefix (lower .href) "https://") }}{{ errorf "links.yaml: profile badge %q destination must use HTTPS" .id }}{{ end }}
+  {{ end }}
+{{ end }}
+{{ $audienceIDs := slice }}
+{{ $languageIDs := slice }}
+{{ range .languages }}
+  {{ if not .id }}{{ errorf "links.yaml: every language needs an id" }}{{ end }}
+  {{ if in $languageIDs .id }}{{ errorf "links.yaml: language %q is duplicated" .id }}{{ end }}
+  {{ $languageIDs = $languageIDs | append .id }}
+  {{ if not .path }}{{ errorf "links.yaml: language %q needs a path" .id }}{{ end }}
+  {{ if not .label }}{{ errorf "links.yaml: language %q needs a label" .id }}{{ end }}
+{{ end }}
+{{ range .audiences }}
+  {{ $audience := . }}
+  {{ if not .id }}{{ errorf "links.yaml: every audience needs an id" }}{{ end }}
+  {{ if in $audienceIDs .id }}{{ errorf "links.yaml: audience %q is duplicated" .id }}{{ end }}
+  {{ $audienceIDs = $audienceIDs | append .id }}
+  {{ range $.languages }}
+    {{ if not (index $audience.labels .id) }}{{ errorf "links.yaml: audience %q needs labels for %s" $audience.id .id }}{{ end }}
+  {{ end }}
+{{ end }}
+{{ range .sections }}
+  {{ $sectionEnabled := true }}
+  {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
+  {{ if $sectionEnabled }}
+    {{ $sectionLabels := index .labels $.language }}
+    {{ if not $sectionLabels }}{{ errorf "links.yaml: section %q needs labels for %s" .id $.language }}{{ end }}
+    {{ if not $sectionLabels.title }}{{ errorf "links.yaml: section %q needs a title for %s" .id $.language }}{{ end }}
+    {{ if not .links }}{{ errorf "links.yaml: section %q needs links" $sectionLabels.title }}{{ end }}
+    {{ range .links }}
+      {{ $linkEnabled := true }}
+      {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}
+      {{ if $linkEnabled }}
+        {{ $linkLabels := index .labels $.language }}
+        {{ if not $linkLabels }}{{ errorf "links.yaml: link %q needs labels for %s" .id $.language }}{{ end }}
+        {{ if not $linkLabels.title }}{{ errorf "links.yaml: link %q needs a title for %s" .id $.language }}{{ end }}
+        {{ if not $linkLabels.description }}{{ errorf "links.yaml: link %q needs a description for %s" .id $.language }}{{ end }}
+        {{ if not .url }}{{ errorf "links.yaml: link %q needs a URL" $linkLabels.title }}{{ end }}
+        {{ if not .audiences }}{{ errorf "links.yaml: link %q needs at least one audience" $linkLabels.title }}{{ end }}
+        {{ with .visual }}
+          {{ if not .src }}{{ errorf "links.yaml: visual for link %q needs an image URL" $linkLabels.title }}{{ end }}
+          {{ if not .alt }}{{ errorf "links.yaml: visual for link %q needs alt text" $linkLabels.title }}{{ end }}
+          {{ if not .width }}{{ errorf "links.yaml: visual for link %q needs an image width" $linkLabels.title }}{{ end }}
+          {{ if not .height }}{{ errorf "links.yaml: visual for link %q needs an image height" $linkLabels.title }}{{ end }}
+          {{ if le .width 0 }}{{ errorf "links.yaml: visual for link %q needs a positive image width" $linkLabels.title }}{{ end }}
+          {{ if le .height 0 }}{{ errorf "links.yaml: visual for link %q needs a positive image height" $linkLabels.title }}{{ end }}
+          {{ $visualURL := lower (trim .src " ") }}
+          {{ if not (or (hasPrefix $visualURL "https://") (hasPrefix $visualURL "/")) }}{{ errorf "links.yaml: visual for link %q uses an unsupported URL" $linkLabels.title }}{{ end }}
+        {{ end }}
+        {{ range .audiences }}
+          {{ if not (in $audienceIDs .) }}{{ errorf "links.yaml: link %q references unknown audience %q" $linkLabels.title . }}{{ end }}
+        {{ end }}
+        {{ $url := lower (trim .url " ") }}
+        {{ $safeProtocol := false }}
+        {{ range $allowedProtocols }}
+          {{ if hasPrefix $url . }}{{ $safeProtocol = true }}{{ end }}
+        {{ end }}
+        {{ $safePath := or (hasPrefix $url "/") (hasPrefix $url "#") }}
+        {{ if not (or $safeProtocol $safePath) }}{{ errorf "links.yaml: link %q uses an unsupported URL protocol" $linkLabels.title }}{{ end }}
+        {{ if and (isset . "target") (not (or (eq .target "_self") (eq .target "_blank"))) }}{{ errorf "links.yaml: link %q has an invalid target" $linkLabels.title }}{{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}

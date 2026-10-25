@@ -1,7 +1,9 @@
 FROM ghcr.io/gohugoio/hugo:v0.168.0@sha256:1fb8fe7f417abd5802d86747d297728aa48078d763159e7dff6559fe3f8bb8e7 AS site
 
-WORKDIR /src
-COPY . .
+WORKDIR /workspace/src
+COPY src/ .
+COPY .config/hugo.toml /workspace/.config/hugo.toml
+ENTRYPOINT ["hugo", "--config", "/workspace/.config/hugo.toml"]
 
 FROM node:24.6.0-bookworm-slim AS quality
 RUN apt-get update \

@@ -1,0 +1,48 @@
+{{ $audience := .audience }}
+{{ $sections := .sections }}
+{{ $language := .language }}
+{{ $audienceLabels := index $audience.labels $language }}
+{{ if not $audienceLabels }}{{ $audienceLabels = index $audience.labels "en" }}{{ end }}
+{{ $audienceID := $audience.id }}
+{{ $audienceScratch := newScratch }}
+{{ $audienceScratch.Set "count" 0 }}
+{{ range $sections }}
+  {{ $sectionEnabled := true }}
+  {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
+  {{ if $sectionEnabled }}
+    {{ range .links }}
+      {{ $linkEnabled := true }}
+      {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}
+      {{ if and $linkEnabled (in (.audiences | default (slice)) $audienceID) }}
+        {{ $audienceScratch.Add "count" 1 }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ if gt ($audienceScratch.Get "count") 0 }}
+  <section class="audience-section" id="audience-{{ $audienceID | urlize }}">
+    <header class="audience-heading">
+      <h2>{{ $audienceLabels }}</h2>
+    </header>
+    <div class="audience-sections">
+      {{ range $sections }}
+        {{ $sectionEnabled := true }}
+        {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
+        {{ if $sectionEnabled }}
+          {{ $sectionScratch := newScratch }}
+          {{ $sectionScratch.Set "count" 0 }}
+          {{ range .links }}
+            {{ $linkEnabled := true }}
+            {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}
+            {{ if and $linkEnabled (in (.audiences | default (slice)) $audienceID) }}
+              {{ $sectionScratch.Add "count" 1 }}
+            {{ end }}
+          {{ end }}
+          {{ if gt ($sectionScratch.Get "count") 0 }}
+            {{ partial "section.html" (dict "section" . "language" $language "audienceID" $audienceID) }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

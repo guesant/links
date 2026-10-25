@@ -1,0 +1,61 @@
+{{ $profile := .profile }}
+{{ $language := .language }}
+{{ $theme := .theme }}
+{{ $ui := .ui }}
+{{ $languages := .languages }}
+{{ $basePath := replaceRE "/$" "" site.Home.RelPermalink }}
+{{ if ne $language "en" }}
+  {{ $languageSuffix := printf "/%s$" $language }}
+  {{ $basePath = replaceRE $languageSuffix "" $basePath }}
+{{ end }}
+<header class="profile">
+  <div class="profile-avatar" aria-hidden="true">
+    {{ with $profile.avatar }}
+      {{ with resources.Get . }}
+        <img src="{{ .RelPermalink }}" alt="">
+      {{ else }}
+        <span>GA</span>
+      {{ end }}
+    {{ else }}
+      <span>GA</span>
+    {{ end }}
+  </div>
+  <p class="profile-name">{{ $profile.name }}</p>
+  {{ with $profile.username }}<p class="profile-username">@{{ . }}</p>{{ end }}
+  {{ with $profile.bio }}<p class="profile-bio">{{ . }}</p>{{ end }}
+  {{ with $profile.badges }}
+    <nav class="profile-badges" aria-label="{{ $ui.profile_badges_label }}">
+      {{ range . }}
+        {{ $alt := index .alt $language }}
+        {{ if not $alt }}{{ $alt = index .alt "en" }}{{ end }}
+        {{ $badgeSrc := .src }}
+        {{ if hasPrefix $badgeSrc "/" }}{{ $badgeSrc = $badgeSrc | relURL }}{{ end }}
+        <a class="profile-badge" href="{{ .href }}" target="_blank" rel="noopener noreferrer">
+          <img src="{{ $badgeSrc }}" alt="{{ $alt }}" width="{{ index . "width" }}" height="{{ index . "height" }}" loading="lazy" decoding="async" fetchpriority="low">
+        </a>
+      {{ end }}
+    </nav>
+  {{ end }}
+  <div class="site-controls">
+    <div class="toggle-control">
+      <span class="toggle-label" id="language-label">{{ $ui.language_aria_label }}</span>
+      <nav class="toggle-group toggle-group-language" aria-labelledby="language-label">
+        {{ range $languages }}
+          <a class="toggle-button{{ if eq $language .id }} toggle-button-active{{ end }}" href="{{ printf "%s%s" $basePath .path }}"{{ if eq $language .id }} aria-current="page"{{ end }}>{{ .label }}</a>
+        {{ end }}
+      </nav>
+    </div>
+    <fieldset class="toggle-control">
+      <legend class="toggle-label">{{ $ui.theme_label }}</legend>
+      <div class="toggle-group" role="group" aria-label="{{ $ui.theme_aria_label }}">
+        <input class="toggle-input" type="radio" name="theme" id="theme-system" value="system" data-theme-option{{ if eq $theme.appearance "system" }} checked{{ end }}>
+        <label class="toggle-button" for="theme-system">{{ $ui.theme_system }}</label>
+        <input class="toggle-input" type="radio" name="theme" id="theme-dark" value="dark" data-theme-option>
+        <label class="toggle-button" for="theme-dark">{{ $ui.theme_dark }}</label>
+        <input class="toggle-input" type="radio" name="theme" id="theme-light" value="light" data-theme-option>
+        <label class="toggle-button" for="theme-light">{{ $ui.theme_light }}</label>
+      </div>
+    </fieldset>
+  </div>
+  {{ with $ui.translation_disclaimer }}<p class="translation-disclaimer">{{ . }}</p>{{ end }}
+</header>

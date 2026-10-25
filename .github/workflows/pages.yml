@@ -28,7 +28,19 @@ jobs:
       - name: Build static site
         run: |
           mkdir -p public
-          docker create --name guesant-links-build guesant-links:ci --minify --cleanDestinationDir --baseURL https://guesant.github.io/links/ --destination /tmp/public
+          docker create \
+            --env HUGO_GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            --env HUGO_GITHUB_SERVER_URL="$GITHUB_SERVER_URL" \
+            --env HUGO_GITHUB_SHA="$GITHUB_SHA" \
+            --env HUGO_GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            --env HUGO_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --env HUGO_BUILD_DATE_LABEL="$(date -u '+%Y-%m-%d %H:%M UTC')" \
+            --name guesant-links-build \
+            guesant-links:ci \
+            --minify \
+            --cleanDestinationDir \
+            --baseURL https://guesant.github.io/links/ \
+            --destination /tmp/public
           trap 'docker rm --force guesant-links-build' EXIT
           docker start --attach guesant-links-build
           docker cp guesant-links-build:/tmp/public/. public/
@@ -87,9 +99,9 @@ jobs:
         run: |
           docker run --rm \
             --volume "$PWD/public:/work/public:ro" \
-            --volume "$PWD/.pa11yci.json:/work/.pa11yci.json:ro" \
+            --volume "$PWD/.config/pa11yci.json:/work/.pa11yci.json:ro" \
             guesant-links-quality:ci \
-            sh -c 'serve -l 4173 /work/public >/tmp/links-http.log 2>&1 & server_pid=$!; trap "kill $server_pid 2>/dev/null || true" EXIT; for attempt in $(seq 1 30); do if curl --fail --silent http://127.0.0.1:4173/ >/dev/null && curl --fail --silent http://127.0.0.1:4173/pt-br/ >/dev/null; then break; fi; sleep 1; done; curl --fail --silent http://127.0.0.1:4173/ >/dev/null; curl --fail --silent http://127.0.0.1:4173/pt-br/ >/dev/null; pa11y-ci --config=/work/.pa11yci.json'
+            sh -c 'serve -l 4173 /work/public >/tmp/links-http.log 2>&1 & server_pid=$!; trap "kill $server_pid 2>/dev/null || true" EXIT; for attempt in $(seq 1 30); do if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then break; fi; sleep 1; done; for path in / /pt-br/ /fr/ /es/ /it/ /zh/; do curl --fail --silent "http://127.0.0.1:4173$path" >/dev/null; done; pa11y-ci --config=/work/.pa11yci.json'
 
   lighthouse:
     runs-on: ubuntu-latest
@@ -104,12 +116,27 @@ jobs:
           path: public
       - name: Build quality image
         run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
+      - name: Build Hugo image
+        run: docker build --file .config/container/Dockerfile --target site --tag guesant-links-site:ci .
+      - name: Build Lighthouse site
+        run: |
+          mkdir -p lighthouse-public
+          docker run --rm \
+            --volume "$PWD/lighthouse-public:/tmp/lighthouse-public" \
+            guesant-links-site:ci \
+            --minify \
+            --cleanDestinationDir \
+            --baseURL http://localhost/ \
+            --destination /tmp/lighthouse-public
+          if [ -d lighthouse-public/pt-BR ] && [ ! -e lighthouse-public/pt-br ]; then
+            cp --recursive lighthouse-public/pt-BR lighthouse-public/pt-br
+          fi
       - name: Run Lighthouse CI
         run: |
           mkdir -p .lighthouseci
           docker run --rm \
-            --volume "$PWD/public:/work/public:ro" \
-            --volume "$PWD/.lighthouserc.json:/work/.lighthouserc.json:ro" \
+            --volume "$PWD/lighthouse-public:/work/lighthouse-public:ro" \
+            --volume "$PWD/.config/lighthouserc.json:/work/.lighthouserc.json:ro" \
             --volume "$PWD/.lighthouseci:/work/.lighthouseci" \
             guesant-links-quality:ci \
             lhci autorun --config=/work/.lighthouserc.json

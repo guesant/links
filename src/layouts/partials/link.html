@@ -4,6 +4,10 @@
 {{ if not $isExternal }}
   {{ $href = $href | relURL }}
 {{ end }}
+{{ $displayURL := .url }}
+{{ if hasPrefix $lowerURL "mailto:" }}
+  {{ $displayURL = replaceRE "(?i)^mailto:" "" .url }}
+{{ end }}
 {{ $target := .target | default "_blank" }}
 {{ $rel := "" }}
 {{ if eq $target "_blank" }}{{ $rel = "noopener noreferrer" }}{{ end }}
@@ -13,9 +17,16 @@
     <span class="link-title">{{ .title }}</span>
     <span class="link-url">
       <span class="link-url-icon">{{ partial "icon.html" "link" }}</span>
-      <span class="link-url-text">{{ .url }}</span>
+      <span class="link-url-text">{{ $displayURL }}</span>
     </span>
     {{ with .description }}<span class="link-description">{{ . }}</span>{{ end }}
   </span>
   {{ with .badge }}<span class="link-badge">{{ . }}</span>{{ end }}
+  {{ with .visual }}
+    {{ $visualSrc := .src }}
+    {{ if hasPrefix $visualSrc "/" }}{{ $visualSrc = $visualSrc | relURL }}{{ end }}
+    <span class="link-visual">
+      <img src="{{ $visualSrc }}" alt="{{ .alt }}" width="{{ index . "width" }}" height="{{ index . "height" }}" loading="lazy" decoding="async" fetchpriority="low">
+    </span>
+  {{ end }}
 </a>

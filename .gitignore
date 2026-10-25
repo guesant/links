@@ -1,5 +1,8 @@
 /public/
+/lighthouse-public/
 /resources/
+/src/resources/
 /.lighthouseci/
 .hugo_build.lock
+/src/.hugo_build.lock
 .DS_Store

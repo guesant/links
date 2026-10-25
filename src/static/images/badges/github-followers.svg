@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="20" role="img" aria-label="followers: 137">
+  <title>followers: 137</title>
+  <rect width="108" height="20" fill="#555" />
+  <rect x="60" width="48" height="20" fill="#007ec6" />
+  <g fill="#fff" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="11" text-anchor="middle">
+    <text x="30" y="14">followers</text>
+    <text x="84" y="14">137</text>
+  </g>
+</svg>
