@@ -30,6 +30,8 @@ jobs:
 
       - name: Generate user card
         uses: h1s97x/gh-readme-card@728289370d8bb82c07b83a142e91d6a493fc2e0e
+        env:
+          PAT_1: ${{ github.token }}
         with:
           card: user
           params: username=guesant&show_icons=true&theme=dark&hide_rank=true&include_all_commits=true&disable_animations=true
