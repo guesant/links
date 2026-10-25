@@ -21,7 +21,7 @@ locales:
       skip_link: Skip to content
       language_label: Português
       language_aria_label: Change language
-      language_href: /pt-BR/
+      language_href: /pt-br/
     presentation:
       eyebrow: About
       title: Software development, open-source work and infrastructure.
@@ -133,7 +133,7 @@ locales:
       bio: Desenvolvedor de software, colaborador open source e entusiasta de infraestrutura.
     ui:
       html_lang: pt-BR
-      canonical_path: /pt-BR/
+      canonical_path: /pt-br/
       skip_link: Ir para o conteúdo
       language_label: English
       language_aria_label: Alterar idioma

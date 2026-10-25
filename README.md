@@ -23,7 +23,7 @@ O endereço local será http://localhost:1313/.
 
 Edite somente data/links.yaml para alterar o conteúdo. O perfil compartilhado fica em profile, os textos por idioma ficam em locales.en e locales.pt-br, e a apresentação fica em presentation. As seções e os links são renderizados na ordem em que aparecem no YAML.
 
-A versão em inglês é publicada na raiz. A versão em português é publicada em /pt-BR/. O seletor de idioma usa links HTML comuns e funciona sem JavaScript.
+A versão em inglês é publicada na raiz. A versão em português é publicada em /pt-br/. O seletor de idioma usa links HTML comuns e funciona sem JavaScript.
 
 A apresentação usa dois blocos curtos, a introdução profissional e o foco atual. Ela aponta para o Blog, o Curriculum, o Atlas, os repositórios do GitHub e o canal @JipaCoding. O conteúdo detalhado continua em cada destino, sem duplicar o portfólio do blog nesta página.
 

@@ -19,7 +19,7 @@ disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap']
     locale = 'en'
     weight = 1
 
-  [languages.pt-BR]
+  [languages.pt-br]
     label = 'Português (Brasil)'
     locale = 'pt-BR'
     weight = 2
