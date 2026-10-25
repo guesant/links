@@ -36,7 +36,10 @@ jobs:
           HUGO_BASE_URL: ${{ steps.pages.outputs.base_url }}/
         run: |
           mkdir -p public
-          docker run --rm --volume "$PWD/public:/src/public" guesant-links:ci --minify --cleanDestinationDir --baseURL "$HUGO_BASE_URL"
+          docker create --name guesant-links-build guesant-links:ci --minify --cleanDestinationDir --baseURL "$HUGO_BASE_URL" --destination /tmp/public
+          trap 'docker rm --force guesant-links-build' EXIT
+          docker start --attach guesant-links-build
+          docker cp guesant-links-build:/tmp/public/. public/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
