@@ -78,6 +78,11 @@ jobs:
             --root-dir /input \
             --index-files index.html \
             --accept 200,206,301,302,403,999 \
+            --accept-timeouts \
+            --max-concurrency 16 \
+            --max-retries 1 \
+            --retry-wait-time 1 \
+            --timeout 20 \
             --exclude 'guesant.github.io/links' \
             --exclude '^(mailto:|tel:)' \
             /input/public
