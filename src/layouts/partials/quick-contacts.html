@@ -1,0 +1,35 @@
+{{ $sections := .sections }}
+{{ $contactIDs := .contactIDs }}
+{{ $language := .language }}
+{{ $label := .label }}
+<nav class="quick-contacts" aria-label="{{ $label }}">
+  {{ range $contactIDs }}
+    {{ $contactID := . }}
+    {{ range $sections }}
+      {{ $sectionPublic := true }}
+      {{ if isset . "public" }}{{ $sectionPublic = .public }}{{ end }}
+      {{ if $sectionPublic }}
+        {{ range .links }}
+          {{ $linkPublic := true }}
+          {{ if isset . "public" }}{{ $linkPublic = .public }}{{ end }}
+          {{ if and $linkPublic (eq .id $contactID) }}
+          {{ $labels := index .labels $language }}
+          {{ if not $labels }}{{ $labels = index .labels "en" }}{{ end }}
+          {{ $href := .url }}
+          {{ $lowerURL := lower $href }}
+          {{ if not (or (hasPrefix $lowerURL "http://") (hasPrefix $lowerURL "https://") (hasPrefix $lowerURL "mailto:") (hasPrefix $lowerURL "tel:")) }}
+            {{ $href = $href | relURL }}
+          {{ end }}
+          {{ $displayURL := .url }}
+          {{ if hasPrefix $lowerURL "mailto:" }}
+            {{ $displayURL = replaceRE "(?i)^mailto:" "" .url }}
+          {{ end }}
+          <a class="quick-contact-link" href="{{ $href }}" target="_blank" rel="noopener noreferrer" data-link-confirm data-link-title="{{ $labels.title }}" data-link-url="{{ $displayURL }}"{{ with $labels.description }} data-link-description="{{ . }}"{{ end }} title="{{ $labels.title }}" aria-label="{{ $labels.title }}">
+            <span class="quick-contact-icon">{{ partial "icon.html" (.icon | default "link") }}</span>
+          </a>
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+</nav>

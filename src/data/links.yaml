@@ -62,12 +62,12 @@ theme:
   background: default
 
 language_options:
-  - id: en
-    path: /
-    label: EN
   - id: pt-br
     path: /pt-br/
     label: PT-BR
+  - id: zh
+    path: /zh/
+    label: ZH
   - id: fr
     path: /fr/
     label: FR
@@ -77,9 +77,15 @@ language_options:
   - id: it
     path: /it/
     label: IT
-  - id: zh
-    path: /zh/
-    label: ZH
+  - id: en
+    path: /
+    label: EN
+
+quick_contacts:
+  - email
+  - linkedin
+  - github-repositories
+  - youtube
 
 audiences:
   - id: developers
@@ -142,6 +148,7 @@ audiences:
 sections:
   - id: start-here
     enabled: true
+    public: true
     labels:
       en:
         title: Start here
@@ -317,6 +324,7 @@ sections:
             badge: 视频
   - id: contact
     enabled: true
+    public: true
     labels:
       en:
         title: Contact
@@ -411,6 +419,7 @@ sections:
             description: 浏览托管在 GitLab 上的其他代码和实验项目。
   - id: personal
     enabled: true
+    public: false
     labels:
       en:
         title: Personal
@@ -649,6 +658,7 @@ sections:
             description: 查找我的 Minecraft 资料以及 Briel_Rodriguess 的用户名历史。
   - id: networks
     enabled: true
+    public: true
     labels:
       en:
         title: Networks
@@ -826,6 +836,7 @@ locales:
       canonical_path: /
       skip_link: Skip to content
       language_aria_label: Change language
+      quick_contacts_label: Main contact links
       profile_badges_label: Profile activity
       theme_aria_label: Theme
       theme_label: Theme
@@ -856,6 +867,7 @@ locales:
       canonical_path: /pt-br/
       skip_link: Ir para o conteúdo
       language_aria_label: Alterar idioma
+      quick_contacts_label: Principais formas de contato
       profile_badges_label: Atividade do perfil
       theme_aria_label: Tema
       theme_label: Tema
@@ -886,6 +898,7 @@ locales:
       canonical_path: /fr/
       skip_link: Aller au contenu
       language_aria_label: Changer de langue
+      quick_contacts_label: Principaux moyens de contact
       profile_badges_label: Activité du profil
       theme_aria_label: Thème
       theme_label: Thème
@@ -917,6 +930,7 @@ locales:
       canonical_path: /es/
       skip_link: Ir al contenido
       language_aria_label: Cambiar idioma
+      quick_contacts_label: Principales formas de contacto
       profile_badges_label: Actividad del perfil
       theme_aria_label: Tema
       theme_label: Tema
@@ -948,6 +962,7 @@ locales:
       canonical_path: /it/
       skip_link: Vai al contenuto
       language_aria_label: Cambia lingua
+      quick_contacts_label: Principali modi per contattarmi
       profile_badges_label: Attività del profilo
       theme_aria_label: Tema
       theme_label: Tema
@@ -979,6 +994,7 @@ locales:
       canonical_path: /zh/
       skip_link: 跳转到内容
       language_aria_label: 切换语言
+      quick_contacts_label: 主要联系方式
       profile_badges_label: 个人资料活动
       theme_aria_label: 主题
       theme_label: 主题

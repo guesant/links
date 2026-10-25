@@ -1,6 +1,8 @@
 {{ $section := .section }}
 {{ $language := .language }}
 {{ $audienceID := .audienceID }}
+{{ $renderedLinks := .renderedLinks }}
+{{ $renderedIDs := $renderedLinks.Get "ids" | default (slice) }}
 {{ $sectionLabels := index $section.labels $language }}
 {{ if not $sectionLabels }}{{ $sectionLabels = index $section.labels "en" }}{{ end }}
 {{ $sectionID := $section.id | default $sectionLabels.title | urlize }}
@@ -20,6 +22,10 @@
       {{ if isset . "enabled" }}
         {{ $enabled = .enabled }}
       {{ end }}
+      {{ $public := true }}
+      {{ if isset . "public" }}
+        {{ $public = .public }}
+      {{ end }}
       {{ $included := true }}
       {{ if $audienceID }}
         {{ $included = false }}
@@ -27,7 +33,8 @@
           {{ $included = in . $audienceID }}
         {{ end }}
       {{ end }}
-      {{ if and $enabled $included }}
+      {{ $linkID := .id | default .url }}
+      {{ if and $enabled $public $included (not (in $renderedIDs $linkID)) }}
         {{ $linkLabels := index .labels $language }}
         {{ if not $linkLabels }}{{ $linkLabels = index .labels "en" }}{{ end }}
         {{ $visual := .visual }}
@@ -46,6 +53,8 @@
           "target" .target
           "visual" $visual
         }}
+        {{ $renderedIDs = $renderedIDs | append $linkID }}
+        {{ $renderedLinks.Set "ids" $renderedIDs }}
         {{ partial "link.html" $link }}
       {{ end }}
     {{ end }}

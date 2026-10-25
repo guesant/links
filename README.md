@@ -31,11 +31,12 @@ O perfil também pode exibir badges declarados em profile.badges. Eles são rese
 
 Cada link precisa de url, de um título em cada idioma e de pelo menos um identificador em audiences. Os campos estruturais, como url, icon, audiences, enabled, featured e target, ficam fora de labels e são compartilhados pelos idiomas. O campo enabled é opcional e vale como true quando omitido. Use enabled: false para retirar uma seção ou um link do HTML gerado.
 
-A home é organizada primeiro por público e depois pelas seções originais. Um mesmo link pode receber vários públicos, como developers e recruiters, e aparecerá em cada bloco correspondente sem ser cadastrado mais de uma vez. Os públicos são agrupamentos editoriais públicos, não são perfis de acesso nem mecanismos de privacidade. O bloco family não transforma os links em conteúdo privado.
+A home é organizada primeiro por público e depois pelas seções originais. Um mesmo link pode receber vários públicos, como developers e recruiters, mas é renderizado uma única vez para evitar duplicação visual. Os públicos são agrupamentos editoriais, não são perfis de acesso. Use public: false em uma seção ou link para mantê-lo fora do HTML público. A seção personal permanece desativada por esse mecanismo, enquanto blog, currículo, Atlas, GitHub, YouTube, contatos profissionais e perfis acadêmicos continuam públicos.
 
 Campos disponíveis para links:
 
 - id, identificador editorial opcional;
+- public, exposição no HTML gerado, true por padrão;
 - labels, textos localizados com title obrigatório, description e badge opcionais;
 - url, endereço http, https, mailto, tel, caminho local ou âncora;
 - icon, nome de um ícone Font Awesome suportado pelo template;

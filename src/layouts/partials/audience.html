@@ -1,19 +1,26 @@
 {{ $audience := .audience }}
 {{ $sections := .sections }}
 {{ $language := .language }}
+{{ $renderedLinks := .renderedLinks }}
 {{ $audienceLabels := index $audience.labels $language }}
 {{ if not $audienceLabels }}{{ $audienceLabels = index $audience.labels "en" }}{{ end }}
 {{ $audienceID := $audience.id }}
+{{ $renderedIDs := $renderedLinks.Get "ids" | default (slice) }}
 {{ $audienceScratch := newScratch }}
 {{ $audienceScratch.Set "count" 0 }}
 {{ range $sections }}
   {{ $sectionEnabled := true }}
   {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
-  {{ if $sectionEnabled }}
+  {{ $sectionPublic := true }}
+  {{ if isset . "public" }}{{ $sectionPublic = .public }}{{ end }}
+  {{ if and $sectionEnabled $sectionPublic }}
     {{ range .links }}
       {{ $linkEnabled := true }}
       {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}
-      {{ if and $linkEnabled (in (.audiences | default (slice)) $audienceID) }}
+      {{ $linkPublic := true }}
+      {{ if isset . "public" }}{{ $linkPublic = .public }}{{ end }}
+      {{ $linkID := .id | default .url }}
+      {{ if and $linkEnabled $linkPublic (in (.audiences | default (slice)) $audienceID) (not (in $renderedIDs $linkID)) }}
         {{ $audienceScratch.Add "count" 1 }}
       {{ end }}
     {{ end }}
@@ -28,18 +35,24 @@
       {{ range $sections }}
         {{ $sectionEnabled := true }}
         {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
-        {{ if $sectionEnabled }}
+        {{ $sectionPublic := true }}
+        {{ if isset . "public" }}{{ $sectionPublic = .public }}{{ end }}
+        {{ if and $sectionEnabled $sectionPublic }}
           {{ $sectionScratch := newScratch }}
           {{ $sectionScratch.Set "count" 0 }}
           {{ range .links }}
             {{ $linkEnabled := true }}
             {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}
-            {{ if and $linkEnabled (in (.audiences | default (slice)) $audienceID) }}
+            {{ $linkPublic := true }}
+            {{ if isset . "public" }}{{ $linkPublic = .public }}{{ end }}
+            {{ $linkID := .id | default .url }}
+            {{ if and $linkEnabled $linkPublic (in (.audiences | default (slice)) $audienceID) (not (in $renderedIDs $linkID)) }}
               {{ $sectionScratch.Add "count" 1 }}
             {{ end }}
           {{ end }}
           {{ if gt ($sectionScratch.Get "count") 0 }}
-            {{ partial "section.html" (dict "section" . "language" $language "audienceID" $audienceID) }}
+            {{ partial "section.html" (dict "section" . "language" $language "audienceID" $audienceID "renderedLinks" $renderedLinks) }}
+            {{ $renderedIDs = $renderedLinks.Get "ids" | default (slice) }}
           {{ end }}
         {{ end }}
       {{ end }}

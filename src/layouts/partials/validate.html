@@ -11,6 +11,7 @@
 {{ if not .sections }}{{ errorf "links.yaml: at least one section is required" }}{{ end }}
 {{ if not .language }}{{ errorf "links.yaml: language is required" }}{{ end }}
 {{ if not .languages }}{{ errorf "links.yaml: language_options is required" }}{{ end }}
+{{ if not .quickContacts }}{{ errorf "links.yaml: quick_contacts is required" }}{{ end }}
 {{ $allowedProtocols := slice "http://" "https://" "mailto:" "tel:" }}
 {{ with .profile.badges }}
   {{ range . }}
@@ -34,6 +35,19 @@
   {{ $languageIDs = $languageIDs | append .id }}
   {{ if not .path }}{{ errorf "links.yaml: language %q needs a path" .id }}{{ end }}
   {{ if not .label }}{{ errorf "links.yaml: language %q needs a label" .id }}{{ end }}
+{{ end }}
+{{ $quickContactIDs := slice }}
+{{ range .quickContacts }}
+  {{ $quickContactID := . }}
+  {{ if in $quickContactIDs $quickContactID }}{{ errorf "links.yaml: quick contact %q is duplicated" $quickContactID }}{{ end }}
+  {{ $quickContactIDs = $quickContactIDs | append $quickContactID }}
+  {{ $quickContactFound := false }}
+  {{ range $.sections }}
+    {{ range .links }}
+      {{ if eq .id $quickContactID }}{{ $quickContactFound = true }}{{ end }}
+    {{ end }}
+  {{ end }}
+  {{ if not $quickContactFound }}{{ errorf "links.yaml: quick contact %q does not reference a known link" $quickContactID }}{{ end }}
 {{ end }}
 {{ range .audiences }}
   {{ $audience := . }}
