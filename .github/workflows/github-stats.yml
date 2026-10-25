@@ -28,15 +28,19 @@ jobs:
       - name: Prepare generated assets
         run: mkdir --parents src/static/images/cards src/static/images/badges
 
+      - name: Build stats image
+        run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
+
       - name: Generate user card
-        uses: h1s97x/gh-readme-card@728289370d8bb82c07b83a142e91d6a493fc2e0e
         env:
           PAT_1: ${{ github.token }}
-        with:
-          card: user
-          params: username=guesant&show_icons=true&theme=dark&hide_rank=true&include_all_commits=true&disable_animations=true
-          path: src/static/images/cards/github-stats.svg
-          token: ${{ github.token }}
+        run: |
+          docker run --rm \
+            --env PAT_1="$PAT_1" \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            guesant-links-quality:ci \
+            sh -c 'set -eu; card_dir="$(mktemp -d)"; trap "rm --recursive --force \"$card_dir\"" EXIT; curl --fail --silent --show-error --location https://github.com/h1s97x/gh-readme-card/archive/728289370d8bb82c07b83a142e91d6a493fc2e0e.tar.gz | tar --extract --gzip --strip-components=1 --directory "$card_dir"; cd "$card_dir"; npm ci --omit=dev --ignore-scripts; INPUT_CARD=user INPUT_PARAMS="username=guesant&show_icons=true&theme=dark&hide_rank=true&include_all_commits=true&disable_animations=true" INPUT_PATH=/work/src/static/images/cards/github-stats.svg node src/cli.ts'
 
       - name: Refresh Shields
         run: |
