@@ -217,6 +217,17 @@ sections:
           pt-br:
             title: Xbox
             description: Encontre o perfil do Xbox associado à gamertag C Ch5331.
+      - id: minecraft
+        url: https://namemc.com/profile/Briel_Rodriguess
+        icon: minecraft
+        enabled: true
+        labels:
+          en:
+            title: Minecraft
+            description: Find my Minecraft profile and username history under Briel_Rodriguess.
+          pt-br:
+            title: Minecraft
+            description: Encontre meu perfil e histórico de nomes no Minecraft como Briel_Rodriguess.
   - id: networks
     enabled: true
     labels:
