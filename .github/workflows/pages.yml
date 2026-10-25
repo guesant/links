@@ -191,7 +191,7 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            await github.rest.repos.updatePagesSite({
+            await github.rest.repos.updateInformationAboutPagesSite({
               owner: context.repo.owner,
               repo: context.repo.repo,
               cname: "guesant.net"
