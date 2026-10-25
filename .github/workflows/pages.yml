@@ -187,6 +187,15 @@ jobs:
         uses: actions/configure-pages@v6
         with:
           enablement: true
+      - name: Configure custom domain
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.repos.updatePagesSite({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              cname: "guesant.net"
+            })
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
