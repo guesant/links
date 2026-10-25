@@ -1,0 +1,8 @@
+Copyright 2012 The Press Start 2P Project Authors
+
+This font is licensed under the SIL Open Font License, Version 1.1.
+The complete license is available at:
+https://scripts.sil.org/OFL
+
+The font source is available at:
+https://github.com/google/fonts/tree/main/ofl/pressstart2p

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    {{ partial "head.html" . }}
+  </head>
+  <body class="theme-{{ hugo.Data.links.theme.preset }} appearance-{{ hugo.Data.links.theme.appearance }} background-{{ hugo.Data.links.theme.background }}">
+    <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+    {{ block "main" . }}{{ end }}
+    {{ partial "footer.html" . }}
+  </body>
+</html>

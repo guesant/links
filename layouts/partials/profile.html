@@ -1,0 +1,16 @@
+<header class="profile">
+  <div class="profile-avatar" aria-hidden="true">
+    {{ with .avatar }}
+      {{ with resources.Get . }}
+        <img src="{{ .RelPermalink }}" alt="">
+      {{ else }}
+        <span>GA</span>
+      {{ end }}
+    {{ else }}
+      <span>GA</span>
+    {{ end }}
+  </div>
+  <p class="profile-name">{{ .name }}</p>
+  {{ with .username }}<p class="profile-username">@{{ . }}</p>{{ end }}
+  {{ with .bio }}<p class="profile-bio">{{ . }}</p>{{ end }}
+</header>

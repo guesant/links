@@ -1,0 +1,31 @@
+{{ if not .profile }}{{ errorf "links.yaml: profile is required" }}{{ end }}
+{{ if not .profile.name }}{{ errorf "links.yaml: profile.name is required" }}{{ end }}
+{{ if not .seo }}{{ errorf "links.yaml: seo is required" }}{{ end }}
+{{ if not .seo.title }}{{ errorf "links.yaml: seo.title is required" }}{{ end }}
+{{ if not .seo.description }}{{ errorf "links.yaml: seo.description is required" }}{{ end }}
+{{ if not .sections }}{{ errorf "links.yaml: at least one section is required" }}{{ end }}
+{{ $allowedProtocols := slice "http://" "https://" "mailto:" "tel:" }}
+{{ range .sections }}
+  {{ $sectionEnabled := true }}
+  {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
+  {{ if $sectionEnabled }}
+    {{ if not .title }}{{ errorf "links.yaml: every section needs a title" }}{{ end }}
+    {{ if not .links }}{{ errorf "links.yaml: section %q needs links" .title }}{{ end }}
+    {{ range .links }}
+      {{ $linkEnabled := true }}
+      {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}
+      {{ if $linkEnabled }}
+        {{ if not .title }}{{ errorf "links.yaml: every enabled link needs a title" }}{{ end }}
+        {{ if not .url }}{{ errorf "links.yaml: link %q needs a URL" .title }}{{ end }}
+        {{ $url := lower (trim .url " ") }}
+        {{ $safeProtocol := false }}
+        {{ range $allowedProtocols }}
+          {{ if hasPrefix $url . }}{{ $safeProtocol = true }}{{ end }}
+        {{ end }}
+        {{ $safePath := or (hasPrefix $url "/") (hasPrefix $url "#") }}
+        {{ if not (or $safeProtocol $safePath) }}{{ errorf "links.yaml: link %q uses an unsupported URL protocol" .title }}{{ end }}
+        {{ if and (isset . "target") (not (or (eq .target "_self") (eq .target "_blank"))) }}{{ errorf "links.yaml: link %q has an invalid target" .title }}{{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}

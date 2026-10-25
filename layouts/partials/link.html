@@ -1,0 +1,17 @@
+{{ $href := .url }}
+{{ $lowerURL := lower $href }}
+{{ $isExternal := or (hasPrefix $lowerURL "http://") (hasPrefix $lowerURL "https://") (hasPrefix $lowerURL "mailto:") (hasPrefix $lowerURL "tel:") }}
+{{ if not $isExternal }}
+  {{ $href = $href | relURL }}
+{{ end }}
+{{ $target := .target | default "_self" }}
+{{ $rel := "" }}
+{{ if eq $target "_blank" }}{{ $rel = "noopener noreferrer" }}{{ end }}
+<a class="link-button{{ if .featured }} link-button-featured{{ end }}" href="{{ $href }}" target="{{ $target }}"{{ with $rel }} rel="{{ . }}"{{ end }}>
+  <span class="link-icon">{{ partial "icon.html" (.icon | default "link") }}</span>
+  <span class="link-copy">
+    <span class="link-title">{{ .title }}</span>
+    {{ with .description }}<span class="link-description">{{ . }}</span>{{ end }}
+  </span>
+  {{ with .badge }}<span class="link-badge">{{ . }}</span>{{ end }}
+</a>

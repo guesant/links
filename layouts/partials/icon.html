@@ -1,0 +1,4 @@
+{{ $name := lower (. | default "link") }}
+{{ $icons := slice "academic" "code" "document" "education" "email" "github" "gitlab" "link" "linkedin" "website" "youtube" }}
+{{ if not (in $icons $name) }}{{ $name = "link" }}{{ end }}
+<img src="{{ printf "icons/%s.svg" $name | relURL }}" alt="" aria-hidden="true" width="24" height="24">

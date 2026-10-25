@@ -1,0 +1,21 @@
+{{ $config := hugo.Data.links }}
+{{ $seoTitle := $config.seo.title | default site.Title }}
+{{ $seoDescription := $config.seo.description | default site.Params.description }}
+{{ $resetCSS := resources.Get "css/reset.css" | minify | fingerprint }}
+{{ $mainCSS := resources.Get "css/main.css" | minify | fingerprint }}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{ $seoDescription }}">
+<meta name="theme-color" content="#111111">
+<link rel="canonical" href="{{ site.Home.Permalink }}">
+<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ $resetCSS.RelPermalink }}">
+<link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
+<title>{{ $seoTitle }}</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ $seoTitle }}">
+<meta property="og:description" content="{{ $seoDescription }}">
+<meta property="og:url" content="{{ site.Home.Permalink }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ $seoTitle }}">
+<meta name="twitter:description" content="{{ $seoDescription }}">

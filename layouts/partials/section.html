@@ -1,0 +1,18 @@
+{{ $sectionID := .id | default .title | urlize }}
+<section class="link-section" id="{{ $sectionID }}">
+  <header class="section-heading">
+    <h2>{{ .title }}</h2>
+    {{ with .description }}<p>{{ . }}</p>{{ end }}
+  </header>
+  <div class="link-list">
+    {{ range .links }}
+      {{ $enabled := true }}
+      {{ if isset . "enabled" }}
+        {{ $enabled = .enabled }}
+      {{ end }}
+      {{ if $enabled }}
+        {{ partial "link.html" . }}
+      {{ end }}
+    {{ end }}
+  </div>
+</section>

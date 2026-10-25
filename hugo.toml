@@ -1,0 +1,12 @@
+baseURL = 'https://guesant.net/'
+defaultContentLanguage = 'pt-br'
+title = 'Gabriel R. Antunes | Links'
+enableRobotsTXT = true
+disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap']
+
+[params]
+  description = 'Perfis, projetos e links de Gabriel R. Antunes.'
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = false
