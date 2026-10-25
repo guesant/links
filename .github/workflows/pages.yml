@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -24,34 +23,119 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: Configure Pages
-        id: pages
-        uses: actions/configure-pages@v6
-        with:
-          enablement: true
       - name: Build Hugo image
         run: docker build --tag guesant-links:ci .
       - name: Build static site
-        env:
-          HUGO_BASE_URL: ${{ steps.pages.outputs.base_url }}/
         run: |
           mkdir -p public
-          docker create --name guesant-links-build guesant-links:ci --minify --cleanDestinationDir --baseURL "$HUGO_BASE_URL" --destination /tmp/public
+          docker create --name guesant-links-build guesant-links:ci --minify --cleanDestinationDir --baseURL https://guesant.github.io/links/ --destination /tmp/public
           trap 'docker rm --force guesant-links-build' EXIT
           docker start --attach guesant-links-build
           docker cp guesant-links-build:/tmp/public/. public/
-      - name: Upload artifact
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-public
+          path: public
+          if-no-files-found: error
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: public
 
+  dead-links:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download site artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: site-public
+          path: public
+      - name: Check links
+        run: |
+          docker run --rm \
+            --volume "$PWD/public:/input/public:ro" \
+            --volume "$PWD/public:/input/links:ro" \
+            lycheeverse/lychee:0.24.2 \
+            --verbose \
+            --no-progress \
+            --root-dir /input \
+            --accept 200,206,301,302,403,999 \
+            --exclude 'https://guesant\.github\.io/links' \
+            --exclude '^(mailto:|tel:)' \
+            /input/public
+
+  accessibility:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Download site artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: site-public
+          path: public
+      - name: Build quality image
+        run: docker build --target quality --tag guesant-links-quality:ci .
+      - name: Check ARIA and accessibility
+        run: |
+          docker run --rm \
+            --volume "$PWD/public:/work/public:ro" \
+            --volume "$PWD/.pa11yci.json:/work/.pa11yci.json:ro" \
+            guesant-links-quality:ci \
+            sh -c 'serve -l 4173 /work/public >/tmp/links-http.log 2>&1 & server_pid=$!; trap "kill $server_pid 2>/dev/null || true" EXIT; for attempt in $(seq 1 30); do if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then break; fi; sleep 1; done; curl --fail --silent http://127.0.0.1:4173/ >/dev/null; pa11y-ci --config=/work/.pa11yci.json'
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Download site artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: site-public
+          path: public
+      - name: Build quality image
+        run: docker build --target quality --tag guesant-links-quality:ci .
+      - name: Run Lighthouse CI
+        run: |
+          mkdir -p .lighthouseci
+          docker run --rm \
+            --volume "$PWD/public:/work/public:ro" \
+            --volume "$PWD/.lighthouserc.json:/work/.lighthouserc.json:ro" \
+            --volume "$PWD/.lighthouseci:/work/.lighthouseci" \
+            guesant-links-quality:ci \
+            lhci autorun --config=/work/.lighthouserc.json
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          if-no-files-found: ignore
+
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - build
+      - dead-links
+      - accessibility
+      - lighthouse
+    permissions:
+      pages: write
+      id-token: write
     steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+        with:
+          enablement: true
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

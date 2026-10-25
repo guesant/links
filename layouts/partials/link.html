@@ -7,7 +7,7 @@
 {{ $target := .target | default "_blank" }}
 {{ $rel := "" }}
 {{ if eq $target "_blank" }}{{ $rel = "noopener noreferrer" }}{{ end }}
-<a class="link-button{{ if .featured }} link-button-featured{{ end }}" href="{{ $href }}" target="{{ $target }}"{{ with $rel }} rel="{{ . }}"{{ end }}>
+<a class="link-button{{ if .featured }} link-button-featured{{ end }}" href="{{ $href }}" target="{{ $target }}" data-link-confirm data-link-title="{{ .title }}"{{ with $rel }} rel="{{ . }}"{{ end }}>
   <span class="link-icon">{{ partial "icon.html" (.icon | default "link") }}</span>
   <span class="link-copy">
     <span class="link-title">{{ .title }}</span>

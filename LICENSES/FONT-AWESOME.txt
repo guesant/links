@@ -1,9 +1,10 @@
-Font Awesome Free assets
+Font Awesome Free
 
-The local icon SVGs in static/icons are from Font Awesome Free.
-The icons are available under the Creative Commons Attribution 4.0
-International license. The Font Awesome project is available at:
+Font Awesome Free 6.7.2 is loaded from cdnjs at runtime. The icon
+font and CSS assets are available under the licenses published by the
+Font Awesome project:
+
 https://fontawesome.com/
 
-This project uses the icons as copied, local build assets. No request to a
-third-party icon service is made at runtime.
+The Font Awesome Free package is distributed under CC BY 4.0 for icons,
+SIL OFL 1.1 for fonts, and MIT for code.

@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="pt-BR">
+{{ $data := hugo.Data.links }}
+{{ $localized := index $data.locales (lower .Site.Language.Lang) }}
+<html lang="{{ $localized.ui.html_lang }}">
   <head>
     {{ partial "head.html" . }}
   </head>
   <body class="theme-{{ hugo.Data.links.theme.preset }} appearance-{{ hugo.Data.links.theme.appearance }} background-{{ hugo.Data.links.theme.background }}">
-    <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+    <a class="skip-link" href="#main-content">{{ $localized.ui.skip_link }}</a>
     {{ block "main" . }}{{ end }}
     {{ partial "footer.html" . }}
   </body>

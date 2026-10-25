@@ -1,5 +1,7 @@
 baseURL = 'https://guesant.github.io/links/'
-defaultContentLanguage = 'pt-br'
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false
+disablePathToLower = true
 title = 'Gabriel R. Antunes | Links'
 enableRobotsTXT = true
 disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap']
@@ -10,3 +12,14 @@ disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap']
 [markup]
   [markup.goldmark.renderer]
     unsafe = false
+
+[languages]
+  [languages.en]
+    label = 'English'
+    locale = 'en'
+    weight = 1
+
+  [languages.pt-BR]
+    label = 'Português (Brasil)'
+    locale = 'pt-BR'
+    weight = 2

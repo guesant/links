@@ -1,0 +1,17 @@
+{
+  "defaults": {
+    "concurrency": 1,
+    "runners": ["axe", "htmlcs"],
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "threshold": 0,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"],
+      "executablePath": "/usr/bin/chromium"
+    }
+  },
+  "urls": [
+    "http://127.0.0.1:4173/",
+    "http://127.0.0.1:4173/pt-BR/"
+  ]
+}

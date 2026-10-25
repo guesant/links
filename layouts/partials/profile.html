@@ -1,6 +1,7 @@
+{{ $profile := .profile }}
 <header class="profile">
   <div class="profile-avatar" aria-hidden="true">
-    {{ with .avatar }}
+    {{ with $profile.avatar }}
       {{ with resources.Get . }}
         <img src="{{ .RelPermalink }}" alt="">
       {{ else }}
@@ -10,7 +11,14 @@
       <span>GA</span>
     {{ end }}
   </div>
-  <p class="profile-name">{{ .name }}</p>
-  {{ with .username }}<p class="profile-username">@{{ . }}</p>{{ end }}
-  {{ with .bio }}<p class="profile-bio">{{ . }}</p>{{ end }}
+  <p class="profile-name">{{ $profile.name }}</p>
+  {{ with $profile.username }}<p class="profile-username">@{{ . }}</p>{{ end }}
+  {{ with $profile.bio }}<p class="profile-bio">{{ . }}</p>{{ end }}
+  {{ $basePath := replaceRE "/$" "" site.Home.RelPermalink }}
+  {{ if eq (lower site.Language.Lang) "pt-br" }}
+    {{ $basePath = replaceRE "/pt-br$" "" $basePath }}
+  {{ end }}
+  <nav class="language-switcher" aria-label="{{ .languageAriaLabel }}">
+    <a href="{{ printf "%s%s" $basePath .languageHref }}">{{ .languageLabel }}</a>
+  </nav>
 </header>

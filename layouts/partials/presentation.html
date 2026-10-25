@@ -1,0 +1,16 @@
+<section class="presentation" aria-labelledby="presentation-title">
+  {{ with .eyebrow }}<p class="presentation-eyebrow">{{ . }}</p>{{ end }}
+  <h2 class="presentation-title" id="presentation-title">{{ .title }}</h2>
+  <p class="presentation-intro">{{ .intro }}</p>
+  <div class="presentation-focus">
+    {{ range .focus }}
+      <article class="presentation-focus-item">
+        <span class="presentation-focus-marker" aria-hidden="true"></span>
+        <div class="presentation-focus-copy">
+          <h3>{{ .title }}</h3>
+          <p>{{ .description }}</p>
+        </div>
+      </article>
+    {{ end }}
+  </div>
+</section>

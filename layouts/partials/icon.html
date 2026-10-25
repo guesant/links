@@ -1,4 +1,16 @@
 {{ $name := lower (. | default "link") }}
-{{ $icons := slice "academic" "code" "document" "education" "email" "github" "gitlab" "link" "linkedin" "website" "youtube" }}
-{{ if not (in $icons $name) }}{{ $name = "link" }}{{ end }}
-<img src="{{ printf "icons/%s.svg" $name | relURL }}" alt="" aria-hidden="true" width="24" height="24">
+{{ $icons := dict
+  "academic" "fa-solid fa-graduation-cap"
+  "code" "fa-solid fa-code"
+  "document" "fa-solid fa-file-lines"
+  "education" "fa-solid fa-graduation-cap"
+  "email" "fa-solid fa-envelope"
+  "github" "fa-brands fa-github"
+  "gitlab" "fa-brands fa-gitlab"
+  "link" "fa-solid fa-link"
+  "linkedin" "fa-brands fa-linkedin"
+  "website" "fa-solid fa-globe"
+  "youtube" "fa-brands fa-youtube"
+}}
+{{ $classes := index $icons $name | default (index $icons "link") }}
+<span class="link-icon-symbol {{ $classes }}" aria-hidden="true"></span>

@@ -3,6 +3,10 @@
 {{ if not .seo }}{{ errorf "links.yaml: seo is required" }}{{ end }}
 {{ if not .seo.title }}{{ errorf "links.yaml: seo.title is required" }}{{ end }}
 {{ if not .seo.description }}{{ errorf "links.yaml: seo.description is required" }}{{ end }}
+{{ if not .presentation }}{{ errorf "links.yaml: presentation is required" }}{{ end }}
+{{ if not .presentation.title }}{{ errorf "links.yaml: presentation.title is required" }}{{ end }}
+{{ if not .presentation.intro }}{{ errorf "links.yaml: presentation.intro is required" }}{{ end }}
+{{ if not .presentation.focus }}{{ errorf "links.yaml: presentation.focus needs items" }}{{ end }}
 {{ if not .sections }}{{ errorf "links.yaml: at least one section is required" }}{{ end }}
 {{ $allowedProtocols := slice "http://" "https://" "mailto:" "tel:" }}
 {{ range .sections }}

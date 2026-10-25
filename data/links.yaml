@@ -1,116 +1,243 @@
 profile:
   name: Gabriel R. Antunes
   username: guesant
-  bio: Software developer, open-source contributor and infrastructure enthusiast.
   avatar: ""
-
-seo:
-  title: Gabriel R. Antunes | Links
-  description: Perfis, projetos e links de Gabriel R. Antunes.
 
 theme:
   preset: minecraft
   appearance: dark
   background: default
 
-sections:
-  - id: contact
-    title: Contact
-    description: Ways to reach me and follow my work.
-    enabled: true
-    links:
-      - id: email
-        title: Email
-        description: gabrielrodantunes@gmail.com
-        url: mailto:gabrielrodantunes@gmail.com
-        icon: email
+locales:
+  en:
+    seo:
+      title: Gabriel R. Antunes | Links
+      description: Software development, open-source work and infrastructure by Gabriel R. Antunes.
+    profile:
+      bio: Software developer, open-source contributor and infrastructure enthusiast.
+    ui:
+      html_lang: en
+      canonical_path: /
+      skip_link: Skip to content
+      language_label: Português
+      language_aria_label: Change language
+      language_href: /pt-BR/
+    presentation:
+      eyebrow: About
+      title: Software development, open-source work and infrastructure.
+      intro: I work with web applications, integrations, public-sector software in production, open-source projects and internal systems.
+      focus:
+        - title: Current focus
+          description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
+        - title: Where this work lives
+          description: Technical writing, a declarative curriculum, a curated reference catalog and experiments published through JipaCoding.
+    sections:
+      - id: start-here
+        title: Start here
+        description: The main places to find my work and its context.
         enabled: true
-      - id: linkedin
-        title: LinkedIn
-        description: in/gabrielrodantunes
-        url: https://www.linkedin.com/in/gabrielrodantunes/
-        icon: linkedin
+        links:
+          - id: blog
+            title: Blog
+            description: guesant.net, technical writing and projects
+            url: https://guesant.net
+            icon: website
+            featured: true
+            badge: Writing
+            enabled: true
+          - id: curriculum
+            title: Curriculum
+            description: curriculum.guesant.net, PDF and HTML curriculum
+            url: https://curriculum.guesant.net
+            icon: document
+            featured: true
+            badge: Profile
+            enabled: true
+          - id: atlas
+            title: Atlas
+            description: atlas.guesant.net, personal link catalog
+            url: https://atlas.guesant.net
+            icon: link
+            featured: true
+            badge: References
+            enabled: true
+          - id: github-repositories
+            title: GitHub repositories
+            description: github.com/guesant?tab=repositories, open-source code and projects
+            url: https://github.com/guesant?tab=repositories
+            icon: github
+            badge: Open Source
+            enabled: true
+          - id: youtube
+            title: '@JipaCoding'
+            description: Experiments, infrastructure, algorithms and tutorials
+            url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
+            icon: youtube
+            badge: Video
+            enabled: true
+      - id: contact
+        title: Contact
+        description: Ways to reach me and follow my work.
         enabled: true
-      - id: github
-        title: GitHub
-        description: github.com/guesant
-        url: https://github.com/guesant
-        icon: github
+        links:
+          - id: email
+            title: gabrielrodantunes@gmail.com
+            url: mailto:gabrielrodantunes@gmail.com
+            icon: email
+            enabled: true
+          - id: linkedin
+            title: in/gabrielrodantunes
+            url: https://www.linkedin.com/in/gabrielrodantunes/
+            icon: linkedin
+            enabled: true
+          - id: gitlab
+            title: guesant
+            description: gitlab.com/guesant, additional code and experiments
+            url: https://gitlab.com/guesant
+            icon: gitlab
+            enabled: true
+      - id: networks
+        title: Networks
+        description: Academic profiles, learning platforms and practice.
         enabled: true
-      - id: gitlab
-        title: GitLab
-        description: gitlab.com/guesant
-        url: https://gitlab.com/guesant
-        icon: gitlab
+        links:
+          - id: lattes
+            title: Lattes
+            description: lattes.cnpq.br/5981427817317311
+            url: http://lattes.cnpq.br/5981427817317311
+            icon: academic
+            enabled: true
+          - id: orcid
+            title: ORCID
+            description: 0009-0009-0221-943X
+            url: https://orcid.org/0009-0009-0221-943X
+            icon: academic
+            enabled: true
+          - id: leetcode
+            title: LeetCode
+            description: leetcode.com/u/guesant/
+            url: https://leetcode.com/u/guesant/
+            icon: code
+            enabled: true
+          - id: hyperskill
+            title: Hyperskill
+            description: hyperskill.org/my-learning/621241218
+            url: https://hyperskill.org/my-learning/621241218
+            icon: education
+            enabled: true
+  pt-br:
+    seo:
+      title: Gabriel R. Antunes | Links
+      description: Desenvolvimento de software, open source e infraestrutura por Gabriel R. Antunes.
+    profile:
+      bio: Desenvolvedor de software, colaborador open source e entusiasta de infraestrutura.
+    ui:
+      html_lang: pt-BR
+      canonical_path: /pt-BR/
+      skip_link: Ir para o conteúdo
+      language_label: English
+      language_aria_label: Alterar idioma
+      language_href: /
+    presentation:
+      eyebrow: Sobre
+      title: Desenvolvimento de software, open source e infraestrutura.
+      intro: Trabalho com aplicações web, integrações, software do setor público em produção, projetos open source e sistemas internos.
+      focus:
+        - title: Foco atual
+          description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
+        - title: Onde esse trabalho está
+          description: Escritos técnicos, um currículo declarativo, um catálogo curado de referências e experimentos publicados pela JipaCoding.
+    sections:
+      - id: start-here
+        title: Comece por aqui
+        description: Os principais lugares para conhecer meu trabalho e seu contexto.
         enabled: true
-
-  - id: sites
-    title: Sites
-    description: Public projects and maintained spaces.
-    enabled: true
-    links:
-      - id: blog
-        title: Blog
-        description: blog.guesant.net, technical writing and projects
-        url: https://blog.guesant.net
-        icon: website
-        featured: true
-        badge: Blog
+        links:
+          - id: blog
+            title: Blog
+            description: guesant.net, escritos técnicos e projetos
+            url: https://guesant.net
+            icon: website
+            featured: true
+            badge: Escritos
+            enabled: true
+          - id: curriculum
+            title: Currículo
+            description: curriculum.guesant.net, currículo em PDF e HTML
+            url: https://curriculum.guesant.net
+            icon: document
+            featured: true
+            badge: Perfil
+            enabled: true
+          - id: atlas
+            title: Atlas
+            description: atlas.guesant.net, catálogo pessoal de referências
+            url: https://atlas.guesant.net
+            icon: link
+            featured: true
+            badge: Referências
+            enabled: true
+          - id: github-repositories
+            title: Repositórios no GitHub
+            description: github.com/guesant?tab=repositories, código e projetos open source
+            url: https://github.com/guesant?tab=repositories
+            icon: github
+            badge: Open Source
+            enabled: true
+          - id: youtube
+            title: '@JipaCoding'
+            description: Experimentos, infraestrutura, algoritmos e tutoriais
+            url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
+            icon: youtube
+            badge: Vídeos
+            enabled: true
+      - id: contact
+        title: Contato
+        description: Formas de falar comigo e acompanhar meu trabalho.
         enabled: true
-      - id: atlas
-        title: Atlas
-        description: atlas.guesant.net, personal link catalog
-        url: https://atlas.guesant.net
-        icon: link
-        featured: true
-        badge: Link catalog
+        links:
+          - id: email
+            title: gabrielrodantunes@gmail.com
+            url: mailto:gabrielrodantunes@gmail.com
+            icon: email
+            enabled: true
+          - id: linkedin
+            title: in/gabrielrodantunes
+            url: https://www.linkedin.com/in/gabrielrodantunes/
+            icon: linkedin
+            enabled: true
+          - id: gitlab
+            title: guesant
+            description: gitlab.com/guesant, código e experimentos adicionais
+            url: https://gitlab.com/guesant
+            icon: gitlab
+            enabled: true
+      - id: networks
+        title: Redes
+        description: Perfis acadêmicos, plataformas de estudo e prática.
         enabled: true
-      - id: curriculum
-        title: Curriculum
-        description: curriculum.guesant.net, PDF and HTML curriculum
-        url: https://curriculum.guesant.net
-        icon: document
-        enabled: true
-      - id: github-repositories
-        title: GitHub repositories
-        description: github.com/guesant?tab=repositories
-        url: https://github.com/guesant?tab=repositories
-        icon: github
-        badge: Open Source
-        enabled: true
-
-  - id: networks
-    title: Networks
-    description: Profiles, publications and learning platforms.
-    enabled: true
-    links:
-      - id: lattes
-        title: Lattes
-        description: lattes.cnpq.br/5981427817317311
-        url: http://lattes.cnpq.br/5981427817317311
-        icon: academic
-        enabled: true
-      - id: orcid
-        title: ORCID
-        description: 0009-0009-0221-943X
-        url: https://orcid.org/0009-0009-0221-943X
-        icon: academic
-        enabled: true
-      - id: youtube
-        title: YouTube
-        description: channel/UClhOZhND0Rr0BHWDhXo1KrA
-        url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
-        icon: youtube
-        enabled: true
-      - id: leetcode
-        title: LeetCode
-        description: leetcode.com/u/guesant/
-        url: https://leetcode.com/u/guesant/
-        icon: code
-        enabled: true
-      - id: hyperskill
-        title: Hyperskill
-        description: hyperskill.org/my-learning/621241218
-        url: https://hyperskill.org/my-learning/621241218
-        icon: education
-        enabled: true
+        links:
+          - id: lattes
+            title: Lattes
+            description: lattes.cnpq.br/5981427817317311
+            url: http://lattes.cnpq.br/5981427817317311
+            icon: academic
+            enabled: true
+          - id: orcid
+            title: ORCID
+            description: 0009-0009-0221-943X
+            url: https://orcid.org/0009-0009-0221-943X
+            icon: academic
+            enabled: true
+          - id: leetcode
+            title: LeetCode
+            description: leetcode.com/u/guesant/
+            url: https://leetcode.com/u/guesant/
+            icon: code
+            enabled: true
+          - id: hyperskill
+            title: Hyperskill
+            description: hyperskill.org/my-learning/621241218
+            url: https://hyperskill.org/my-learning/621241218
+            icon: education
+            enabled: true
