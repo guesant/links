@@ -121,13 +121,16 @@ jobs:
       - name: Build Lighthouse site
         run: |
           mkdir -p lighthouse-public
-          docker run --rm \
-            --volume "$PWD/lighthouse-public:/tmp/lighthouse-public" \
+          docker create \
+            --name guesant-links-lighthouse \
             guesant-links-site:ci \
             --minify \
             --cleanDestinationDir \
             --baseURL http://localhost/ \
             --destination /tmp/lighthouse-public
+          trap 'docker rm --force guesant-links-lighthouse >/dev/null 2>&1 || true' EXIT
+          docker start --attach guesant-links-lighthouse
+          docker cp guesant-links-lighthouse:/tmp/lighthouse-public/. lighthouse-public/
           if [ -d lighthouse-public/pt-BR ] && [ ! -e lighthouse-public/pt-br ]; then
             cp --recursive lighthouse-public/pt-BR lighthouse-public/pt-br
           fi
