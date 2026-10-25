@@ -1,0 +1,237 @@
+licenses:
+  apache-2.0:
+    name: Apache License 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+    text: |-
+      Apache License
+      Version 2.0, January 2004
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+  cc0-1.0:
+    name: CC0 1.0 Universal
+    url: https://creativecommons.org/publicdomain/zero/1.0/
+    text: |-
+      To the extent possible under law, the person who associated this work
+      with this deed has waived all copyright and related or neighboring rights
+      to this work. This work is published from the CC0 1.0 Universal Public
+      Domain Dedication.
+
+      You can copy, modify, distribute and perform the work, even for
+      commercial purposes, all without asking permission.
+
+      The work is provided without warranties. The waiver may not apply to
+      patent, trademark, privacy, publicity or other rights.
+  cc-by-4.0:
+    name: Creative Commons Attribution 4.0 International
+    url: https://creativecommons.org/licenses/by/4.0/
+    text: |-
+      You are free to share, copy and redistribute the material in any medium
+      or format, and to remix, transform and build upon the material for any
+      purpose, even commercially.
+
+      Under the following terms, you must give appropriate credit, provide a
+      link to the license, and indicate if changes were made. You may do so in
+      any reasonable manner, but not in a way that suggests the licensor
+      endorses you or your use.
+
+      No additional restrictions may be applied. The material is provided
+      without warranties, and other rights such as publicity, privacy or moral
+      rights may limit how the material is used.
+  font-awesome-free:
+    name: Font Awesome Free licenses
+    url: https://fontawesome.com/license/free
+    text: |-
+      Font Awesome Free uses different licenses for different parts of the
+      package:
+
+      Icons: Creative Commons Attribution 4.0 International.
+      Fonts: SIL Open Font License 1.1.
+      Code: MIT License.
+
+      The complete license texts and attribution requirements are available at
+      https://fontawesome.com/license/free.
+  github-service:
+    name: GitHub service terms
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+    text: |-
+      GitHub Actions, GitHub Pages and the GitHub REST API are hosted services,
+      not software redistributed by this site. Their use is governed by the
+      GitHub Terms of Service and the applicable product documentation.
+  mit:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+    text: |-
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to permit
+      persons to whom the Software is furnished to do so, subject to the
+      following conditions:
+
+      The above copyright notice and this permission notice shall be included
+      in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+      OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+      OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+      THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  ofl-1.1:
+    name: SIL Open Font License 1.1
+    url: https://scripts.sil.org/OFL
+    text: |-
+      This Font Software is licensed under the SIL Open Font License, Version
+      1.1. A copy of the license is available at:
+
+      https://scripts.sil.org/OFL
+
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of the Font Software, to use, study, copy, merge, embed, modify,
+      redistribute, and sell modified and unmodified copies, subject to the
+      conditions in the license. The Font Software, whether modified or not,
+      may be bundled, embedded, redistributed and/or sold with any software,
+      provided that the license and copyright notices are included.
+
+      The Font Software is provided without warranty, express or implied,
+      including merchantability, fitness for a particular purpose and
+      noninfringement.
+  public-domain:
+    name: Public domain dedication
+    url: https://meyerweb.com/eric/tools/css/reset/
+    text: |-
+      This stylesheet is released to the public domain.
+  reference-only:
+    name: Reference project terms
+    url: https://github.com/LinkStackOrg/minceraft
+    text: |-
+      This project was consulted only as a visual or architectural reference.
+      No source code or proprietary assets from the reference project are
+      distributed by this site. Consult the official project repository for its
+      current license and terms.
+  service-terms:
+    name: Service terms
+    url: https://developers.google.com/terms
+    text: |-
+      Google Fonts is used as a hosted font delivery service. The service is
+      not redistributed by this site. Its use is subject to Google's terms,
+      while each font remains subject to its own license.
+
+entries:
+  - id: hugo
+    name: Hugo Extended
+    authors: Hugo Authors
+    license: apache-2.0
+    official_url: https://gohugo.io/
+  - id: docker
+    name: Docker
+    authors: Docker, Inc. and contributors
+    license: apache-2.0
+    official_url: https://www.docker.com/
+  - id: github-actions
+    name: GitHub Actions
+    authors: GitHub, Inc. and the Actions maintainers
+    license: github-service
+    official_url: https://github.com/features/actions
+  - id: github-pages
+    name: GitHub Pages
+    authors: GitHub, Inc.
+    license: github-service
+    official_url: https://pages.github.com/
+  - id: github-rest-api
+    name: GitHub REST API
+    authors: GitHub, Inc.
+    license: github-service
+    official_url: https://docs.github.com/en/rest
+  - id: font-awesome
+    name: Font Awesome Free
+    authors: Fonticons, Inc. and contributors
+    license: font-awesome-free
+    official_url: https://fontawesome.com/
+  - id: simple-icons
+    name: Simple Icons
+    authors: Simple Icons contributors
+    license: cc0-1.0
+    official_url: https://simpleicons.org/
+  - id: sweetalert2
+    name: SweetAlert2
+    authors: SweetAlert2 contributors
+    license: mit
+    official_url: https://sweetalert2.github.io/
+  - id: press-start-2p
+    name: Press Start 2P
+    authors: The Press Start 2P Project Authors
+    license: ofl-1.1
+    official_url: https://fonts.google.com/specimen/Press+Start+2P
+  - id: roboto-slab
+    name: Roboto Slab
+    authors: The Roboto Slab Project Authors
+    license: apache-2.0
+    official_url: https://fonts.google.com/specimen/Roboto+Slab
+  - id: google-fonts
+    name: Google Fonts
+    authors: Google
+    license: service-terms
+    official_url: https://fonts.google.com/
+  - id: meyer-reset
+    name: Meyer Reset CSS
+    authors: Eric A. Meyer
+    license: public-domain
+    official_url: https://meyerweb.com/eric/tools/css/reset/
+  - id: shields
+    name: Shields.io
+    authors: Shields contributors
+    license: cc0-1.0
+    official_url: https://shields.io/
+  - id: lychee
+    name: Lychee
+    authors: Lychee contributors
+    license: apache-2.0
+    official_url: https://github.com/lycheeverse/lychee
+  - id: pa11y-ci
+    name: Pa11y CI
+    authors: Pa11y contributors
+    license: mit
+    official_url: https://github.com/pa11y/pa11y-ci
+  - id: lighthouse-ci
+    name: Lighthouse CI
+    authors: Chrome team and contributors
+    license: apache-2.0
+    official_url: https://github.com/GoogleChrome/lighthouse-ci
+  - id: actionlint
+    name: actionlint
+    authors: rhysd and contributors
+    license: mit
+    official_url: https://github.com/rhysd/actionlint
+  - id: zizmor
+    name: zizmor
+    authors: zizmor contributors
+    license: mit
+    official_url: https://github.com/zizmorcore/zizmor
+  - id: minceraft
+    name: Minceraft
+    authors: LinkStackOrg and contributors
+    license: reference-only
+    official_url: https://github.com/LinkStackOrg/minceraft
+  - id: lynx
+    name: Lynx
+    authors: jpanther and contributors
+    license: reference-only
+    official_url: https://github.com/jpanther/lynx
+  - id: lucentlink
+    name: LucentLink-Hugo
+    authors: cx48 and contributors
+    license: reference-only
+    official_url: https://github.com/cx48/LucentLink-Hugo

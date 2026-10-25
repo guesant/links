@@ -39,7 +39,7 @@ Campos disponíveis para links:
 - public, exposição no HTML gerado, true por padrão;
 - labels, textos localizados com title obrigatório, description e badge opcionais;
 - url, endereço http, https, mailto, tel, caminho local ou âncora;
-- icon, nome de um ícone Font Awesome suportado pelo template;
+- icon, nome de um ícone local ou Font Awesome suportado pelo template;
 - visual, imagem opcional do destino, com kind, src e alt localizado;
 - featured, destaque visual opcional;
 - target, _blank por padrão ou _self quando uma exceção for necessária.
@@ -50,7 +50,9 @@ Links em nova aba recebem rel="noopener noreferrer". Protocolos inseguros, como 
 
 Imagens visuais podem ser associadas a LeetCode, PlayStation e Last.fm. Cada imagem declara width e height no YAML, portanto o navegador reserva seu espaço antes do carregamento lazy. O card do GitHub fica em src/static/images/cards/github-stats.svg e é atualizado por GitHub Actions. O workflow usa a Action gh-readme-card com commit fixado, grava o SVG no repositório e não depende de Vercel, CDN de geração ou serviço de renderização em tempo de execução. O Spotify permanece como link textual e não possui card.
 
-Os ícones disponíveis são academic, code, document, education, email, github, gitlab, instagram, lastfm, link, linkedin, minecraft, playstation, website, spotify, steam, xbox e youtube. Eles são renderizados pelo Font Awesome Free, carregado do cdnjs com SRI.
+Os ícones disponíveis são academic, code, document, education, email, github, gitlab, instagram, lastfm, leetcode, link, linkedin, minecraft, orcid, hyperskill, playstation, website, spotify, steam, xbox e youtube. LeetCode, Hyperskill e ORCID usam SVGs locais baseados no catálogo Simple Icons 16.35.0, fixado no repositório em src/assets/icons. Consulte o [repositório do Simple Icons](https://github.com/simple-icons/simple-icons) e seu [disclaimer de marcas](https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md) para a origem e as condições de uso. Os demais ícones de marca usam Font Awesome Free, carregado do cdnjs com SRI.
+
+O botão Credits no rodapé abre um modal com as dependências, fontes, ferramentas e projetos de referência usados no site. O catálogo fica em src/data/credits.yaml e cada entrada informa autores, licença reproduzida e URL oficial.
 
 As propriedades theme.preset, theme.appearance e theme.background estão no YAML para manter a preferência visual declarativa. O preset atual é minecraft, com aparência system e fundo CSS próprio. A home oferece os temas system, dark e light em um grupo de botões. A escolha é preservada no navegador quando o JavaScript está disponível, enquanto o tema continua funcional por CSS nos navegadores compatíveis. A fonte pixelada Press Start 2P e a fonte de corpo Roboto Slab são carregadas pelo Google Fonts com display=swap, sem fontes vendorizadas no repositório.
 
@@ -67,7 +69,9 @@ No repositório, configure GitHub Pages com a origem GitHub Actions e o domínio
 ## Estrutura
 
 - src/data/links.yaml, fonte declarativa de perfil, seções e links;
+- src/data/credits.yaml, catálogo declarativo de créditos e licenças;
 - src/layouts/, templates Go do Hugo;
+- src/assets/js/credits-dialog.js, comportamento do modal de créditos;
 - src/assets/css/reset.css, reset mínimo;
 - src/assets/css/main.css, tokens, layout e estética;
 - src/static/favicon.svg, favicon original;
@@ -81,6 +85,6 @@ No repositório, configure GitHub Pages com a origem GitHub Actions e o domínio
 
 ## Licenciamento
 
-O código deste projeto está sob a licença MIT. Os ícones são Font Awesome Free, carregados do cdnjs, e seguem a atribuição registrada em LICENSES/FONT-AWESOME.txt. O favicon, o CSS e os templates são originais deste projeto.
+O código deste projeto está sob a licença MIT. As atribuições detalhadas das fontes, bibliotecas, ferramentas, dependências e referências estão disponíveis no botão Credits e em src/data/credits.yaml. Os ícones Font Awesome Free são carregados do cdnjs e seguem a atribuição registrada em LICENSES/FONT-AWESOME.txt. O favicon, o CSS e os templates são originais deste projeto.
 
 Os cards externos de LeetCode, PlayStation e Last.fm são fornecidos pelos respectivos serviços. O card do GitHub é um SVG gravado neste repositório pela Action fixada em .github/workflows/github-stats.yml.

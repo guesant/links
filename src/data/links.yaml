@@ -183,7 +183,7 @@ sections:
             description: 了解我的职业经历、教育背景、项目和精选技术工作。
             badge: 简介
       - id: atlas
-        url: https://atlas.guesant.net
+        url: https://atlas.guesant.net/guest/links
         icon: link
         featured: true
         enabled: true
@@ -656,7 +656,7 @@ sections:
             description: 查看我的巴西学术履历和研究相关记录。
       - id: orcid
         url: https://orcid.org/0009-0009-0221-943X
-        icon: academic
+        icon: orcid
         enabled: true
         audiences: [recruiters, collaborators, academics]
         labels:
@@ -680,7 +680,7 @@ sections:
             description: 查找我的研究者持久标识符及相关学术记录。
       - id: leetcode
         url: https://leetcode.com/u/guesant/
-        icon: code
+        icon: leetcode
         enabled: true
         visual:
           kind: card
@@ -752,7 +752,7 @@ sections:
             description: 查看定期更新的 GitHub 公开活动摘要。
       - id: hyperskill
         url: https://hyperskill.org/my-learning/621241218
-        icon: education
+        icon: hyperskill
         enabled: true
         audiences: [developers, recruiters]
         labels:
@@ -793,10 +793,18 @@ locales:
       theme_system: System
       theme_dark: Dark
       theme_light: Light
-      footer_aria_label: Site build information
+      footer_aria_label: Site information and credits
       footer_repository: View the source repository on GitHub
       footer_commit: View commit
       footer_build: View build
+      credits: Credits
+      credits_dialog_title: Credits and licenses
+      credits_dialog_description: Dependencies, tools, references and their licensing information.
+      credits_close: Close credits
+      credits_authors: Authors
+      credits_license: License
+      credits_license_text: Read license text
+      credits_official_url: Official website
     presentation:
       eyebrow: About
       title: Work, interests, people and what comes next.
@@ -823,10 +831,18 @@ locales:
       theme_system: Sistema
       theme_dark: Escuro
       theme_light: Claro
-      footer_aria_label: Informações do build do site
+      footer_aria_label: Informações do site e créditos
       footer_repository: Ver o repositório fonte no GitHub
       footer_commit: Ver commit
       footer_build: Ver build
+      credits: Créditos
+      credits_dialog_title: Créditos e licenças
+      credits_dialog_description: Dependências, ferramentas, referências e suas informações de licenciamento.
+      credits_close: Fechar créditos
+      credits_authors: Autores
+      credits_license: Licença
+      credits_license_text: Ler o texto da licença
+      credits_official_url: Site oficial
     presentation:
       eyebrow: Sobre
       title: Trabalho, interesses, pessoas e o que vem pela frente.
@@ -854,10 +870,18 @@ locales:
       theme_dark: Sombre
       theme_light: Clair
       translation_disclaimer: Traduction automatique par IA, susceptible de contenir des imprécisions.
-      footer_aria_label: Informations de build du site
+      footer_aria_label: Informations du site et crédits
       footer_repository: Voir le dépôt source sur GitHub
       footer_commit: Voir le commit
       footer_build: Voir le build
+      credits: Crédits
+      credits_dialog_title: Crédits et licences
+      credits_dialog_description: Dépendances, outils, références et leurs informations de licence.
+      credits_close: Fermer les crédits
+      credits_authors: Auteurs
+      credits_license: Licence
+      credits_license_text: Lire le texte de la licence
+      credits_official_url: Site officiel
     presentation:
       eyebrow: À propos
       title: Travail, intérêts, personnes et ce qui vient ensuite.
@@ -885,10 +909,18 @@ locales:
       theme_dark: Oscuro
       theme_light: Claro
       translation_disclaimer: Traducción automática por IA, puede contener imprecisiones.
-      footer_aria_label: Información del build del sitio
+      footer_aria_label: Información del sitio y créditos
       footer_repository: Ver el repositorio fuente en GitHub
       footer_commit: Ver commit
       footer_build: Ver build
+      credits: Créditos
+      credits_dialog_title: Créditos y licencias
+      credits_dialog_description: Dependencias, herramientas, referencias y su información de licencia.
+      credits_close: Cerrar créditos
+      credits_authors: Autores
+      credits_license: Licencia
+      credits_license_text: Leer el texto de la licencia
+      credits_official_url: Sitio oficial
     presentation:
       eyebrow: Sobre mí
       title: Trabajo, intereses, personas y lo que viene.
@@ -916,10 +948,18 @@ locales:
       theme_dark: Scuro
       theme_light: Chiaro
       translation_disclaimer: Traduzione automatica tramite IA, può contenere imprecisioni.
-      footer_aria_label: Informazioni sul build del sito
+      footer_aria_label: Informazioni sul sito e crediti
       footer_repository: Vedi il repository sorgente su GitHub
       footer_commit: Vedi commit
       footer_build: Vedi build
+      credits: Crediti
+      credits_dialog_title: Crediti e licenze
+      credits_dialog_description: Dipendenze, strumenti, riferimenti e relative informazioni sulle licenze.
+      credits_close: Chiudi i crediti
+      credits_authors: Autori
+      credits_license: Licenza
+      credits_license_text: Leggi il testo della licenza
+      credits_official_url: Sito ufficiale
     presentation:
       eyebrow: Chi sono
       title: Lavoro, interessi, persone e ciò che viene dopo.
@@ -947,10 +987,18 @@ locales:
       theme_dark: 深色
       theme_light: 浅色
       translation_disclaimer: 内容由人工智能自动翻译，可能存在不准确之处。
-      footer_aria_label: 网站构建信息
+      footer_aria_label: 网站信息和致谢
       footer_repository: 在 GitHub 上查看源代码仓库
       footer_commit: 查看提交
       footer_build: 查看构建
+      credits: 致谢
+      credits_dialog_title: 致谢与许可证
+      credits_dialog_description: 依赖项、工具、参考项目及其许可信息。
+      credits_close: 关闭致谢
+      credits_authors: 作者
+      credits_license: 许可证
+      credits_license_text: 阅读许可证文本
+      credits_official_url: 官方网站
     presentation:
       eyebrow: 关于我
       title: 工作、兴趣、朋友以及接下来要做的事。

@@ -16,6 +16,7 @@
 {{ end }}
 {{ $buildDate := getenv "HUGO_BUILD_DATE" | default "" }}
 {{ $buildDateLabel := getenv "HUGO_BUILD_DATE_LABEL" | default "Local build" }}
+{{ $credits := hugo.Data.credits }}
 <footer class="site-footer">
   <nav class="site-footer-content" aria-label="{{ $localized.ui.footer_aria_label }}">
     <a class="site-footer-repository" href="{{ $repositoryURL }}" aria-label="{{ $localized.ui.footer_repository }}">
@@ -31,10 +32,55 @@
     <a class="site-footer-link" href="{{ $buildURL }}" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">
       <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>
     </a>
+    <button class="site-footer-link site-footer-button" type="button" data-credits-open aria-controls="credits-dialog">
+      {{ $localized.ui.credits }}
+    </button>
   </nav>
 </footer>
+<dialog class="credits-dialog" id="credits-dialog" data-credits-dialog aria-labelledby="credits-dialog-title" aria-describedby="credits-dialog-description">
+  <div class="credits-dialog-content">
+    <header class="credits-dialog-header">
+      <div class="credits-dialog-heading">
+        <h2 id="credits-dialog-title">{{ $localized.ui.credits_dialog_title }}</h2>
+        <p id="credits-dialog-description">{{ $localized.ui.credits_dialog_description }}</p>
+      </div>
+      <form method="dialog">
+        <button class="credits-dialog-close" type="submit" aria-label="{{ $localized.ui.credits_close }}">×</button>
+      </form>
+    </header>
+    <div class="credits-list">
+      {{ range $credits.entries }}
+        {{ $license := index $credits.licenses .license }}
+        <section class="credit-entry" aria-labelledby="credit-{{ .id }}-title">
+          <h3 id="credit-{{ .id }}-title">{{ .name }}</h3>
+          <dl class="credit-entry-meta">
+            <div>
+              <dt>{{ $localized.ui.credits_authors }}</dt>
+              <dd>{{ .authors }}</dd>
+            </div>
+            <div>
+              <dt>{{ $localized.ui.credits_license }}</dt>
+              <dd>
+                <a class="credit-license-link" href="{{ $license.url }}" target="_blank" rel="noopener noreferrer">{{ $license.name }}</a>
+              </dd>
+            </div>
+          </dl>
+          <details class="credit-license">
+            <summary>{{ $localized.ui.credits_license_text }}</summary>
+            <pre>{{ $license.text }}</pre>
+          </details>
+          <a class="credit-official-link" href="{{ .official_url }}" target="_blank" rel="noopener noreferrer">
+            {{ $localized.ui.credits_official_url }}
+          </a>
+        </section>
+      {{ end }}
+    </div>
+  </div>
+</dialog>
 {{ $linkScript := resources.Get "js/link-interceptor.js" | minify | fingerprint }}
 {{ $themeScript := resources.Get "js/theme-switcher.js" | minify | fingerprint }}
+{{ $creditsScript := resources.Get "js/credits-dialog.js" | minify | fingerprint }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js" integrity="sha512-TA1p+I1AtmUN2QnvpJT01/hjvxCxjyBfXtNuKNnvvwyCaQpdl5JUfiJ7geQtMnJ55myntTq5JwPLiH3j6e222A==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 <script src="{{ $themeScript.RelPermalink }}" defer></script>
 <script src="{{ $linkScript.RelPermalink }}" defer></script>
+<script src="{{ $creditsScript.RelPermalink }}" defer></script>

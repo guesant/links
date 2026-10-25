@@ -1,4 +1,10 @@
 {{ $name := lower (. | default "link") }}
+{{ $svgIcons := slice "hyperskill" "leetcode" "orcid" }}
+{{ $svgIcon := resources.Get (printf "icons/%s.svg" $name) }}
+{{ if and (in $svgIcons $name) $svgIcon }}
+  {{ $svg := replaceRE "<svg " "<svg class=\"link-icon-symbol-svg\" aria-hidden=\"true\" " $svgIcon.Content }}
+  {{ $svg | safeHTML }}
+{{ else }}
 {{ $icons := dict
   "academic" "fa-solid fa-graduation-cap"
   "code" "fa-solid fa-code"
@@ -21,3 +27,4 @@
 }}
 {{ $classes := index $icons $name | default (index $icons "link") }}
 <span class="link-icon-symbol {{ $classes }}" aria-hidden="true"></span>
+{{ end }}

@@ -45,10 +45,12 @@
       icon: "question",
       showDenyButton: true,
       showCancelButton: true,
-      confirmButtonText: "Abrir nesta página",
-      denyButtonText: "Abrir em nova página",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true,
+      confirmButtonText:
+        '<span class="swal2-button-icon fa-solid fa-arrow-right" aria-hidden="true"></span>Abrir nesta página',
+      denyButtonText:
+        '<span class="swal2-button-icon fa-solid fa-up-right-from-square" aria-hidden="true"></span>Abrir em nova página',
+      cancelButtonText:
+        '<span class="swal2-button-icon fa-solid fa-xmark" aria-hidden="true"></span>Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         openInCurrentPage(link.href);
