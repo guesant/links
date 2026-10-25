@@ -36,7 +36,6 @@
   --quick-contact-size: var(--space-7);
   --content-width: 42rem;
   --control-width: 28rem;
-  --control-option-width: 3.5rem;
   --button-min-height: 4rem;
   --pixel-border: 0.125rem;
   --pixel-shadow: 0.25rem;
@@ -184,49 +183,17 @@ a {
   line-height: var(--line-height-body);
 }
 
-.profile-badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3);
-  padding-block: var(--space-1);
-  max-width: 100%;
-}
-
-.profile-badge {
-  display: block;
-  line-height: 0;
-}
-
-.profile-badge img {
-  display: block;
-  width: auto;
-  max-width: 100%;
-  height: var(--space-4);
-  filter: grayscale(1);
-  opacity: 0.7;
-  transition:
-    filter var(--transition-fast) ease,
-    opacity var(--transition-fast) ease;
-}
-
-.profile-badge:hover img,
-.profile-badge:focus-visible img {
-  filter: grayscale(0);
-  opacity: 1;
-}
-
-.profile-badge:focus-visible {
-  outline: var(--pixel-border) solid var(--color-focus);
-  outline-offset: var(--space-1);
-}
-
 .site-controls {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-5);
   width: min(100%, var(--control-width));
-  margin-block-start: var(--space-3);
+}
+
+.site-preferences {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
 }
 
 .toggle-control {
@@ -248,8 +215,8 @@ a {
 }
 
 .toggle-group {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
   gap: var(--space-1);
   padding-block-end: var(--space-1);
@@ -257,14 +224,20 @@ a {
 }
 
 .toggle-group-language {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.toggle-group-language .toggle-button {
+  padding-inline: var(--space-1);
+  font-size: var(--font-size-label);
+  white-space: nowrap;
 }
 
 .toggle-button {
   display: grid;
-  flex: 1 1 0;
   min-height: var(--space-6);
-  min-width: var(--control-option-width);
+  min-width: 0;
   place-items: center;
   padding: var(--space-2) var(--space-3);
   border: 0;
@@ -275,26 +248,6 @@ a {
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-}
-
-.toggle-button + .toggle-button {
-  border-inline-start: 0;
-}
-
-.toggle-group-language .toggle-button:nth-child(n + 4) {
-  border-block-start: 0;
-}
-
-.toggle-group-language .toggle-button:nth-child(3n + 1) {
-  border-inline-start: 0;
-}
-
-.toggle-input + .toggle-button {
-  border-inline-start: 0;
-}
-
-.toggle-input:first-child + .toggle-button {
-  border-inline-start: 0;
 }
 
 .toggle-button:link,
@@ -335,7 +288,7 @@ a {
 
 .translation-disclaimer {
   max-width: 32rem;
-  margin-block-start: var(--space-3);
+  margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
   line-height: var(--line-height-body);

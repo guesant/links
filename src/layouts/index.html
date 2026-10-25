@@ -2,18 +2,19 @@
   {{ $data := hugo.Data.links }}
   {{ $locale := lower .Site.Language.Lang }}
   {{ $localized := index $data.locales $locale }}
-  {{ $profile := dict "name" $data.profile.name "username" $data.profile.username "avatar" $data.profile.avatar "bio" $localized.profile.bio "badges" $data.profile.badges }}
+  {{ $profile := dict "name" $data.profile.name "username" $data.profile.username "avatar" $data.profile.avatar "bio" $localized.profile.bio }}
   {{ $config := dict "profile" $profile "seo" $localized.seo "presentation" $localized.presentation "sections" $data.sections "audiences" $data.audiences "quickContacts" $data.quick_contacts "language" $locale "languages" $data.language_options "quickContactsLabel" $localized.ui.quick_contacts_label }}
   {{ partial "validate.html" $config }}
   {{ $renderedLinks := newScratch }}
   <main class="site-shell" id="main-content">
-    {{ partial "profile.html" (dict "profile" $profile "language" $locale "theme" $data.theme "ui" $localized.ui "languages" $data.language_options) }}
-    {{ partial "presentation.html" $config.presentation }}
+    {{ partial "profile.html" (dict "profile" $profile) }}
     {{ partial "quick-contacts.html" (dict "sections" $config.sections "contactIDs" $config.quickContacts "language" $config.language "label" $config.quickContactsLabel) }}
+    {{ partial "presentation.html" $config.presentation }}
     <div class="link-sections">
       {{ range $config.audiences }}
         {{ partial "audience.html" (dict "audience" . "sections" $config.sections "language" $locale "renderedLinks" $renderedLinks) }}
       {{ end }}
     </div>
+    {{ partial "site-controls.html" (dict "language" $locale "theme" $data.theme "ui" $localized.ui "languages" $data.language_options) }}
   </main>
 {{ end }}

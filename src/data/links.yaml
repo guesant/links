@@ -2,59 +2,6 @@ profile:
   name: Gabriel R. Antunes
   username: guesant
   avatar: ""
-  badges:
-    - id: github-followers
-      kind: shield
-      src: /images/badges/github-followers.svg
-      width: 108
-      height: 20
-      href: https://github.com/guesant
-      alt:
-        en: GitHub followers
-        pt-br: Seguidores no GitHub
-        fr: Abonnés GitHub
-        es: Seguidores en GitHub
-        it: Follower su GitHub
-        zh: GitHub 关注者
-    - id: github-stars
-      kind: shield
-      src: /images/badges/github-stars.svg
-      width: 88
-      height: 20
-      href: https://github.com/guesant?tab=repositories
-      alt:
-        en: Stars on GitHub repositories
-        pt-br: Estrelas nos repositórios do GitHub
-        fr: Étoiles sur les dépôts GitHub
-        es: Estrellas en los repositorios de GitHub
-        it: Stelle nei repository GitHub
-        zh: GitHub 仓库星标
-    - id: youtube-channel
-      kind: shield
-      src: /images/badges/youtube-channel.svg
-      width: 154
-      height: 20
-      href: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
-      alt:
-        en: JipaCoding YouTube channel
-        pt-br: Canal da JipaCoding no YouTube
-        fr: Chaîne YouTube de JipaCoding
-        es: Canal de YouTube de JipaCoding
-        it: Canale YouTube JipaCoding
-        zh: JipaCoding YouTube 频道
-    - id: open-source
-      kind: shield
-      src: /images/badges/open-source.svg
-      width: 132
-      height: 20
-      href: https://github.com/guesant?tab=repositories
-      alt:
-        en: Open source projects
-        pt-br: Projetos open source
-        fr: Projets open source
-        es: Proyectos open source
-        it: Progetti open source
-        zh: 开源项目
 
 theme:
   preset: minecraft
@@ -292,6 +239,30 @@ sections:
             title: GitHub 仓库
             description: 查看我的公开软件项目及其源代码。
             badge: 开源
+      - id: gitlab
+        url: https://gitlab.com/guesant
+        icon: gitlab
+        enabled: true
+        audiences: [developers, collaborators, open-source]
+        labels:
+          en:
+            title: GitLab
+            description: Browse additional code and experiments hosted on GitLab.
+          pt-br:
+            title: GitLab
+            description: Consulte outros códigos e experimentos hospedados no GitLab.
+          fr:
+            title: GitLab
+            description: Parcourez d’autres codes et expériences hébergés sur GitLab.
+          es:
+            title: GitLab
+            description: Explora más código y experimentos alojados en GitLab.
+          it:
+            title: GitLab
+            description: Consulta altri codici ed esperimenti ospitati su GitLab.
+          zh:
+            title: GitLab
+            description: 浏览托管在 GitLab 上的其他代码和实验项目。
       - id: youtube
         url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
         icon: youtube
@@ -393,30 +364,6 @@ sections:
           zh:
             title: LinkedIn
             description: 查看我的职业资料、工作经历和教育背景。
-      - id: gitlab
-        url: https://gitlab.com/guesant
-        icon: gitlab
-        enabled: true
-        audiences: [developers, collaborators, open-source]
-        labels:
-          en:
-            title: GitLab
-            description: Browse additional code and experiments hosted on GitLab.
-          pt-br:
-            title: GitLab
-            description: Consulte outros códigos e experimentos hospedados no GitLab.
-          fr:
-            title: GitLab
-            description: Parcourez d’autres codes et expériences hébergés sur GitLab.
-          es:
-            title: GitLab
-            description: Explora más código y experimentos alojados en GitLab.
-          it:
-            title: GitLab
-            description: Consulta altri codici ed esperimenti ospitati su GitLab.
-          zh:
-            title: GitLab
-            description: 浏览托管在 GitLab 上的其他代码和实验项目。
   - id: personal
     enabled: true
     public: false
@@ -837,7 +784,6 @@ locales:
       skip_link: Skip to content
       language_aria_label: Change language
       quick_contacts_label: Main contact links
-      profile_badges_label: Profile activity
       theme_aria_label: Theme
       theme_label: Theme
       theme_system: System
@@ -868,7 +814,6 @@ locales:
       skip_link: Ir para o conteúdo
       language_aria_label: Alterar idioma
       quick_contacts_label: Principais formas de contato
-      profile_badges_label: Atividade do perfil
       theme_aria_label: Tema
       theme_label: Tema
       theme_system: Sistema
@@ -899,7 +844,6 @@ locales:
       skip_link: Aller au contenu
       language_aria_label: Changer de langue
       quick_contacts_label: Principaux moyens de contact
-      profile_badges_label: Activité du profil
       theme_aria_label: Thème
       theme_label: Thème
       theme_system: Système
@@ -931,7 +875,6 @@ locales:
       skip_link: Ir al contenido
       language_aria_label: Cambiar idioma
       quick_contacts_label: Principales formas de contacto
-      profile_badges_label: Actividad del perfil
       theme_aria_label: Tema
       theme_label: Tema
       theme_system: Sistema
@@ -963,7 +906,6 @@ locales:
       skip_link: Vai al contenuto
       language_aria_label: Cambia lingua
       quick_contacts_label: Principali modi per contattarmi
-      profile_badges_label: Attività del profilo
       theme_aria_label: Tema
       theme_label: Tema
       theme_system: Sistema
@@ -995,7 +937,6 @@ locales:
       skip_link: 跳转到内容
       language_aria_label: 切换语言
       quick_contacts_label: 主要联系方式
-      profile_badges_label: 个人资料活动
       theme_aria_label: 主题
       theme_label: 主题
       theme_system: 跟随系统
