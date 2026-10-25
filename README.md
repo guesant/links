@@ -1,6 +1,6 @@
 # guesant.net links
 
-Página pessoal de links e apresentação de Gabriel R. Antunes, gerada como site estático pelo Hugo e publicada no GitHub Pages.
+Página pessoal de links e apresentação de Gabriel R. Antunes, gerada como site estático pelo Hugo e publicada em https://guesant.net/ pelo GitHub Pages. O blog é servido separadamente em https://blog.guesant.net/.
 
 O projeto não possui backend, banco de dados, painel administrativo ou JavaScript obrigatório. Todo o conteúdo público vive no arquivo src/data/links.yaml, incluindo a apresentação em inglês, português, francês, espanhol, italiano e mandarim. As quatro últimas localidades exibem um aviso de que o texto foi traduzido automaticamente por IA e pode conter imprecisões. O workflow de publicação executa o build dentro da imagem oficial do Hugo Extended.
 
@@ -62,9 +62,7 @@ Antes da publicação, o workflow executa três gates independentes. O dead-link
 
 O deploy depende do build e dos três gates. Em pull requests, o build e as validações são executados, mas o deploy é omitido. Os relatórios do Lighthouse são preservados como artefato do workflow. Os gates de acessibilidade e Lighthouse percorrem as seis localidades. O Lighthouse exige no mínimo 0,96 em acessibilidade, boas práticas, performance e SEO, e o site atualmente alcança 1,0 nas quatro categorias.
 
-No repositório, configure GitHub Pages com a origem GitHub Actions. A primeira publicação usa o endereço padrão https://guesant.github.io/links/.
-
-Depois da validação visual, o domínio personalizado poderá ser configurado separadamente para https://guesant.net/. O blog será servido em https://blog.guesant.net/.
+No repositório, configure GitHub Pages com a origem GitHub Actions e o domínio personalizado guesant.net. O blog será servido em https://blog.guesant.net/.
 
 ## Estrutura
 

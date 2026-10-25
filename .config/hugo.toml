@@ -1,4 +1,4 @@
-baseURL = 'https://guesant.github.io/links/'
+baseURL = 'https://guesant.net/'
 defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = false
 disablePathToLower = true

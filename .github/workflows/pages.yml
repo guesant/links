@@ -39,7 +39,7 @@ jobs:
             guesant-links:ci \
             --minify \
             --cleanDestinationDir \
-            --baseURL https://guesant.github.io/links/ \
+            --baseURL https://guesant.net/ \
             --destination /tmp/public
           trap 'docker rm --force guesant-links-build' EXIT
           docker start --attach guesant-links-build
@@ -83,7 +83,7 @@ jobs:
             --max-retries 1 \
             --retry-wait-time 1 \
             --timeout 20 \
-            --exclude 'guesant.github.io/links' \
+            --exclude '(^|//)(guesant.net|blog.guesant.net)(/|$)' \
             --exclude '^(mailto:|tel:)' \
             /input/public
 

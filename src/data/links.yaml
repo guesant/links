@@ -121,7 +121,7 @@ sections:
         description: 了解我的工作及其背景的主要入口。
     links:
       - id: blog
-        url: https://guesant.net
+        url: https://blog.guesant.net
         icon: website
         featured: true
         enabled: true
