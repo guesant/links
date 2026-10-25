@@ -15,14 +15,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  workflow-quality:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Run actionlint
+        run: |
+          docker run --rm \
+            --volume "$PWD:/repo:ro" \
+            --workdir /repo \
+            rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+      - name: Run zizmor
+        run: |
+          docker run --rm \
+            --volume "$PWD:/repo:ro" \
+            --workdir /repo \
+            ghcr.io/zizmorcore/zizmor:1.31.1@sha256:42d409dbb851d4c5d35a058cf042b828bea1e3f2884378c526eb0974780e18d9 \
+            --format=github \
+            .github/workflows
+
+  build:
+    runs-on: ubuntu-latest
+    needs: workflow-quality
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           submodules: recursive
           fetch-depth: 0
+          persist-credentials: false
       - name: Build Hugo image
         run: docker build --file .config/container/Dockerfile --tag guesant-links:ci .
       - name: Build static site
@@ -48,13 +74,13 @@ jobs:
             cp --recursive public/pt-BR public/pt-br
           fi
       - name: Upload site artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: site-public
           path: public
           if-no-files-found: error
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
           path: public
 
@@ -63,7 +89,7 @@ jobs:
     needs: build
     steps:
       - name: Download site artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           name: site-public
           path: public
@@ -91,7 +117,9 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Build Hugo image
         run: docker build --file .config/container/Dockerfile --target site --tag guesant-links-site:ci .
       - name: Build local site
@@ -125,9 +153,11 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Download site artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           name: site-public
           path: public
@@ -162,7 +192,7 @@ jobs:
             lhci autorun --config=/work/.lighthouserc.json
       - name: Upload Lighthouse reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: lighthouse-reports
           path: .lighthouseci
@@ -184,9 +214,9 @@ jobs:
       id-token: write
     steps:
       - name: Configure Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
         with:
           enablement: true
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346

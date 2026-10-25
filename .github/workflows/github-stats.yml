@@ -23,7 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Prepare generated assets
         run: mkdir --parents src/static/images/cards src/static/images/badges
@@ -58,4 +60,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add src/static/images/cards/github-stats.svg src/static/images/badges
           git diff --staged --quiet || git commit -m 'chore(cards): refresh github stats'
-          git push
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
