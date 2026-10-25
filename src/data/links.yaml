@@ -32,6 +32,10 @@ quick_contacts:
   - email
   - linkedin
   - github-repositories
+  - gitlab
+  - leetcode
+  - lattes
+  - orcid
   - youtube
 
 audiences:
