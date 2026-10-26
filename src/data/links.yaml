@@ -684,6 +684,30 @@ sections:
         title: 个人
         description: 供亲近的人查看的个人资料。
     links:
+      - id: open-library
+        url: https://openlibrary.org/people/gabrielrodantunes
+        icon: book
+        enabled: true
+        audiences: [friends, family]
+        labels:
+          en:
+            title: Open Library
+            description: See the books and reading lists on my profile.
+          pt-br:
+            title: Open Library
+            description: Veja os livros e as listas de leitura do meu perfil.
+          fr:
+            title: Open Library
+            description: Découvrez les livres et les listes de lecture de mon profil.
+          es:
+            title: Open Library
+            description: Consulta los libros y las listas de lectura de mi perfil.
+          it:
+            title: Open Library
+            description: Scopri i libri e le liste di lettura del mio profilo.
+          zh:
+            title: Open Library
+            description: 查看我个人资料中的书籍和阅读清单。
       - id: personal-youtube
         url: https://youtube.com/@gabrielrodantunes
         icon: youtube
