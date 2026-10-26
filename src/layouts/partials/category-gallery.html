@@ -4,7 +4,6 @@
 {{ $pages := partial "site-pages.html" (dict "locale" $locale) }}
 {{ $links := partialCached "public-links.html" (dict "language" $locale) $locale }}
 <section class="home-categories" id="home-categories" aria-labelledby="home-categories-title">
-  <span class="frame-moss" aria-hidden="true"></span>
   <h2 class="section-label" id="home-categories-title">{{ $localized.ui.home_sections_label }}</h2>
   <div class="category-grid">
     {{ range where $pages "id" "ne" "home" }}

@@ -87,6 +87,7 @@ test("Hugo excludes disabled and private editorial data", async () => {
     async (result, output) => {
       assert.equal(result.status, 0, result.stderr);
       const html = await collectHTML(output);
+      assert.doesNotMatch(html, /<svg\b|\.svg\b|image\/svg/i);
       for (const value of [
         "private-section-fixture",
         "private-link-fixture",

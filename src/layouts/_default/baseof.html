@@ -11,17 +11,20 @@
     {{ $locale := lower .Site.Language.Lang }}
     {{ $profile := dict "name" $data.profile.name "username" $data.profile.username "avatar" $data.profile.avatar "birthDate" $data.profile.birth_date "bio" $localized.profile.bio }}
     {{ partial "validate.html" (dict "profile" $profile "seo" $localized.seo "presentation" $localized.presentation "sections" $data.sections "audiences" $data.audiences "quickContacts" $data.quick_contacts "language" $locale "languages" $data.language_options) }}
-    <div class="site-shell">
-      <div class="hero-block">
+    <div class="site-frame">
+      <div class="site-shell">
         {{ partial "profile.html" (dict "profile" $profile "locale" $locale "uptimeLabel" $localized.ui.uptime_label "home" .IsHome) }}
-        {{ partial "quick-contacts.html" (dict "sections" $data.sections "contactIDs" $data.quick_contacts "language" $locale "label" $localized.ui.quick_contacts_label) }}
+        <div class="suspended-content">
+          {{ partial "suspension-rails.html" . }}
+          {{ partial "quick-contacts.html" (dict "sections" $data.sections "contactIDs" $data.quick_contacts "language" $locale "label" $localized.ui.quick_contacts_label) }}
+          {{ partial "page-navigation.html" . }}
+          <main class="page-content" id="main-content">
+            {{ block "main" . }}{{ end }}
+          </main>
+        </div>
       </div>
-      {{ partial "page-navigation.html" . }}
-      <main class="page-content" id="main-content">
-        {{ block "main" . }}{{ end }}
-      </main>
+      {{ partial "footer.html" . }}
     </div>
-    {{ partial "footer.html" . }}
     {{ partial "site-controls.html" (dict "language" $locale "theme" $data.theme "ui" $localized.ui "languages" $data.language_options "pageKey" (.Params.page_key | default "home")) }}
   </body>
 </html>

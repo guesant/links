@@ -2,7 +2,6 @@
   {{ $locale := lower .Site.Language.Lang }}
   {{ $page := index (where (partial "site-pages.html" (dict "locale" $locale)) "id" .Params.page_key) 0 }}
   <section class="link-sections" aria-labelledby="page-title">
-    <span class="frame-moss" aria-hidden="true"></span>
     {{ partial "section.html" (dict "section" $page.section "language" $locale) }}
   </section>
 {{ end }}

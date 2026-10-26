@@ -24,7 +24,7 @@ site:
 language_options:
   - id: pt-br
     path: /pt-br/
-    label: Português (Brasil) (PT-BR)
+    label: Português (Brasil)
     hreflang: pt-BR
   - id: zh
     path: /zh/

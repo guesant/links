@@ -1,0 +1,11 @@
+{{ $source := resources.Get "images/ui/suspension-rail.png" }}
+{{ $geometry := resources.Get "images/ui/suspension-rail.json" | transform.Unmarshal }}
+{{ $strip := $source.Crop (printf "%dx%d Center" (int $geometry.width) $source.Height) }}
+{{ $parts := newScratch }}
+{{ range $name, $slice := $geometry.slices }}
+  {{ $height := int $slice.height }}
+  {{ $end := add (int $slice.top) $height }}
+  {{ $part := ($strip.Crop (printf "%dx%d Top" (int $geometry.width) $end)).Crop (printf "%dx%d Bottom" (int $geometry.width) $height) }}
+  {{ $parts.Set $name $part }}
+{{ end }}
+{{ return $parts.Values }}

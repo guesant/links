@@ -28,8 +28,8 @@ test:
 stats:
     {{ runner }} node .config/scripts/update-stats.mjs
 
-cursors:
-    {{ runner }} node .config/scripts/generate-cursors.mjs
+icons:
+    {{ runner }} node .config/scripts/generate-icons.mjs
 
 links:
     {{ runner }} node .config/scripts/verify-links.mjs

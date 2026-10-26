@@ -132,12 +132,15 @@ const checks = [];
                 const footer = document
                   .querySelector(".site-footer")
                   .getBoundingClientRect();
+                const profile = document
+                  .querySelector(".profile")
+                  .getBoundingClientRect();
                 const quickContacts = document
                   .querySelector(".quick-contacts")
                   .getBoundingClientRect();
                 return (
                   Math.abs(navigation.width - content.width) < 1 &&
-                  Math.abs(footer.width - content.width) < 1 &&
+                  Math.abs(footer.width - profile.width) < 1 &&
                   Math.abs(quickContacts.width - content.width) < 1 &&
                   Math.abs(
                     navigation.left +
@@ -225,17 +228,103 @@ const checks = [];
                     .transitionDuration.split(", ")
                     .every((duration) => duration === "0s"),
               ),
+              railConnections: [
+                ...document.querySelectorAll(".suspension-rail"),
+              ].every((rail) => {
+                const frame = rail.getBoundingClientRect();
+                if (getComputedStyle(rail).display === "none")
+                  return frame.width === 0;
+                const terminals = [
+                  ...rail.querySelectorAll(".suspension-terminal"),
+                ];
+                const body = rail
+                  .querySelector(".suspension-body")
+                  .getBoundingClientRect();
+                const chains = [...rail.querySelectorAll(".suspension-chain")];
+                const upper = chains[0].getBoundingClientRect();
+                const lower = chains[1].getBoundingClientRect();
+                const first = terminals[0].getBoundingClientRect();
+                const last = terminals[1].getBoundingClientRect();
+                const lantern = rail
+                  .querySelector(".suspension-lantern-middle")
+                  .getBoundingClientRect();
+                const profile = document.querySelector(".profile");
+                const footer = document.querySelector(".site-footer");
+                const headerRect = profile.getBoundingClientRect();
+                const footerRect = footer.getBoundingClientRect();
+                const headerBorder = parseFloat(
+                  getComputedStyle(profile).borderBottomWidth,
+                );
+                const footerBorder = parseFloat(
+                  getComputedStyle(footer).borderTopWidth,
+                );
+                const atStart = rail.classList.contains(
+                  "suspension-rail-start",
+                );
+                const center = frame.left + frame.width / 2;
+                const headerJoint = atStart
+                  ? headerRect.left + headerBorder / 2
+                  : headerRect.right - headerBorder / 2;
+                const footerJoint = atStart
+                  ? footerRect.left + footerBorder / 2
+                  : footerRect.right - footerBorder / 2;
+                return (
+                  Math.abs(frame.top - (headerRect.bottom - headerBorder / 2)) <
+                    1 &&
+                  Math.abs(frame.bottom - (footerRect.top + footerBorder / 2)) <
+                    1 &&
+                  Math.abs(center - headerJoint) < 1 &&
+                  Math.abs(center - footerJoint) <=
+                    Math.abs(headerBorder - footerBorder) / 2 + 1 &&
+                  terminals.length === 2 &&
+                  terminals[0].src === terminals[1].src &&
+                  getComputedStyle(terminals[0]).transform ===
+                    "matrix(1, 0, 0, -1, 0, 0)" &&
+                  getComputedStyle(terminals[1]).transform === "none" &&
+                  Math.abs(first.top - frame.top) < 1 &&
+                  Math.abs(first.bottom - body.top) < 1 &&
+                  Math.abs(body.bottom - last.top) < 1 &&
+                  Math.abs(last.bottom - frame.bottom) < 1 &&
+                  Math.abs(upper.top - body.top) < 1 &&
+                  Math.abs(upper.bottom - lower.top) < 1 &&
+                  Math.abs(lower.bottom - body.bottom) < 1 &&
+                  lantern.top < upper.bottom &&
+                  lantern.bottom > lower.top &&
+                  chains.every((chain) =>
+                    getComputedStyle(chain).backgroundSize.endsWith("auto"),
+                  ) &&
+                  [...rail.querySelectorAll("img")].every((image) => {
+                    const rect = image.getBoundingClientRect();
+                    const expected =
+                      Number(image.getAttribute("width")) /
+                      Number(image.getAttribute("height"));
+                    return (
+                      rect.top >= frame.top - 1 &&
+                      rect.bottom <= frame.bottom + 1 &&
+                      Math.abs(rect.width / rect.height - expected) < 0.01
+                    );
+                  })
+                );
+              }),
+              repeatingFrames: [
+                ...document.querySelectorAll(
+                  ".profile,.quick-contact-link,.presentation,.home-categories,.link-sections,.site-footer,.presentation-eyebrow,.section-label,.presentation-art,.app-dialog",
+                ),
+              ].every(
+                (element) =>
+                  getComputedStyle(element).borderImageRepeat === "repeat",
+              ),
               iconBoxes: [
                 ...document.querySelectorAll(
                   ".button-icon,.link-icon,.quick-contact-icon,.category-icon,.external-link-icon",
                 ),
               ].every((icon) => {
                 const rect = icon.getBoundingClientRect();
-                const svg = icon.querySelector("svg");
-                const glyph = svg?.getBoundingClientRect();
+                const image = icon.querySelector(".site-icon");
+                const glyph = image?.getBoundingClientRect();
                 return (
                   Math.abs(rect.width - rect.height) < 1 &&
-                  svg?.querySelector("use") &&
+                  image &&
                   glyph.width <= rect.width &&
                   glyph.height <= rect.height &&
                   Math.abs(
@@ -247,9 +336,7 @@ const checks = [];
                 );
               }),
               coloredIcons: (() => {
-                const icons = [
-                  ...document.querySelectorAll(".link-icon-symbol-svg"),
-                ];
+                const icons = [...document.querySelectorAll(".site-icon")];
                 return (
                   icons.length > 0 &&
                   icons.every(
@@ -258,10 +345,38 @@ const checks = [];
                   )
                 );
               })(),
-              localIcons: [...document.querySelectorAll("svg use")].every(
-                (icon) =>
-                  new URL(icon.getAttribute("href"), location.href).origin ===
-                  location.origin,
+              beveledIcons: [...document.querySelectorAll(".site-icon")].every(
+                (icon) => {
+                  const face = icon.querySelector(".site-icon-face");
+                  return (
+                    icon.dataset.finish === "beveled" &&
+                    face &&
+                    (
+                      getComputedStyle(icon).filter.match(/drop-shadow\(/g) ||
+                      []
+                    ).length === 2 &&
+                    getComputedStyle(face).maskImage !== "none" &&
+                    getComputedStyle(
+                      face,
+                      "::before",
+                    ).backgroundImage.startsWith("linear-gradient(")
+                  );
+                },
+              ),
+              localIcons: [...document.querySelectorAll(".site-icon")].every(
+                (icon) => {
+                  const style = getComputedStyle(
+                    icon.querySelector(".site-icon-face"),
+                  );
+                  const source =
+                    style.maskImage !== "none"
+                      ? style.maskImage
+                      : style.backgroundImage;
+                  return (
+                    new URL(source.slice(5, -2), location.href).origin ===
+                    location.origin
+                  );
+                },
               ),
               externalLinks: [
                 ...document.querySelectorAll(
@@ -383,7 +498,10 @@ const checks = [];
             "controlsFit",
             "noControlMotion",
             "iconBoxes",
+            "repeatingFrames",
+            "railConnections",
             "coloredIcons",
+            "beveledIcons",
             "localIcons",
             "externalLinks",
             "footerDisclaimer",

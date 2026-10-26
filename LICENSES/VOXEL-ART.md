@@ -2,11 +2,13 @@
 
 As paisagens night.png e day.png em src/assets/images/scenery foram produzidas para este projeto com a ferramenta integrada de geração de imagens da OpenAI. A versão diurna foi gerada a partir da noturna para preservar a composição. Os originais são mantidos no repositório; o Hugo gera as versões WebP durante o build.
 
-Os SVGs de madeira, pedra, musgo e nuvens, as lanternas, as molduras e os movimentos foram construídos em código para esta interface. Os logos das plataformas continuam seguindo as atribuições individuais do catálogo de créditos.
+As molduras de pedra e madeira, as correntes, as lanternas e a paisagem night-canyon.png foram produzidas com a mesma ferramenta. Os prompts e caminhos estão em [.config/design-assets.yaml](../.config/design-assets.yaml). Os seis cursores foram produzidos a partir da referência fornecida pelo usuário, com prompts e arquivos em [.config/cursor-assets.yaml](../.config/cursor-assets.yaml). Os ícones, cursores e nuvens são mantidos em PNG. Os logos das plataformas continuam seguindo as atribuições individuais do catálogo de créditos.
+
+Os controles usam versões rasterizadas de Pixelarticons, com desenhos próprios para livro, balança, estrela e engrenagem. As marcas usam Simple Icons e Font Awesome Free. As fontes e máscaras são PNGs de 96 pixels, com uma versão de 48 pixels para os controles menores. Os atlas usam compactação PNG sem perda. As origens e versões estão em [.config/icon-assets.yaml](../.config/icon-assets.yaml), e as licenças estão no catálogo de créditos do site.
 
 A composição toma a referência enviada pelo usuário como orientação de atmosfera e hierarquia. Não foram utilizados screenshots, texturas, sons, fontes, personagens ou arquivos extraídos de Minecraft. Mojang e Microsoft são creditadas como titulares das marcas e como referência visual, sem atribuir a elas a autoria dos assets deste projeto.
 
-O código e os SVGs seguem a licença MIT do repositório. A indicação de origem das paisagens assistidas por IA não representa uma alegação de exclusividade sobre elementos genéricos ou sobre direitos de terceiros. Os termos do serviço utilizado estão disponíveis em https://openai.com/policies/terms-of-use/.
+O código e a arte original seguem a licença MIT do repositório. A indicação de origem das imagens assistidas por IA não representa uma alegação de exclusividade sobre elementos genéricos ou sobre direitos de terceiros. Os termos do serviço utilizado estão disponíveis em https://openai.com/policies/terms-of-use/.
 
 ## Prompt da paisagem noturna
 

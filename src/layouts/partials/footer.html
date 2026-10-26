@@ -18,11 +18,9 @@
 {{ $buildDateLabel := getenv "HUGO_BUILD_DATE_LABEL" | default $localized.ui.local_build }}
 {{ $credits := hugo.Data.credits }}
 <footer class="site-footer">
-  <span class="frame-moss" aria-hidden="true"></span>
-  {{ partial "frame-rivets.html" . }}
   <nav class="site-footer-content" aria-label="{{ $localized.ui.footer_aria_label }}">
     <a class="site-footer-repository" href="{{ $repositoryURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_repository }}">
-      {{ partial "button-icon.html" "git-alt" }}
+      {{ partial "button-icon.html" "github" }}
       <span>{{ $data.site.repository_label }}</span>
       <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
     </a>

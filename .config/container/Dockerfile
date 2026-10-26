@@ -8,7 +8,7 @@ ARG TARGETARCH
 ARG HUGO_VERSION=0.168.0
 ARG JUST_VERSION=1.59.0
 RUN apt-get update \
-  && apt-get install --yes --no-install-recommends ca-certificates chromium curl git libstdc++6 \
+  && apt-get install --yes --no-install-recommends ca-certificates chromium curl git libstdc++6 optipng \
   && rm --recursive --force /var/lib/apt/lists/*
 RUN set -eu; \
   build_arch="${TARGETARCH:-$(dpkg --print-architecture)}"; \

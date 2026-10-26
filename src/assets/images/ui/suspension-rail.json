@@ -1,0 +1,8 @@
+{
+  "width": 192,
+  "slices": {
+    "chain": { "top": 392, "height": 92 },
+    "terminal": { "top": 1600, "height": 174 },
+    "lantern": { "top": 720, "height": 340 }
+  }
+}

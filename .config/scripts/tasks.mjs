@@ -82,6 +82,7 @@ async function tests() {
     ".config/scripts/check-stats.mjs",
     ".config/scripts/check-content.mjs",
     ".config/scripts/check-link-retries.mjs",
+    ".config/scripts/check-raster.mjs",
   ]);
 }
 async function check() {
@@ -95,6 +96,7 @@ async function check() {
     ".github/workflows/*.yml",
     "src/assets/css/*.css",
     "src/assets/js/*.js",
+    "src/assets/**/*.json",
     "src/data/*.yaml",
     "README.md",
   ]);
@@ -214,6 +216,7 @@ try {
         ".github/workflows/*.yml",
         "src/assets/css/*.css",
         "src/assets/js/*.js",
+        "src/assets/**/*.json",
         "src/data/*.yaml",
         "README.md",
       ]);

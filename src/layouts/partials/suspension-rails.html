@@ -1,0 +1,14 @@
+{{ $assets := partialCached "rail-assets.html" . }}
+{{ range slice "start" "end" }}
+  <span class="suspension-rail suspension-rail-{{ . }}" aria-hidden="true">
+    <img class="suspension-terminal suspension-terminal-upper" src="{{ $assets.terminal.RelPermalink }}" width="{{ $assets.terminal.Width }}" height="{{ $assets.terminal.Height }}" alt="" loading="lazy" decoding="async">
+    <span class="suspension-body">
+      <span class="suspension-chain suspension-chain-upper"></span>
+      <span class="suspension-chain suspension-chain-lower"></span>
+      {{ range slice "upper" "middle" "lower" }}
+        <img class="suspension-lantern suspension-lantern-{{ . }}" src="{{ $assets.lantern.RelPermalink }}" width="{{ $assets.lantern.Width }}" height="{{ $assets.lantern.Height }}" alt="" loading="lazy" decoding="async">
+      {{ end }}
+    </span>
+    <img class="suspension-terminal suspension-terminal-lower" src="{{ $assets.terminal.RelPermalink }}" width="{{ $assets.terminal.Width }}" height="{{ $assets.terminal.Height }}" alt="" loading="lazy" decoding="async">
+  </span>
+{{ end }}

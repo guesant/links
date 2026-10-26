@@ -1,0 +1,191 @@
+{
+  "count": 46,
+  "tileSize": 96,
+  "compactTileSize": 48,
+  "icons": {
+    "book": {
+      "colored": true,
+      "position": 0
+    },
+    "document": {
+      "colored": true,
+      "position": 2.2222222222222223
+    },
+    "map": {
+      "colored": true,
+      "position": 4.444444444444445
+    },
+    "email": {
+      "colored": false,
+      "position": 6.666666666666667
+    },
+    "github": {
+      "colored": false,
+      "position": 8.88888888888889
+    },
+    "gitlab": {
+      "colored": true,
+      "position": 11.11111111111111
+    },
+    "youtube": {
+      "colored": true,
+      "position": 13.333333333333334
+    },
+    "linkedin": {
+      "colored": true,
+      "position": 15.555555555555555
+    },
+    "instagram": {
+      "colored": true,
+      "position": 17.77777777777778
+    },
+    "spotify": {
+      "colored": true,
+      "position": 20
+    },
+    "lastfm": {
+      "colored": true,
+      "position": 22.22222222222222
+    },
+    "playstation": {
+      "colored": false,
+      "position": 24.444444444444443
+    },
+    "steam": {
+      "colored": false,
+      "position": 26.666666666666668
+    },
+    "xbox": {
+      "colored": true,
+      "position": 28.888888888888886
+    },
+    "minecraft": {
+      "colored": true,
+      "position": 31.11111111111111
+    },
+    "academic": {
+      "colored": true,
+      "position": 33.33333333333333
+    },
+    "orcid": {
+      "colored": true,
+      "position": 35.55555555555556
+    },
+    "leetcode": {
+      "colored": true,
+      "position": 37.77777777777778
+    },
+    "hyperskill": {
+      "colored": true,
+      "position": 40
+    },
+    "devto": {
+      "colored": false,
+      "position": 42.22222222222222
+    },
+    "medium": {
+      "colored": false,
+      "position": 44.44444444444444
+    },
+    "house": {
+      "colored": false,
+      "position": 46.666666666666664
+    },
+    "clock": {
+      "colored": false,
+      "position": 48.888888888888886
+    },
+    "link": {
+      "colored": false,
+      "position": 51.11111111111111
+    },
+    "external-link": {
+      "colored": false,
+      "position": 53.333333333333336
+    },
+    "code": {
+      "colored": false,
+      "position": 55.55555555555556
+    },
+    "code-commit": {
+      "colored": false,
+      "position": 57.77777777777777
+    },
+    "git-alt": {
+      "colored": true,
+      "position": 60
+    },
+    "githubactions": {
+      "colored": false,
+      "position": 62.22222222222222
+    },
+    "scale-balanced": {
+      "colored": false,
+      "position": 64.44444444444444
+    },
+    "users": {
+      "colored": false,
+      "position": 66.66666666666666
+    },
+    "star": {
+      "colored": false,
+      "position": 68.88888888888889
+    },
+    "fork": {
+      "colored": false,
+      "position": 71.11111111111111
+    },
+    "trophy": {
+      "colored": true,
+      "position": 73.33333333333333
+    },
+    "check": {
+      "colored": false,
+      "position": 75.55555555555556
+    },
+    "language": {
+      "colored": false,
+      "position": 77.77777777777779
+    },
+    "desktop": {
+      "colored": false,
+      "position": 80
+    },
+    "moon": {
+      "colored": false,
+      "position": 82.22222222222221
+    },
+    "sun": {
+      "colored": true,
+      "position": 84.44444444444444
+    },
+    "play": {
+      "colored": false,
+      "position": 86.66666666666667
+    },
+    "pause": {
+      "colored": false,
+      "position": 88.88888888888889
+    },
+    "xmark": {
+      "colored": false,
+      "position": 91.11111111111111
+    },
+    "website": {
+      "colored": false,
+      "position": 93.33333333333333
+    },
+    "education": {
+      "colored": true,
+      "position": 95.55555555555556
+    },
+    "gear": {
+      "colored": false,
+      "position": 97.77777777777777
+    },
+    "chevron-right": {
+      "colored": false,
+      "position": 100
+    }
+  }
+}

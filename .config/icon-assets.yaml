@@ -1,0 +1,64 @@
+tile_size: 96
+compact_tile_size: 48
+interface_grid: 24
+display_sizes: [12, 24, 48]
+sources:
+  pixelarticons:
+    version: 2.4.2
+    url: https://github.com/halfmage/pixelarticons
+    integrity: sha512-BZKSU5ckLuioZCzES4fEmdQfnI8XEiQlHljdIVk+N6+KH7vTBQJNtMs+V0LQF7nC7cZbKT0qBXFOsT35sl8uhg==
+  simple-icons:
+    version: 16.36.0
+    url: https://github.com/simple-icons/simple-icons
+    integrity: sha512-+VNPPkqSOLidFeSgBKUWX4n50WPpDC09hav+BgS26anIF1oQOlGBb8LvwGR+6fYRjo+B6CiKzNBceMPkSVXANQ==
+  font-awesome:
+    version: 7.3.1
+    url: https://github.com/FortAwesome/Font-Awesome
+    integrity: sha512-8eiNzycuFhy3mZsi5EVO8JpO3H8l7/kSCl4Gk4iUew9hJuzYFqAAD6kqgeEup3+YZ9hL+5cjjorGzrRLkYuURg==
+icons:
+  book: { source: original, key: open-book }
+  document: { source: pixelarticons, key: file-text }
+  map: { source: pixelarticons, key: map }
+  email: { source: pixelarticons, key: mail }
+  github: { source: simple-icons, key: github }
+  gitlab: { source: simple-icons, key: gitlab }
+  youtube: { source: simple-icons, key: youtube }
+  linkedin: { source: font-awesome, key: linkedin-in }
+  instagram: { source: simple-icons, key: instagram }
+  spotify: { source: simple-icons, key: spotify }
+  lastfm: { source: simple-icons, key: lastdotfm }
+  playstation: { source: simple-icons, key: playstation }
+  steam: { source: simple-icons, key: steam }
+  xbox: { source: font-awesome, key: xbox }
+  minecraft: { source: original, key: voxel-block }
+  academic: { source: original, key: graduation-cap }
+  orcid: { source: simple-icons, key: orcid }
+  leetcode: { source: simple-icons, key: leetcode }
+  hyperskill: { source: simple-icons, key: hyperskill }
+  devto: { source: simple-icons, key: devdotto }
+  medium: { source: font-awesome, key: medium }
+  house: { source: pixelarticons, key: home }
+  clock: { source: pixelarticons, key: clock }
+  link: { source: pixelarticons, key: link }
+  external-link: { source: pixelarticons, key: external-link }
+  code: { source: pixelarticons, key: code }
+  code-commit: { source: pixelarticons, key: git-commit }
+  git-alt: { source: simple-icons, key: git }
+  githubactions: { source: pixelarticons, key: box }
+  scale-balanced: { source: original, key: balance }
+  users: { source: pixelarticons, key: users }
+  star: { source: original, key: five-point-star }
+  fork: { source: pixelarticons, key: git-branch }
+  trophy: { source: pixelarticons, key: trophy }
+  check: { source: pixelarticons, key: check }
+  language: { source: pixelarticons, key: languages }
+  desktop: { source: pixelarticons, key: monitor }
+  moon: { source: pixelarticons, key: moon }
+  sun: { source: pixelarticons, key: sun }
+  play: { source: pixelarticons, key: play }
+  pause: { source: pixelarticons, key: pause }
+  xmark: { source: pixelarticons, key: close }
+  website: { source: pixelarticons, key: globe }
+  education: { source: original, key: graduation-cap }
+  gear: { source: original, key: eight-tooth-gear }
+  chevron-right: { source: pixelarticons, key: chevron-right }

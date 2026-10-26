@@ -14,17 +14,23 @@
 {{ $siteCanonical := printf "%s%s" $canonicalBase $language.path }}
 {{ $socialImage := partialCached "social-image.html" $config $config.profile.name $config.profile.username }}
 {{ $resetCSS := resources.Get "css/reset.css" }}
-{{ $night := resources.Get "images/scenery/night.png" }}
+{{ $night := resources.Get "images/scenery/night-canyon.png" }}
 {{ $day := resources.Get "images/scenery/day.png" }}
+{{ $fontLatin := resources.Get "fonts/press-start-2p-latin.woff2" }}
+{{ $fontLatinExt := resources.Get "fonts/press-start-2p-latin-ext.woff2" }}
+{{ $railAssets := partialCached "rail-assets.html" . }}
 {{ $styleData := dict
-  "wood" ((resources.Get "images/ui/wood.svg").RelPermalink)
-  "stone" ((resources.Get "images/ui/stone.svg").RelPermalink)
-  "moss" ((resources.Get "images/ui/moss.svg").RelPermalink)
-  "clouds" ((resources.Get "images/ui/clouds.svg").RelPermalink)
+  "fontLatin" (printf "data:font/woff2;base64,%s" ($fontLatin.Content | encoding.Base64Encode))
+  "fontLatinExt" $fontLatinExt.RelPermalink
+  "clouds" ((resources.Get "images/ui/clouds.png").RelPermalink)
+  "stoneFrame" ((((resources.Get "images/ui/stone-frame.png").Crop "1140x1140 center").Resize "384x webp q82").RelPermalink)
+  "oakFrame" ((((resources.Get "images/ui/oak-frame.png").Crop "1140x1140 center").Resize "512x webp q82").RelPermalink)
+  "suspensionRail" (((resources.Get "images/ui/suspension-rail.png").Resize "x1024 webp q82").RelPermalink)
+  "railChain" $railAssets.chain.RelPermalink
   "nightDesktop" (($night.Resize "1536x webp q78").RelPermalink)
-  "nightMobile" (($night.Fill "768x1024 center webp q78").RelPermalink)
+  "nightMobile" (($night.Fill "640x960 center webp q72").RelPermalink)
   "dayDesktop" (($day.Resize "1536x webp q78").RelPermalink)
-  "dayMobile" (($day.Fill "768x1024 center webp q78").RelPermalink)
+  "dayMobile" (($day.Fill "640x960 center webp q72").RelPermalink)
 }}
 {{ $mainCSS := resources.Get "css/main.css" | resources.ExecuteAsTemplate "css/main.css" $styleData }}
 {{ $styles := slice $resetCSS $mainCSS | resources.Concat "css/site.css" | minify | fingerprint }}
@@ -44,12 +50,11 @@
 {{ $languageScript := resources.Get "js/language-switcher.js" | minify }}
 <script>{{ $languageScript.Content | safeJS }}</script>
 <link rel="canonical" href="{{ $canonical }}">
-<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+<link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
-{{ $manifest := dict "name" $localized.seo.title "short_name" $config.profile.name "description" $localized.seo.description "start_url" (strings.TrimPrefix "/" $language.path | relURL) "scope" ("" | relURL) "display" "standalone" "background_color" "#1b1b18" "theme_color" "#38651f" "lang" $localized.ui.html_lang "icons" (slice (dict "src" ("apple-touch-icon.png" | relURL) "sizes" "180x180" "type" "image/png" "purpose" "any") (dict "src" ("favicon.svg" | relURL) "sizes" "any" "type" "image/svg+xml" "purpose" "any maskable")) }}
+{{ $manifest := dict "name" $localized.seo.title "short_name" $config.profile.name "description" $localized.seo.description "start_url" (strings.TrimPrefix "/" $language.path | relURL) "scope" ("" | relURL) "display" "standalone" "background_color" "#1b1b18" "theme_color" "#38651f" "lang" $localized.ui.html_lang "icons" (slice (dict "src" ("icon-192.png" | relURL) "sizes" "192x192" "type" "image/png" "purpose" "any") (dict "src" ("icon-512.png" | relURL) "sizes" "512x512" "type" "image/png" "purpose" "any maskable")) }}
 {{ $manifestFile := resources.FromString (printf "manifests/%s.webmanifest" (lower site.Language.Lang)) ($manifest | jsonify) }}
 <link rel="manifest" href="{{ $manifestFile.RelPermalink }}">
-<link rel="mask-icon" href="{{ "favicon.svg" | relURL }}" color="#3c8527">
 {{ range $config.language_options }}
   {{ $alternate := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
   {{ if and $alternate (not $alternate.fallback) }}
@@ -59,10 +64,6 @@
 {{ end }}
 {{ $defaultPath := (index (where (partial "site-pages.html" (dict "locale" "en")) "id" $pageKey) 0).url }}
 <link rel="alternate" hreflang="x-default" href="{{ printf "%s%s" $canonicalBase $defaultPath }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.onload=null;this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"></noscript>
 <title>{{ $seoTitle }}</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ $seoTitle }}">

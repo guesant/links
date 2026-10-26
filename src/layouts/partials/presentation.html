@@ -1,6 +1,5 @@
 {{ $content := .content }}
 <section class="presentation home-introduction" aria-labelledby="presentation-title">
-  <span class="frame-moss" aria-hidden="true"></span>
   <div class="presentation-copy">
     {{ with $content.eyebrow }}<p class="presentation-eyebrow">{{ . }}</p>{{ end }}
     <h2 class="presentation-title" id="presentation-title">{{ $content.title }}</h2>
