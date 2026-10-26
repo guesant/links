@@ -96,6 +96,9 @@
 {{ $dialogsScript := resources.Get "js/dialogs.js" | minify | fingerprint }}
 {{ $uptimeScript := resources.Get "js/uptime.js" | minify | fingerprint }}
 {{ $motionScript := resources.Get "js/ambient-motion.js" | minify | fingerprint }}
+{{ $pointerSound := resources.Get "audio/mouse-click.mp3" | fingerprint }}
+{{ $pointerSoundScript := resources.Get "js/pointer-sound.js" | minify | fingerprint }}
 <script src="{{ $dialogsScript.RelPermalink }}" defer></script>
 <script src="{{ $uptimeScript.RelPermalink }}" defer></script>
 <script src="{{ $motionScript.RelPermalink }}" defer></script>
+<script src="{{ $pointerSoundScript.RelPermalink }}" data-pointer-sound="{{ $pointerSound.RelPermalink }}" defer></script>

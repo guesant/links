@@ -1,4 +1,14 @@
 licenses:
+  pixabay-content:
+    name: Pixabay Content License
+    url: https://pixabay.com/service/license-summary/
+    text: |-
+      Sound Effect by Matthew Vakalyuk from Pixabay.
+
+      The mouse click recording is used as a quiet interface sound in this website.
+      It is subject to the Pixabay Content License. The full license is not
+      reproduced here. Refer to the license summary and the linked full terms:
+      https://pixabay.com/service/license-summary/
   pixelarticons-mit:
     name: MIT License, Pixelarticons
     url: https://github.com/halfmage/pixelarticons/blob/master/LICENSE
@@ -296,6 +306,11 @@ licenses:
       remains governed by the terms accompanying the installed font.
 
 entries:
+  - id: mouse-click-sound
+    name: Mouse click, interface sound effect
+    authors: Matthew Vakalyuk, via Pixabay
+    license: pixabay-content
+    official_url: https://pixabay.com/users/matthewvakaliuk73627-48347364/
   - id: minecraft
     name: Minecraft, visual reference
     authors: Mojang Studios / Microsoft
