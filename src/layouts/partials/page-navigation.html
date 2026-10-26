@@ -3,12 +3,21 @@
 <nav class="page-navigation" aria-label="{{ index hugo.Data.links.navigation.labels $locale }}">
   <ul class="page-tabs">
     {{ range partial "site-pages.html" (dict "locale" $locale) }}
+      {{ if in (slice "home" "links-page") .type }}
       <li>
         <a class="page-tab" href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
           {{ partial "button-icon.html" .icon }}
           <span>{{ .title }}</span>
         </a>
       </li>
+      {{ end }}
     {{ end }}
   </ul>
 </nav>
+{{ range where (partial "site-pages.html" (dict "locale" $locale)) "id" "now" }}
+  <nav class="page-updates" aria-label="{{ .title }}">
+    <a class="ui-button" data-now-shortcut href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
+      {{ partial "button-icon.html" .icon }}<span>{{ .title }}</span>
+    </a>
+  </nav>
+{{ end }}

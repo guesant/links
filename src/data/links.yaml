@@ -67,10 +67,15 @@ navigation:
   links:
     - now
   sections:
-    - start-here
-    - networks
+    - career
+    - code
+    - writing
+    - learning
+    - reading
+    - music
+    - games
+    - profiles
     - contact
-    - personal
 
 home:
   illustration_enabled: true
@@ -279,29 +284,291 @@ audiences:
       zh: 家人
 
 sections:
-  - id: start-here
+  - id: career
+    icon: document
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Background
+        description: Professional experience, education and academic profiles.
+      pt-br:
+        title: Trajetória
+        description: Experiência profissional, formação e perfis acadêmicos.
+      fr:
+        title: Parcours
+        description: Expérience professionnelle, formation et profils universitaires.
+      es:
+        title: Trayectoria
+        description: Experiencia profesional, formación y perfiles académicos.
+      it:
+        title: Percorso
+        description: Esperienza professionale, formazione e profili accademici.
+      zh:
+        title: 经历
+        description: 工作经历、教育背景与学术档案。
+    links:
+      - id: curriculum
+        url: https://curriculum.guesant.net
+        icon: document
+        featured: true
+        enabled: true
+        audiences: [developers, recruiters, collaborators, academics]
+        labels:
+          en:
+            title: Curriculum
+            description: See my professional background, education, projects, and selected technical work.
+            badge: Profile
+          pt-br:
+            title: Currículo
+            description: Veja minha trajetória profissional, formação, projetos e trabalhos técnicos selecionados.
+            badge: Perfil
+          fr:
+            title: CV
+            description: Découvrez mon parcours professionnel, ma formation, mes projets et une sélection de travaux techniques.
+            badge: Profil
+          es:
+            title: Currículum
+            description: Conoce mi trayectoria profesional, formación, proyectos y trabajos técnicos seleccionados.
+            badge: Perfil
+          it:
+            title: Curriculum
+            description: Scopri il mio percorso professionale, la formazione, i progetti e una selezione di lavori tecnici.
+            badge: Profilo
+          zh:
+            title: 简历
+            description: 了解我的职业经历、教育背景、项目和精选技术工作。
+            badge: 简介
+      - id: linkedin
+        url: https://www.linkedin.com/in/gabrielrodantunes/
+        icon: linkedin
+        enabled: true
+        audiences: [recruiters, collaborators, academics]
+        labels:
+          en:
+            title: LinkedIn
+            description: View my professional profile, work history, and education.
+          pt-br:
+            title: LinkedIn
+            description: Veja meu perfil profissional, experiência e formação.
+          fr:
+            title: LinkedIn
+            description: Consultez mon profil professionnel, mon expérience et ma formation.
+          es:
+            title: LinkedIn
+            description: Consulta mi perfil profesional, experiencia y formación.
+          it:
+            title: LinkedIn
+            description: Consulta il mio profilo professionale, la mia esperienza e la mia formazione.
+          zh:
+            title: LinkedIn
+            description: 查看我的职业资料、工作经历和教育背景。
+      - id: lattes
+        url: http://lattes.cnpq.br/5981427817317311
+        icon: academic
+        enabled: true
+        audiences: [recruiters, collaborators, academics]
+        labels:
+          en:
+            title: Lattes
+            description: Consult my Brazilian academic curriculum and research-related record.
+          pt-br:
+            title: Lattes
+            description: Consulte meu currículo acadêmico brasileiro e meu registro relacionado à pesquisa.
+          fr:
+            title: Lattes
+            description: Consultez mon curriculum académique brésilien et mon parcours lié à la recherche.
+          es:
+            title: Lattes
+            description: Consulta mi currículum académico brasileño y mi trayectoria relacionada con la investigación.
+          it:
+            title: Lattes
+            description: Consulta il mio curriculum accademico brasiliano e il mio percorso legato alla ricerca.
+          zh:
+            title: Lattes
+            description: 查看我的巴西学术履历和研究相关记录。
+      - id: orcid
+        url: https://orcid.org/0009-0009-0221-943X
+        icon: orcid
+        enabled: true
+        audiences: [recruiters, collaborators, academics]
+        labels:
+          en:
+            title: ORCID
+            description: Find my persistent researcher identifier and associated academic records.
+          pt-br:
+            title: ORCID
+            description: Encontre meu identificador persistente de pesquisador e os registros acadêmicos associados.
+          fr:
+            title: ORCID
+            description: Trouvez mon identifiant persistant de chercheur et les données académiques associées.
+          es:
+            title: ORCID
+            description: Encuentra mi identificador persistente de investigador y sus registros académicos asociados.
+          it:
+            title: ORCID
+            description: Trova il mio identificativo persistente di ricercatore e i record accademici associati.
+          zh:
+            title: ORCID
+            description: 查找我的研究者持久标识符及相关学术记录。
+  - id: code
+    icon: code
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Code and projects
+        description: Source code, public activity and technical project videos.
+      pt-br:
+        title: Código e projetos
+        description: Código-fonte, atividade pública e vídeos de projetos técnicos.
+      fr:
+        title: Code et projets
+        description: Code source, activité publique et vidéos de projets techniques.
+      es:
+        title: Código y proyectos
+        description: Código fuente, actividad pública y vídeos de proyectos técnicos.
+      it:
+        title: Codice e progetti
+        description: Codice sorgente, attività pubblica e video di progetti tecnici.
+      zh:
+        title: 代码与项目
+        description: 源代码、公开动态与技术项目视频。
+    links:
+      - id: github-repositories
+        url: https://github.com/guesant?tab=repositories
+        icon: github
+        enabled: true
+        audiences: [developers, recruiters, collaborators, open-source]
+        labels:
+          en:
+            title: GitHub repositories
+            description: Explore my public software projects and their source code.
+            badge: Open Source
+          pt-br:
+            title: Repositórios no GitHub
+            description: Explore meus projetos públicos de software e seu código-fonte.
+            badge: Open Source
+          fr:
+            title: Dépôts GitHub
+            description: Explorez mes projets logiciels publics et leur code source.
+            badge: Open source
+          es:
+            title: Repositorios de GitHub
+            description: Explora mis proyectos públicos de software y su código fuente.
+            badge: Open source
+          it:
+            title: Repository GitHub
+            description: Esplora i miei progetti software pubblici e il loro codice sorgente.
+            badge: Open source
+          zh:
+            title: GitHub 仓库
+            description: 查看我的公开软件项目及其源代码。
+            badge: 开源
+      - id: github-stats
+        url: https://github.com/guesant
+        icon: github
+        enabled: true
+        stats:
+          provider: github
+          metrics: [followers, repositories, stars, forks]
+        audiences: [developers, recruiters, collaborators, open-source]
+        labels:
+          en:
+            title: GitHub activity
+            description: See a periodically refreshed summary of my public GitHub activity.
+          pt-br:
+            title: Atividade no GitHub
+            description: Veja um resumo periodicamente atualizado da minha atividade pública no GitHub.
+          fr:
+            title: Activité GitHub
+            description: Consultez un résumé régulièrement mis à jour de mon activité publique sur GitHub.
+          es:
+            title: Actividad en GitHub
+            description: Consulta un resumen actualizado periódicamente de mi actividad pública en GitHub.
+          it:
+            title: Attività GitHub
+            description: Consulta un riepilogo aggiornato periodicamente della mia attività pubblica su GitHub.
+          zh:
+            title: GitHub 活动
+            description: 查看定期更新的 GitHub 公开活动摘要。
+      - id: gitlab
+        url: https://gitlab.com/guesant
+        icon: gitlab
+        enabled: true
+        audiences: [developers, collaborators, open-source]
+        labels:
+          en:
+            title: GitLab
+            description: Browse additional code and experiments hosted on GitLab.
+          pt-br:
+            title: GitLab
+            description: Consulte outros códigos e experimentos hospedados no GitLab.
+          fr:
+            title: GitLab
+            description: Parcourez d’autres codes et expériences hébergés sur GitLab.
+          es:
+            title: GitLab
+            description: Explora más código y experimentos alojados en GitLab.
+          it:
+            title: GitLab
+            description: Consulta altri codici ed esperimenti ospitati su GitLab.
+          zh:
+            title: GitLab
+            description: 浏览托管在 GitLab 上的其他代码和实验项目。
+      - id: youtube
+        url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
+        icon: youtube
+        enabled: true
+        audiences: [developers, academics, collaborators, open-source]
+        labels:
+          en:
+            title: YouTube
+            description: Watch demonstrations of projects, infrastructure work, algorithms, and programming experiments.
+            badge: Video
+          pt-br:
+            title: YouTube
+            description: Assista a demonstrações de projetos, registros de infraestrutura, algoritmos e experimentos de programação.
+            badge: Vídeos
+          fr:
+            title: YouTube
+            description: Regardez des démonstrations de projets, des travaux d’infrastructure, des algorithmes et des expériences de programmation.
+            badge: Vidéos
+          es:
+            title: YouTube
+            description: Mira demostraciones de proyectos, trabajos de infraestructura, algoritmos y experimentos de programación.
+            badge: Vídeos
+          it:
+            title: YouTube
+            description: Guarda dimostrazioni di progetti, lavori sull’infrastruttura, algoritmi ed esperimenti di programmazione.
+            badge: Video
+          zh:
+            title: YouTube
+            description: 观看项目演示、基础设施工作、算法和编程实验。
+            badge: 视频
+  - id: writing
     icon: book
     enabled: true
     public: true
     labels:
       en:
-        title: Start here
-        description: The main places to find my work and its context.
+        title: Writing
+        description: Articles and writing about technology and what I am learning.
       pt-br:
-        title: Comece por aqui
-        description: Os principais lugares para conhecer meu trabalho e seu contexto.
+        title: Escrita
+        description: Artigos e textos sobre tecnologia e o que estou aprendendo.
       fr:
-        title: Commencez ici
-        description: Les principaux endroits pour découvrir mon travail et son contexte.
+        title: Écriture
+        description: Articles et textes sur la technologie et mes apprentissages.
       es:
-        title: Empieza por aquí
-        description: Los principales lugares para conocer mi trabajo y su contexto.
+        title: Escritura
+        description: Artículos y textos sobre tecnología y lo que estoy aprendiendo.
       it:
-        title: Inizia da qui
-        description: I luoghi principali per conoscere il mio lavoro e il suo contesto.
+        title: Scrittura
+        description: Articoli e testi sulla tecnologia e su ciò che sto imparando.
       zh:
-        title: 从这里开始
-        description: 了解我的工作及其背景的主要入口。
+        title: 写作
+        description: 关于技术和学习过程的文章与记录。
     links:
       - id: blog
         url: https://blog.guesant.net
@@ -383,37 +650,34 @@ sections:
           zh:
             title: Medium
             description: 我的 Medium 个人主页，这是一个发布和阅读文章的平台。
-      - id: curriculum
-        url: https://curriculum.guesant.net
-        icon: document
-        featured: true
-        enabled: true
-        audiences: [developers, recruiters, collaborators, academics]
-        labels:
-          en:
-            title: Curriculum
-            description: See my professional background, education, projects, and selected technical work.
-            badge: Profile
-          pt-br:
-            title: Currículo
-            description: Veja minha trajetória profissional, formação, projetos e trabalhos técnicos selecionados.
-            badge: Perfil
-          fr:
-            title: CV
-            description: Découvrez mon parcours professionnel, ma formation, mes projets et une sélection de travaux techniques.
-            badge: Profil
-          es:
-            title: Currículum
-            description: Conoce mi trayectoria profesional, formación, proyectos y trabajos técnicos seleccionados.
-            badge: Perfil
-          it:
-            title: Curriculum
-            description: Scopri il mio percorso professionale, la formazione, i progetti e una selezione di lavori tecnici.
-            badge: Profilo
-          zh:
-            title: 简历
-            description: 了解我的职业经历、教育背景、项目和精选技术工作。
-            badge: 简介
+  - id: learning
+    icon: education
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Learning and references
+        description: Collected references, programming practice and learning progress.
+      pt-br:
+        title: Estudos e referências
+        description: Referências reunidas, prática de programação e progresso nos estudos.
+      fr:
+        title: Études et références
+        description:
+          Références recueillies, exercices de programmation et progression
+          des études.
+      es:
+        title: Estudios y referencias
+        description:
+          Referencias recopiladas, práctica de programación y progreso de
+          aprendizaje.
+      it:
+        title: Studio e riferimenti
+        description: Riferimenti raccolti, pratica di programmazione e progressi nello studio.
+      zh:
+        title: 学习与参考
+        description: 收集的参考资料、编程练习与学习进度。
+    links:
       - id: atlas
         url: https://atlas.guesant.net/guest/links
         icon: map
@@ -445,244 +709,80 @@ sections:
             title: Atlas
             description: 浏览我为进一步学习整理的个人参考资料目录。
             badge: 参考资料
-      - id: github-repositories
-        url: https://github.com/guesant?tab=repositories
-        icon: github
+      - id: leetcode
+        url: https://leetcode.com/u/guesant/
+        icon: leetcode
         enabled: true
-        audiences: [developers, recruiters, collaborators, open-source]
+        stats:
+          provider: leetcode
+          metrics: [solved, ranking, easy, medium, hard]
+        audiences: [developers, recruiters]
         labels:
           en:
-            title: GitHub repositories
-            description: Explore my public software projects and their source code.
-            badge: Open Source
+            title: LeetCode
+            description: See my profile for algorithm practice and programming problem solving.
           pt-br:
-            title: Repositórios no GitHub
-            description: Explore meus projetos públicos de software e seu código-fonte.
-            badge: Open Source
+            title: LeetCode
+            description: Veja meu perfil de prática de algoritmos e resolução de problemas de programação.
           fr:
-            title: Dépôts GitHub
-            description: Explorez mes projets logiciels publics et leur code source.
-            badge: Open source
+            title: LeetCode
+            description: Consultez mon profil de pratique des algorithmes et de résolution de problèmes de programmation.
           es:
-            title: Repositorios de GitHub
-            description: Explora mis proyectos públicos de software y su código fuente.
-            badge: Open source
+            title: LeetCode
+            description: Consulta mi perfil de práctica de algoritmos y resolución de problemas de programación.
           it:
-            title: Repository GitHub
-            description: Esplora i miei progetti software pubblici e il loro codice sorgente.
-            badge: Open source
+            title: LeetCode
+            description: Consulta il mio profilo di pratica con gli algoritmi e di risoluzione di problemi di programmazione.
           zh:
-            title: GitHub 仓库
-            description: 查看我的公开软件项目及其源代码。
-            badge: 开源
-      - id: gitlab
-        url: https://gitlab.com/guesant
-        icon: gitlab
+            title: LeetCode
+            description: 查看我的算法练习和编程问题解决资料。
+      - id: hyperskill
+        url: https://hyperskill.org/my-learning/621241218
+        icon: hyperskill
         enabled: true
-        audiences: [developers, collaborators, open-source]
+        audiences: [developers, recruiters]
         labels:
           en:
-            title: GitLab
-            description: Browse additional code and experiments hosted on GitLab.
+            title: Hyperskill
+            description: See the courses and learning progress recorded in my Hyperskill profile.
           pt-br:
-            title: GitLab
-            description: Consulte outros códigos e experimentos hospedados no GitLab.
+            title: Hyperskill
+            description: Veja os cursos e o progresso de aprendizagem registrados no meu perfil da Hyperskill.
           fr:
-            title: GitLab
-            description: Parcourez d’autres codes et expériences hébergés sur GitLab.
+            title: Hyperskill
+            description: Découvrez les cours et la progression d’apprentissage enregistrés sur mon profil Hyperskill.
           es:
-            title: GitLab
-            description: Explora más código y experimentos alojados en GitLab.
+            title: Hyperskill
+            description: Consulta los cursos y el progreso de aprendizaje registrados en mi perfil de Hyperskill.
           it:
-            title: GitLab
-            description: Consulta altri codici ed esperimenti ospitati su GitLab.
+            title: Hyperskill
+            description: Scopri i corsi e i progressi di apprendimento registrati nel mio profilo Hyperskill.
           zh:
-            title: GitLab
-            description: 浏览托管在 GitLab 上的其他代码和实验项目。
-      - id: youtube
-        url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
-        icon: youtube
-        enabled: true
-        audiences: [developers, academics, collaborators, open-source]
-        labels:
-          en:
-            title: YouTube
-            description: Watch demonstrations of projects, infrastructure work, algorithms, and programming experiments.
-            badge: Video
-          pt-br:
-            title: YouTube
-            description: Assista a demonstrações de projetos, registros de infraestrutura, algoritmos e experimentos de programação.
-            badge: Vídeos
-          fr:
-            title: YouTube
-            description: Regardez des démonstrations de projets, des travaux d’infrastructure, des algorithmes et des expériences de programmation.
-            badge: Vidéos
-          es:
-            title: YouTube
-            description: Mira demostraciones de proyectos, trabajos de infraestructura, algoritmos y experimentos de programación.
-            badge: Vídeos
-          it:
-            title: YouTube
-            description: Guarda dimostrazioni di progetti, lavori sull’infrastruttura, algoritmi ed esperimenti di programmazione.
-            badge: Video
-          zh:
-            title: YouTube
-            description: 观看项目演示、基础设施工作、算法和编程实验。
-            badge: 视频
-  - id: personal-pages
+            title: Hyperskill
+            description: 查看我的 Hyperskill 课程和学习进度。
+  - id: reading
+    icon: book
     enabled: true
     public: true
     labels:
       en:
-        title: Personal pages
-        description: A closer view of what I am doing now.
+        title: Reading
+        description: Books and reading lists from my personal library.
       pt-br:
-        title: Páginas pessoais
-        description: Um olhar mais próximo sobre o que estou fazendo agora.
+        title: Leitura
+        description: Livros e listas de leitura da minha biblioteca pessoal.
       fr:
-        title: Pages personnelles
-        description: Un regard plus proche sur ce que je fais actuellement.
+        title: Lecture
+        description: Livres et listes de lecture de ma bibliothèque personnelle.
       es:
-        title: Páginas personales
-        description: Una mirada más cercana a lo que estoy haciendo ahora.
+        title: Lectura
+        description: Libros y listas de lectura de mi biblioteca personal.
       it:
-        title: Pagine personali
-        description: Uno sguardo più vicino a ciò che sto facendo ora.
+        title: Lettura
+        description: Libri e liste di lettura della mia biblioteca personale.
       zh:
-        title: 个人页面
-        description: 更深入地了解我目前正在做的事情。
-    links:
-      - id: now
-        localized_urls:
-          en: /now/
-          pt-br: /agora/
-        icon: clock
-        featured: true
-        enabled: true
-        audiences:
-          [
-            developers,
-            recruiters,
-            collaborators,
-            academics,
-            open-source,
-            friends,
-            family,
-          ]
-        labels:
-          en:
-            title: Now
-            description: See what I am interested in, working on and building next.
-          pt-br:
-            title: Agora
-            description: Veja meus interesses atuais, o que estou fazendo e o que quero construir.
-          fr:
-            title: Maintenant
-            description: Découvrez ce qui m’intéresse, ce que je fais et ce que je veux construire ensuite.
-          es:
-            title: Ahora
-            description: Conoce mis intereses actuales, lo que hago y lo que quiero construir después.
-          it:
-            title: Ora
-            description: Scopri i miei interessi attuali, ciò che faccio e ciò che voglio costruire.
-          zh:
-            title: 现在
-            description: 了解我目前感兴趣的事情、正在做的工作以及接下来想要构建的内容。
-  - id: contact
-    icon: email
-    enabled: true
-    public: true
-    labels:
-      en:
-        title: Contact
-        description: Ways to reach me and follow my work.
-      pt-br:
-        title: Contato
-        description: Formas de falar comigo e acompanhar meu trabalho.
-      fr:
-        title: Contact
-        description: Moyens de me contacter et de suivre mon travail.
-      es:
-        title: Contacto
-        description: Formas de contactarme y seguir mi trabajo.
-      it:
-        title: Contatti
-        description: Modi per contattarmi e seguire il mio lavoro.
-      zh:
-        title: 联系
-        description: 联系我并了解我工作的方式。
-    links:
-      - id: email
-        url: mailto:gabrielrodantunes@gmail.com
-        icon: email
-        enabled: true
-        audiences: [recruiters, collaborators]
-        labels:
-          en:
-            title: Email
-            description: Use this address to contact me about software, technical projects, open source, or professional opportunities.
-          pt-br:
-            title: E-mail
-            description: Use este endereço para falar comigo sobre software, projetos técnicos, open source ou oportunidades profissionais.
-          fr:
-            title: E-mail
-            description: Utilisez cette adresse pour me contacter au sujet de logiciels, projets techniques, open source ou opportunités professionnelles.
-          es:
-            title: Correo electrónico
-            description: Usa esta dirección para contactarme sobre software, proyectos técnicos, open source u oportunidades profesionales.
-          it:
-            title: E-mail
-            description: Usa questo indirizzo per contattarmi su software, progetti tecnici, open source o opportunità professionali.
-          zh:
-            title: 电子邮件
-            description: 通过此地址联系我，讨论软件、技术项目、开源或职业机会。
-      - id: linkedin
-        url: https://www.linkedin.com/in/gabrielrodantunes/
-        icon: linkedin
-        enabled: true
-        audiences: [recruiters, collaborators, academics]
-        labels:
-          en:
-            title: LinkedIn
-            description: View my professional profile, work history, and education.
-          pt-br:
-            title: LinkedIn
-            description: Veja meu perfil profissional, experiência e formação.
-          fr:
-            title: LinkedIn
-            description: Consultez mon profil professionnel, mon expérience et ma formation.
-          es:
-            title: LinkedIn
-            description: Consulta mi perfil profesional, experiencia y formación.
-          it:
-            title: LinkedIn
-            description: Consulta il mio profilo professionale, la mia esperienza e la mia formazione.
-          zh:
-            title: LinkedIn
-            description: 查看我的职业资料、工作经历和教育背景。
-  - id: personal
-    icon: star
-    enabled: true
-    public: true
-    labels:
-      en:
-        title: Personal
-        description: Personal profiles for closer connections.
-      pt-br:
-        title: Pessoal
-        description: Perfis pessoais para relações mais próximas.
-      fr:
-        title: Personnel
-        description: Profils personnels pour les relations proches.
-      es:
-        title: Personal
-        description: Perfiles personales para relaciones cercanas.
-      it:
-        title: Personale
-        description: Profili personali per le relazioni più strette.
-      zh:
-        title: 个人
-        description: 供亲近的人查看的个人资料。
+        title: 阅读
+        description: 个人书库中的图书与阅读清单。
     links:
       - id: open-library
         url: https://openlibrary.org/people/gabrielrodantunes
@@ -708,54 +808,30 @@ sections:
           zh:
             title: Open Library
             description: 查看我个人资料中的书籍和阅读清单。
-      - id: personal-youtube
-        url: https://youtube.com/@gabrielrodantunes
-        icon: youtube
-        enabled: true
-        audiences: [friends, family]
-        labels:
-          en:
-            title: Personal YouTube
-            description: My personal channel, separate from the programming and infrastructure videos on JipaCoding.
-          pt-br:
-            title: YouTube pessoal
-            description: Meu canal pessoal, separado dos vídeos de programação e infraestrutura da JipaCoding.
-          fr:
-            title: YouTube personnel
-            description: Ma chaîne personnelle, distincte des vidéos de programmation et d’infrastructure de JipaCoding.
-          es:
-            title: YouTube personal
-            description: Mi canal personal, separado de los vídeos de programación e infraestructura de JipaCoding.
-          it:
-            title: YouTube personale
-            description: Il mio canale personale, separato dai video di programmazione e infrastruttura di JipaCoding.
-          zh:
-            title: 个人 YouTube
-            description: 我的个人频道，与 JipaCoding 的编程和基础设施视频分开。
-      - id: instagram
-        url: https://instagram.com/briel_rodriguess/
-        icon: instagram
-        enabled: true
-        audiences: [friends, family]
-        labels:
-          en:
-            title: Instagram
-            description: A personal profile for people I know closely and share affinity with.
-          pt-br:
-            title: Instagram
-            description: Um perfil pessoal para pessoas íntimas, com quem tenho contato e afinidade.
-          fr:
-            title: Instagram
-            description: Un profil personnel pour les personnes que je connais bien et avec qui je partage des affinités.
-          es:
-            title: Instagram
-            description: Un perfil personal para personas que conozco de cerca y con quienes comparto afinidad.
-          it:
-            title: Instagram
-            description: Un profilo personale per le persone che conosco da vicino e con cui condivido affinità.
-          zh:
-            title: Instagram
-            description: 一个面向熟悉且志趣相投的人的个人资料。
+  - id: music
+    icon: play
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Music
+        description: Listening history, artists and playlists.
+      pt-br:
+        title: Música
+        description: Histórico de reprodução, artistas e playlists.
+      fr:
+        title: Musique
+        description: Historique d'écoute, artistes et playlists.
+      es:
+        title: Música
+        description: Historial de escucha, artistas y listas de reproducción.
+      it:
+        title: Musica
+        description: Cronologia di ascolto, artisti e playlist.
+      zh:
+        title: 音乐
+        description: 收听记录、音乐人与播放列表。
+    links:
       - id: lastfm
         url: https://www.last.fm/user/farofa_gabriel
         icon: lastfm
@@ -816,6 +892,30 @@ sections:
           zh:
             title: Spotify
             description: 收听我在 Spotify 个人资料中保存的音乐、艺人和播放列表。
+  - id: games
+    icon: trophy
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Games
+        description: Gaming profiles, libraries and activity across platforms.
+      pt-br:
+        title: Jogos
+        description: Perfis, bibliotecas e atividade nas plataformas de jogos.
+      fr:
+        title: Jeux
+        description: Profils, bibliothèques et activité sur les plateformes de jeux.
+      es:
+        title: Juegos
+        description: Perfiles, bibliotecas y actividad en las plataformas de juegos.
+      it:
+        title: Giochi
+        description: Profili, librerie e attività sulle piattaforme di gioco.
+      zh:
+        title: 游戏
+        description: 各游戏平台的个人资料、游戏库与动态。
+    links:
       - id: playstation
         url: https://psnprofiles.com/guesantx
         icon: playstation
@@ -924,156 +1024,187 @@ sections:
           zh:
             title: Minecraft
             description: 查找我的 Minecraft 资料以及 Briel_Rodriguess 的用户名历史。
-  - id: networks
-    icon: academic
+  - id: profiles
+    icon: users
     enabled: true
     public: true
     labels:
       en:
-        title: Networks
-        description: Academic profiles, learning platforms and practice.
+        title: Personal profiles
+        description: Personal social profiles and videos outside technical work.
       pt-br:
-        title: Redes
-        description: Perfis acadêmicos, plataformas de estudo e prática.
+        title: Perfis pessoais
+        description: Perfis sociais e vídeos pessoais fora do trabalho técnico.
       fr:
-        title: Réseaux
-        description: Profils universitaires, plateformes d’apprentissage et de pratique.
+        title: Profils personnels
+        description: Profils sociaux et vidéos personnels en dehors du travail technique.
       es:
-        title: Redes
-        description: Perfiles académicos, plataformas de aprendizaje y práctica.
+        title: Perfiles personales
+        description: Perfiles sociales y vídeos personales fuera del trabajo técnico.
       it:
-        title: Reti
-        description: Profili accademici, piattaforme di apprendimento e pratica.
+        title: Profili personali
+        description: Profili social e video personali al di fuori del lavoro tecnico.
       zh:
-        title: 网络
-        description: 学术资料、学习平台和练习记录。
+        title: 个人社交
+        description: 技术工作之外的个人社交资料与视频。
     links:
-      - id: lattes
-        url: http://lattes.cnpq.br/5981427817317311
-        icon: academic
+      - id: instagram
+        url: https://instagram.com/briel_rodriguess/
+        icon: instagram
         enabled: true
-        audiences: [recruiters, collaborators, academics]
+        audiences: [friends, family]
         labels:
           en:
-            title: Lattes
-            description: Consult my Brazilian academic curriculum and research-related record.
+            title: Instagram
+            description: A personal profile for people I know closely and share affinity with.
           pt-br:
-            title: Lattes
-            description: Consulte meu currículo acadêmico brasileiro e meu registro relacionado à pesquisa.
+            title: Instagram
+            description: Um perfil pessoal para pessoas íntimas, com quem tenho contato e afinidade.
           fr:
-            title: Lattes
-            description: Consultez mon curriculum académique brésilien et mon parcours lié à la recherche.
+            title: Instagram
+            description: Un profil personnel pour les personnes que je connais bien et avec qui je partage des affinités.
           es:
-            title: Lattes
-            description: Consulta mi currículum académico brasileño y mi trayectoria relacionada con la investigación.
+            title: Instagram
+            description: Un perfil personal para personas que conozco de cerca y con quienes comparto afinidad.
           it:
-            title: Lattes
-            description: Consulta il mio curriculum accademico brasiliano e il mio percorso legato alla ricerca.
+            title: Instagram
+            description: Un profilo personale per le persone che conosco da vicino e con cui condivido affinità.
           zh:
-            title: Lattes
-            description: 查看我的巴西学术履历和研究相关记录。
-      - id: orcid
-        url: https://orcid.org/0009-0009-0221-943X
-        icon: orcid
+            title: Instagram
+            description: 一个面向熟悉且志趣相投的人的个人资料。
+      - id: personal-youtube
+        url: https://youtube.com/@gabrielrodantunes
+        icon: youtube
         enabled: true
-        audiences: [recruiters, collaborators, academics]
+        audiences: [friends, family]
         labels:
           en:
-            title: ORCID
-            description: Find my persistent researcher identifier and associated academic records.
+            title: Personal YouTube
+            description: My personal channel, separate from the programming and infrastructure videos on JipaCoding.
           pt-br:
-            title: ORCID
-            description: Encontre meu identificador persistente de pesquisador e os registros acadêmicos associados.
+            title: YouTube pessoal
+            description: Meu canal pessoal, separado dos vídeos de programação e infraestrutura da JipaCoding.
           fr:
-            title: ORCID
-            description: Trouvez mon identifiant persistant de chercheur et les données académiques associées.
+            title: YouTube personnel
+            description: Ma chaîne personnelle, distincte des vidéos de programmation et d’infrastructure de JipaCoding.
           es:
-            title: ORCID
-            description: Encuentra mi identificador persistente de investigador y sus registros académicos asociados.
+            title: YouTube personal
+            description: Mi canal personal, separado de los vídeos de programación e infraestructura de JipaCoding.
           it:
-            title: ORCID
-            description: Trova il mio identificativo persistente di ricercatore e i record accademici associati.
+            title: YouTube personale
+            description: Il mio canale personale, separato dai video di programmazione e infrastruttura di JipaCoding.
           zh:
-            title: ORCID
-            description: 查找我的研究者持久标识符及相关学术记录。
-      - id: leetcode
-        url: https://leetcode.com/u/guesant/
-        icon: leetcode
+            title: 个人 YouTube
+            description: 我的个人频道，与 JipaCoding 的编程和基础设施视频分开。
+  - id: contact
+    icon: email
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Contact
+        description: Get in touch by email or LinkedIn.
+      pt-br:
+        title: Contato
+        description: Fale comigo por e-mail ou pelo LinkedIn.
+      fr:
+        title: Contact
+        description: Contactez-moi par e-mail ou sur LinkedIn.
+      es:
+        title: Contacto
+        description: Contacta conmigo por correo electrónico o LinkedIn.
+      it:
+        title: Contatti
+        description: Contattami via e-mail o LinkedIn.
+      zh:
+        title: 联系
+        description: 通过电子邮件或 LinkedIn 与我联系。
+    links:
+      - id: email
+        url: mailto:gabrielrodantunes@gmail.com
+        icon: email
         enabled: true
-        stats:
-          provider: leetcode
-          metrics: [solved, ranking, easy, medium, hard]
-        audiences: [developers, recruiters]
+        audiences: [recruiters, collaborators]
         labels:
           en:
-            title: LeetCode
-            description: See my profile for algorithm practice and programming problem solving.
+            title: Email
+            description: Use this address to contact me about software, technical projects, open source, or professional opportunities.
           pt-br:
-            title: LeetCode
-            description: Veja meu perfil de prática de algoritmos e resolução de problemas de programação.
+            title: E-mail
+            description: Use este endereço para falar comigo sobre software, projetos técnicos, open source ou oportunidades profissionais.
           fr:
-            title: LeetCode
-            description: Consultez mon profil de pratique des algorithmes et de résolution de problèmes de programmation.
+            title: E-mail
+            description: Utilisez cette adresse pour me contacter au sujet de logiciels, projets techniques, open source ou opportunités professionnelles.
           es:
-            title: LeetCode
-            description: Consulta mi perfil de práctica de algoritmos y resolución de problemas de programación.
+            title: Correo electrónico
+            description: Usa esta dirección para contactarme sobre software, proyectos técnicos, open source u oportunidades profesionales.
           it:
-            title: LeetCode
-            description: Consulta il mio profilo di pratica con gli algoritmi e di risoluzione di problemi di programmazione.
+            title: E-mail
+            description: Usa questo indirizzo per contattarmi su software, progetti tecnici, open source o opportunità professionali.
           zh:
-            title: LeetCode
-            description: 查看我的算法练习和编程问题解决资料。
-      - id: github-stats
-        url: https://github.com/guesant
-        icon: github
+            title: 电子邮件
+            description: 通过此地址联系我，讨论软件、技术项目、开源或职业机会。
+    link_refs:
+      - linkedin
+  - id: personal-pages
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Personal pages
+        description: A closer view of what I am doing now.
+      pt-br:
+        title: Páginas pessoais
+        description: Um olhar mais próximo sobre o que estou fazendo agora.
+      fr:
+        title: Pages personnelles
+        description: Un regard plus proche sur ce que je fais actuellement.
+      es:
+        title: Páginas personales
+        description: Una mirada más cercana a lo que estoy haciendo ahora.
+      it:
+        title: Pagine personali
+        description: Uno sguardo più vicino a ciò che sto facendo ora.
+      zh:
+        title: 个人页面
+        description: 更深入地了解我目前正在做的事情。
+    links:
+      - id: now
+        localized_urls:
+          en: /now/
+          pt-br: /agora/
+        icon: clock
+        featured: true
         enabled: true
-        stats:
-          provider: github
-          metrics: [followers, repositories, stars, forks]
-        audiences: [developers, recruiters, collaborators, open-source]
+        audiences:
+          [
+            developers,
+            recruiters,
+            collaborators,
+            academics,
+            open-source,
+            friends,
+            family,
+          ]
         labels:
           en:
-            title: GitHub activity
-            description: See a periodically refreshed summary of my public GitHub activity.
+            title: Now
+            description: See what I am interested in, working on and building next.
           pt-br:
-            title: Atividade no GitHub
-            description: Veja um resumo periodicamente atualizado da minha atividade pública no GitHub.
+            title: Agora
+            description: Veja meus interesses atuais, o que estou fazendo e o que quero construir.
           fr:
-            title: Activité GitHub
-            description: Consultez un résumé régulièrement mis à jour de mon activité publique sur GitHub.
+            title: Maintenant
+            description: Découvrez ce qui m’intéresse, ce que je fais et ce que je veux construire ensuite.
           es:
-            title: Actividad en GitHub
-            description: Consulta un resumen actualizado periódicamente de mi actividad pública en GitHub.
+            title: Ahora
+            description: Conoce mis intereses actuales, lo que hago y lo que quiero construir después.
           it:
-            title: Attività GitHub
-            description: Consulta un riepilogo aggiornato periodicamente della mia attività pubblica su GitHub.
+            title: Ora
+            description: Scopri i miei interessi attuali, ciò che faccio e ciò che voglio costruire.
           zh:
-            title: GitHub 活动
-            description: 查看定期更新的 GitHub 公开活动摘要。
-      - id: hyperskill
-        url: https://hyperskill.org/my-learning/621241218
-        icon: hyperskill
-        enabled: true
-        audiences: [developers, recruiters]
-        labels:
-          en:
-            title: Hyperskill
-            description: See the courses and learning progress recorded in my Hyperskill profile.
-          pt-br:
-            title: Hyperskill
-            description: Veja os cursos e o progresso de aprendizagem registrados no meu perfil da Hyperskill.
-          fr:
-            title: Hyperskill
-            description: Découvrez les cours et la progression d’apprentissage enregistrés sur mon profil Hyperskill.
-          es:
-            title: Hyperskill
-            description: Consulta los cursos y el progreso de aprendizaje registrados en mi perfil de Hyperskill.
-          it:
-            title: Hyperskill
-            description: Scopri i corsi e i progressi di apprendimento registrati nel mio profilo Hyperskill.
-          zh:
-            title: Hyperskill
-            description: 查看我的 Hyperskill 课程和学习进度。
+            title: 现在
+            description: 了解我目前感兴趣的事情、正在做的工作以及接下来想要构建的内容。
 
 locales:
   en:
@@ -1112,21 +1243,26 @@ locales:
       settings_label: Settings
       settings_close: Close settings
       home_sections_label: Explore the sections
-      home_explore: Explore sections
-      home_about: About me
       credits_authors: Authors
       credits_license: License
       credits_license_text: Read license text
       credits_official_url: Official website
     presentation:
-      eyebrow: About
-      title: Interests, work and what comes next.
-      intro: This page brings together the interests I cultivate, the work I do and the things I still want to build.
-      focus:
-        - title: Beyond work
-          description: Music, games, friends and personal ambitions are part of the context behind these links too.
-        - title: Current focus
-          description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
+      title: About / Context
+      facts:
+        - icon: user
+          text: Based in Brazil
+        - icon: desktop
+          text: Software, infrastructure and open source
+        - icon: gamepad
+          text: Games, music and long-term projects
+      site_title: This site
+      topics:
+        - Projects and code
+        - Notes and writing
+        - Learning and references
+        - Personal interests
+        - Ways to connect
   pt-br:
     seo:
       title: Gabriel R. Antunes | Links
@@ -1163,21 +1299,26 @@ locales:
       settings_label: Configurações
       settings_close: Fechar configurações
       home_sections_label: Explore as seções
-      home_explore: Explorar seções
-      home_about: Sobre mim
       credits_authors: Autores
       credits_license: Licença
       credits_license_text: Ler o texto da licença
       credits_official_url: Site oficial
     presentation:
-      eyebrow: Sobre
-      title: Interesses, trabalho e o que vem pela frente.
-      intro: Esta página reúne os interesses que cultivo, o trabalho que faço e as coisas que ainda quero construir.
-      focus:
-        - title: Além do trabalho
-          description: Música, jogos, amigos e ambições pessoais também fazem parte do contexto por trás destes links.
-        - title: Foco atual
-          description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
+      title: Sobre / Contexto
+      facts:
+        - icon: user
+          text: Moro no Brasil
+        - icon: desktop
+          text: Software, infraestrutura e open source
+        - icon: gamepad
+          text: Jogos, música e projetos de longo prazo
+      site_title: Este site
+      topics:
+        - Projetos e código
+        - Notas e escrita
+        - Estudos e referências
+        - Interesses pessoais
+        - Formas de contato
   fr:
     seo:
       title: Gabriel R. Antunes | Liens
@@ -1215,21 +1356,26 @@ locales:
       settings_label: Réglages
       settings_close: Fermer les réglages
       home_sections_label: Explorer les rubriques
-      home_explore: Explorer les rubriques
-      home_about: À propos de moi
       credits_authors: Auteurs
       credits_license: Licence
       credits_license_text: Lire le texte de la licence
       credits_official_url: Site officiel
     presentation:
-      eyebrow: À propos
-      title: Intérêts, travail et ce qui vient ensuite.
-      intro: Cette page rassemble les intérêts que je cultive, le travail que je fais et les choses que je veux encore construire.
-      focus:
-        - title: Au-delà du travail
-          description: La musique, les jeux, les amis et les ambitions personnelles font aussi partie du contexte derrière ces liens.
-        - title: Focus actuel
-          description: J’étudie Go et l’infrastructure dans un laboratoire personnel tout en continuant à travailler sur des applications et des projets open source.
+      title: À propos / Contexte
+      facts:
+        - icon: user
+          text: Basé au Brésil
+        - icon: desktop
+          text: Logiciels, infrastructure et open source
+        - icon: gamepad
+          text: Jeux, musique et projets à long terme
+      site_title: Ce site
+      topics:
+        - Projets et code
+        - Notes et écriture
+        - Études et références
+        - Intérêts personnels
+        - Moyens de contact
   es:
     seo:
       title: Gabriel R. Antunes | Enlaces
@@ -1267,21 +1413,26 @@ locales:
       settings_label: Ajustes
       settings_close: Cerrar ajustes
       home_sections_label: Explora las secciones
-      home_explore: Explorar secciones
-      home_about: Sobre mí
       credits_authors: Autores
       credits_license: Licencia
       credits_license_text: Leer el texto de la licencia
       credits_official_url: Sitio oficial
     presentation:
-      eyebrow: Sobre mí
-      title: Intereses, trabajo y lo que viene.
-      intro: Esta página reúne los intereses que cultivo, el trabajo que hago y las cosas que todavía quiero construir.
-      focus:
-        - title: Más allá del trabajo
-          description: La música, los juegos, los amigos y las ambiciones personales también forman parte del contexto detrás de estos enlaces.
-        - title: Enfoque actual
-          description: Estudio Go e infraestructura en un laboratorio personal mientras sigo trabajando con aplicaciones y proyectos open source.
+      title: Sobre mí / Contexto
+      facts:
+        - icon: user
+          text: Vivo en Brasil
+        - icon: desktop
+          text: Software, infraestructura y código abierto
+        - icon: gamepad
+          text: Juegos, música y proyectos a largo plazo
+      site_title: Este sitio
+      topics:
+        - Proyectos y código
+        - Notas y escritura
+        - Estudios y referencias
+        - Intereses personales
+        - Formas de contacto
   it:
     seo:
       title: Gabriel R. Antunes | Link
@@ -1319,21 +1470,26 @@ locales:
       settings_label: Impostazioni
       settings_close: Chiudi le impostazioni
       home_sections_label: Esplora le sezioni
-      home_explore: Esplora le sezioni
-      home_about: Su di me
       credits_authors: Autori
       credits_license: Licenza
       credits_license_text: Leggi il testo della licenza
       credits_official_url: Sito ufficiale
     presentation:
-      eyebrow: Chi sono
-      title: Interessi, lavoro e ciò che viene dopo.
-      intro: Questa pagina raccoglie gli interessi che coltivo, il lavoro che svolgo e ciò che voglio ancora costruire.
-      focus:
-        - title: Oltre il lavoro
-          description: La musica, i giochi, gli amici e le ambizioni personali fanno parte del contesto dietro questi link.
-        - title: Focus attuale
-          description: Studio Go e infrastruttura in un laboratorio personale mentre continuo a lavorare su applicazioni e progetti open source.
+      title: Chi sono / Contesto
+      facts:
+        - icon: user
+          text: Vivo in Brasile
+        - icon: desktop
+          text: Software, infrastruttura e open source
+        - icon: gamepad
+          text: Giochi, musica e progetti a lungo termine
+      site_title: Questo sito
+      topics:
+        - Progetti e codice
+        - Note e scrittura
+        - Studio e riferimenti
+        - Interessi personali
+        - Modi per contattarmi
   zh:
     seo:
       title: Gabriel R. Antunes | 链接
@@ -1371,18 +1527,23 @@ locales:
       settings_label: 设置
       settings_close: 关闭设置
       home_sections_label: 浏览各个栏目
-      home_explore: 浏览栏目
-      home_about: 关于我
       credits_authors: 作者
       credits_license: 许可证
       credits_license_text: 阅读许可证文本
       credits_official_url: 官方网站
     presentation:
-      eyebrow: 关于我
-      title: 兴趣、工作，以及接下来要做的事。
-      intro: 这一页汇集了我所培养的兴趣、正在做的工作，以及我还想实现的事情。
-      focus:
-        - title: 工作之外
-          description: 音乐、游戏、朋友和个人抱负也是这些链接背后的一部分。
-        - title: 当前重点
-          description: 我在个人实验室学习 Go 和基础设施，同时继续开发应用和参与开源项目。
+      title: 关于 / 背景
+      facts:
+        - icon: user
+          text: 居住在巴西
+        - icon: desktop
+          text: 软件、基础设施与开源
+        - icon: gamepad
+          text: 游戏、音乐与长期项目
+      site_title: 本站内容
+      topics:
+        - 项目与代码
+        - 笔记与写作
+        - 学习与参考资料
+        - 个人兴趣
+        - 联系方式

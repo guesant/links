@@ -5,7 +5,6 @@
       {{ $destination := partial "link-destination.html" . }}
       <a class="quick-contact-link" href="{{ $destination.href }}" target="{{ $destination.target }}"{{ with $destination.rel }} rel="{{ . }}"{{ end }} title="{{ .title }}" aria-label="{{ .title }}">
         <span class="quick-contact-icon">{{ partial "icon.html" .icon }}</span>
-        {{ if $destination.external }}<span class="external-link-icon quick-contact-external-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>{{ end }}
       </a>
     {{ end }}
   {{ end }}

@@ -18,6 +18,8 @@
 {{ $buildDateLabel := getenv "HUGO_BUILD_DATE_LABEL" | default $localized.ui.local_build }}
 {{ $credits := hugo.Data.credits }}
 <footer class="site-footer">
+  <span class="frame-ornament frame-ornament-start" aria-hidden="true"></span>
+  <span class="frame-ornament frame-ornament-end" aria-hidden="true"></span>
   <nav class="site-footer-content" aria-label="{{ $localized.ui.footer_aria_label }}">
     <a class="site-footer-repository" href="{{ $repositoryURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_repository }}">
       {{ partial "button-icon.html" "github" }}
@@ -49,6 +51,15 @@
       {{ partial "button-icon.html" "gear" }}<span>{{ $localized.ui.settings_label }}</span>
     </button>
   </nav>
+  {{ if .IsHome }}
+    <details class="context-navigation">
+      <summary>{{ partial "button-icon.html" "map" }}<span>{{ $localized.ui.home_sections_label }}</span>{{ partial "button-icon.html" "chevron-right" }}</summary>
+      <div class="context-navigation-content">
+        {{ partial "page-navigation.html" . }}
+        {{ if $data.home.illustration_enabled }}<div class="presentation-art" aria-hidden="true"></div>{{ end }}
+      </div>
+    </details>
+  {{ end }}
   {{ with $localized.ui.translation_disclaimer }}<p class="translation-disclaimer">{{ . }}</p>{{ end }}
   <p class="brand-disclaimer">{{ $localized.ui.brand_disclaimer }}</p>
 </footer>
@@ -96,9 +107,11 @@
 {{ $dialogsScript := resources.Get "js/dialogs.js" | minify | fingerprint }}
 {{ $uptimeScript := resources.Get "js/uptime.js" | minify | fingerprint }}
 {{ $motionScript := resources.Get "js/ambient-motion.js" | minify | fingerprint }}
+{{ $railScript := resources.Get "js/rail-layout.js" | minify | fingerprint }}
 {{ $pointerSound := resources.Get "audio/mouse-click.mp3" | fingerprint }}
 {{ $pointerSoundScript := resources.Get "js/pointer-sound.js" | minify | fingerprint }}
 <script src="{{ $dialogsScript.RelPermalink }}" defer></script>
 <script src="{{ $uptimeScript.RelPermalink }}" defer></script>
 <script src="{{ $motionScript.RelPermalink }}" defer></script>
+<script src="{{ $railScript.RelPermalink }}" defer></script>
 <script src="{{ $pointerSoundScript.RelPermalink }}" data-pointer-sound="{{ $pointerSound.RelPermalink }}" defer></script>

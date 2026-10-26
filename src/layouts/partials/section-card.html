@@ -1,0 +1,16 @@
+{{ $page := .page }}
+{{ $destination := strings.TrimPrefix "/" $page.url | relURL }}
+<article class="category-card" {{ if .update }}data-home-update{{ else }}data-category{{ end }}="{{ $page.id }}" data-ornament="{{ mod .index 3 }}" aria-labelledby="category-{{ $page.id }}-title"{{ if or .update (in (slice "writing" "games") $page.id) }} data-rail-anchor{{ end }}>
+  <div class="category-summary">
+    <span class="category-icon" aria-hidden="true">{{ partial "icon.html" ($page.icon | default "link") }}</span>
+    <div class="category-copy">
+      {{ if .update }}
+        <h2 class="category-title" id="category-{{ $page.id }}-title"><a class="category-main-link" href="{{ $destination }}">{{ $page.title }}</a></h2>
+      {{ else }}
+        <h3 class="category-title" id="category-{{ $page.id }}-title"><a class="category-main-link" href="{{ $destination }}">{{ $page.title }}</a></h3>
+      {{ end }}
+      {{ with $page.description }}<p class="category-description">{{ . }}</p>{{ end }}
+    </div>
+  </div>
+  <div class="category-links">{{ partial "preview-list.html" .links }}</div>
+</article>

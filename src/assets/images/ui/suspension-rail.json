@@ -3,6 +3,7 @@
   "slices": {
     "chain": { "top": 392, "height": 92 },
     "terminal": { "top": 1600, "height": 174 },
-    "lantern": { "top": 720, "height": 340 }
+    "lantern": { "top": 720, "height": 340 },
+    "profile-lantern": { "top": 806, "height": 254 }
   }
 }

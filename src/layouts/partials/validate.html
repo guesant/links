@@ -11,8 +11,17 @@
 {{ if not .seo.description }}{{ errorf "links.yaml: seo.description is required" }}{{ end }}
 {{ if not .presentation }}{{ errorf "links.yaml: presentation is required" }}{{ end }}
 {{ if not .presentation.title }}{{ errorf "links.yaml: presentation.title is required" }}{{ end }}
-{{ if not .presentation.intro }}{{ errorf "links.yaml: presentation.intro is required" }}{{ end }}
-{{ if not .presentation.focus }}{{ errorf "links.yaml: presentation.focus needs items" }}{{ end }}
+{{ if not .presentation.facts }}{{ errorf "links.yaml: presentation.facts needs items" }}{{ end }}
+{{ if not .presentation.site_title }}{{ errorf "links.yaml: presentation.site_title is required" }}{{ end }}
+{{ if not .presentation.topics }}{{ errorf "links.yaml: presentation.topics needs items" }}{{ end }}
+{{ $icons := (resources.Get "icons/manifest.json" | transform.Unmarshal).icons }}
+{{ range .presentation.facts }}
+  {{ if not .text }}{{ errorf "links.yaml: presentation fact needs text" }}{{ end }}
+  {{ if not (and .icon (index $icons .icon)) }}{{ errorf "links.yaml: presentation fact needs a known PNG icon" }}{{ end }}
+{{ end }}
+{{ range .presentation.topics }}
+  {{ if not . }}{{ errorf "links.yaml: presentation topic needs text" }}{{ end }}
+{{ end }}
 {{ if not .audiences }}{{ errorf "links.yaml: at least one audience is required" }}{{ end }}
 {{ if not .sections }}{{ errorf "links.yaml: at least one section is required" }}{{ end }}
 {{ if not .language }}{{ errorf "links.yaml: language is required" }}{{ end }}
@@ -64,14 +73,28 @@
     {{ if not (index $audience.labels .id) }}{{ errorf "links.yaml: audience %q needs labels for %s" $audience.id .id }}{{ end }}
   {{ end }}
 {{ end }}
+{{ $linkIDs := slice }}
 {{ range .sections }}
+  {{ range .links }}
+    {{ if in $linkIDs .id }}{{ errorf "links.yaml: link %q is duplicated" .id }}{{ end }}
+    {{ $linkIDs = $linkIDs | append .id }}
+  {{ end }}
+{{ end }}
+{{ range .sections }}
+  {{ $sectionIDs := slice }}
+  {{ range .links }}{{ $sectionIDs = $sectionIDs | append .id }}{{ end }}
+  {{ range .link_refs }}
+    {{ if not (in $linkIDs .) }}{{ errorf "links.yaml: unknown link reference %q" . }}{{ end }}
+    {{ if in $sectionIDs . }}{{ errorf "links.yaml: duplicate section link %q" . }}{{ end }}
+    {{ $sectionIDs = $sectionIDs | append . }}
+  {{ end }}
   {{ $sectionEnabled := true }}
   {{ if isset . "enabled" }}{{ $sectionEnabled = .enabled }}{{ end }}
   {{ if $sectionEnabled }}
     {{ $sectionLabels := index .labels $.language }}
     {{ if not $sectionLabels }}{{ errorf "links.yaml: section %q needs labels for %s" .id $.language }}{{ end }}
     {{ if not $sectionLabels.title }}{{ errorf "links.yaml: section %q needs a title for %s" .id $.language }}{{ end }}
-    {{ if not .links }}{{ errorf "links.yaml: section %q needs links" $sectionLabels.title }}{{ end }}
+    {{ if not (or .links .link_refs) }}{{ errorf "links.yaml: section %q needs links" $sectionLabels.title }}{{ end }}
     {{ range .links }}
       {{ $linkEnabled := true }}
       {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}

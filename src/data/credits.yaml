@@ -186,6 +186,7 @@ licenses:
     url: https://scripts.sil.org/OFL
     text: |-
       Copyright 2012 The Press Start 2P Project Authors (cody@zone38.net), with Reserved Font Name "Press Start 2P".
+      Copyright 2019 The Oxanium Project Authors (https://github.com/sevmeyer/oxanium).
 
       This Font Software is licensed under the SIL Open Font License, Version 1.1.
       This license is copied below, and is also available with a FAQ at:
@@ -436,6 +437,11 @@ entries:
     authors: Robin Nicholas and Patricia Saunders, Monotype
     license: system-font
     official_url: https://learn.microsoft.com/en-us/typography/font-list/arial
+  - id: oxanium
+    name: Oxanium
+    authors: Severin Meyer and The Oxanium Project Authors
+    license: ofl-1.1
+    official_url: https://github.com/sevmeyer/oxanium
   - id: google-fonts
     name: Google Fonts
     authors: Google

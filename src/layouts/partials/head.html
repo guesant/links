@@ -18,15 +18,24 @@
 {{ $day := resources.Get "images/scenery/day.png" }}
 {{ $fontLatin := resources.Get "fonts/press-start-2p-latin.woff2" }}
 {{ $fontLatinExt := resources.Get "fonts/press-start-2p-latin-ext.woff2" }}
+{{ $bodyFontLatin := resources.Get "fonts/oxanium-latin.woff2" | fingerprint }}
+{{ $bodyFontLatinExt := resources.Get "fonts/oxanium-latin-ext.woff2" | fingerprint }}
 {{ $railAssets := partialCached "rail-assets.html" . }}
 {{ $styleData := dict
   "fontLatin" (printf "data:font/woff2;base64,%s" ($fontLatin.Content | encoding.Base64Encode))
   "fontLatinExt" $fontLatinExt.RelPermalink
+  "bodyFontLatin" $bodyFontLatin.RelPermalink
+  "bodyFontLatinExt" $bodyFontLatinExt.RelPermalink
   "clouds" ((resources.Get "images/ui/clouds.png").RelPermalink)
   "stoneFrame" ((((resources.Get "images/ui/stone-frame.png").Crop "1140x1140 center").Resize "384x webp q82").RelPermalink)
   "oakFrame" ((((resources.Get "images/ui/oak-frame.png").Crop "1140x1140 center").Resize "512x webp q82").RelPermalink)
-  "suspensionRail" (((resources.Get "images/ui/suspension-rail.png").Resize "x1024 webp q82").RelPermalink)
+  "oakDrapeStart" ((((resources.Get "images/ui/oak-frame.png").Crop "384x448 TopLeft").Resize "192x png").RelPermalink)
+  "oakDrapeEnd" ((((resources.Get "images/ui/oak-frame.png").Crop "384x448 TopRight").Resize "192x png").RelPermalink)
+  "stoneFootStart" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomLeft").Resize "192x png").RelPermalink)
+  "stoneFootEnd" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomRight").Resize "192x png").RelPermalink)
+  "profileLantern" (((index $railAssets "profile-lantern").Resize "96x webp q82").RelPermalink)
   "railChain" $railAssets.chain.RelPermalink
+  "agedOakSurface" (((resources.Get "images/ui/charcoal-planks.png").Resize "512x webp q80").RelPermalink)
   "nightDesktop" (($night.Resize "1536x webp q78").RelPermalink)
   "nightMobile" (($night.Fill "640x960 center webp q72").RelPermalink)
   "dayDesktop" (($day.Resize "1536x webp q78").RelPermalink)
@@ -36,6 +45,9 @@
 {{ $styles := slice $resetCSS $mainCSS | resources.Concat "css/site.css" | minify | fingerprint }}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preload" href="{{ $bodyFontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ $styleData.oakFrame }}" as="image" type="image/webp" fetchpriority="high">
+<link rel="preload" href="{{ $styleData.profileLantern }}" as="image" type="image/webp" fetchpriority="high">
 <link rel="stylesheet" href="{{ $styles.RelPermalink }}">
 <meta name="description" content="{{ $seoDescription }}">
 <meta name="author" content="{{ $config.profile.name }}">

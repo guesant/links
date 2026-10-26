@@ -56,14 +56,40 @@ const checks = [];
       });
       assert.equal(response.status(), 200, route.url);
       await page.evaluate(() => document.fonts.ready);
-      const expectedNavigation = pagesFor(config, route.language).map(
-        (entry) => ({
+      const typography = await page.evaluate(async () => {
+        const weights = [400, 600, 700];
+        const loaded = await Promise.all(
+          weights.map((weight) =>
+            document.fonts.load(
+              `${weight} 16px "Oxanium"`,
+              "Gabriel, música, aplicações, Ā, Ș",
+            ),
+          ),
+        );
+        return {
+          body: getComputedStyle(document.body).fontFamily,
+          control: getComputedStyle(document.querySelector(".page-tab"))
+            .fontFamily,
+          heading: getComputedStyle(document.querySelector("h1")).fontFamily,
+          loaded: loaded.every(
+            (faces) =>
+              faces.length > 0 &&
+              faces.every((face) => face.status === "loaded"),
+          ),
+        };
+      });
+      assert.match(typography.body, /^"?Oxanium"?,/);
+      assert.match(typography.control, /^"?Oxanium"?,/);
+      assert.match(typography.heading, /press start 2p/);
+      assert(typography.loaded, `Oxanium failed to load on ${route.url}`);
+      const expectedNavigation = pagesFor(config, route.language)
+        .filter((entry) => ["home", "links-page"].includes(entry.type))
+        .map((entry) => ({
           title: entry.title,
           url: href(entry.url),
           current: entry.id === route.id,
           icon: entry.icon,
-        }),
-      );
+        }));
       const expectedLinks = (route.links || [])
         .map((entry) => href(localizedURL(entry, route.language)))
         .sort();
@@ -80,6 +106,42 @@ const checks = [];
         ),
         expectedNavigation,
       );
+      const nowPage = pagesFor(config, route.language).find(
+        (entry) => entry.id === "now",
+      );
+      assert.deepEqual(
+        await page.$$eval("[data-now-shortcut]", (links) =>
+          links.map((link) => ({
+            href: link.href,
+            current: link.getAttribute("aria-current") === "page",
+          })),
+        ),
+        [{ href: href(nowPage.url), current: route.id === "now" }],
+      );
+      assert.equal(
+        await page.$$eval(
+          '.quick-contacts [data-platform="linkedin"]',
+          (icons) => icons.length,
+        ),
+        1,
+      );
+      assert.deepEqual(
+        await page.$$eval(".language-select option", (options) =>
+          options.map((option) => ({
+            href: new URL(option.value, location.href).href,
+            selected: option.selected,
+          })),
+        ),
+        config.language_options.map((language) => {
+          const translated = pagesFor(config, language.id).find(
+            (entry) => entry.id === route.id && !entry.fallback,
+          );
+          return {
+            href: href(translated?.url || language.path),
+            selected: language.id === route.language,
+          };
+        }),
+      );
       assert.deepEqual(
         await page.$$eval(".link-button", (links) =>
           links.map((link) => link.href).sort(),
@@ -87,6 +149,25 @@ const checks = [];
         expectedLinks,
       );
       assert.equal(await page.$$eval("h1", (headings) => headings.length), 1);
+      if (route.id === "home") {
+        const expected = config.locales[route.language].presentation;
+        assert.deepEqual(
+          await page.$eval(".home-introduction", (panel) => ({
+            title: panel.querySelector("h2").textContent.trim(),
+            facts: [...panel.querySelectorAll(".about-fact")].map((fact) => ({
+              icon: fact.querySelector("[data-platform]").dataset.platform,
+              text: fact.textContent.trim(),
+            })),
+            site_title: panel
+              .querySelector(".about-site-title")
+              .textContent.trim(),
+            topics: [...panel.querySelectorAll(".about-topics > li")].map(
+              (topic) => topic.textContent.trim(),
+            ),
+          })),
+          expected,
+        );
+      }
       const expectedCanonical = new URL(route.url.replace(/^\/+/, ""), base)
         .href;
       assert.equal(
@@ -101,8 +182,109 @@ const checks = [];
         await page.click("[data-settings-open]");
         await page.$eval(`#theme-${theme}`, (option) => option.click());
         await page.click("#settings-dialog [data-dialog-close]");
+        if (
+          route.id === "home" &&
+          route.language === config.language_options[0].id
+        ) {
+          const materialContrast = await page.evaluate(async () => {
+            const root = document.documentElement;
+            const color = (name) => {
+              const sample = document.createElement("span");
+              sample.style.color = `var(--${name})`;
+              root.append(sample);
+              const result = getComputedStyle(sample)
+                .color.match(/[\d.]+/g)
+                .map(Number);
+              sample.remove();
+              return result;
+            };
+            const imageURL = getComputedStyle(root)
+              .getPropertyValue("--texture-aged-oak")
+              .match(/url\(["']?(.*?)["']?\)/)[1];
+            const image = new Image();
+            image.src = imageURL;
+            await image.decode();
+            const canvas = document.createElement("canvas");
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+            const context = canvas.getContext("2d");
+            context.drawImage(image, 0, 0);
+            const pixels = context.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            ).data;
+            const luminance = (rgb) =>
+              rgb
+                .slice(0, 3)
+                .map((value) => {
+                  value /= 255;
+                  return value <= 0.04045
+                    ? value / 12.92
+                    : ((value + 0.055) / 1.055) ** 2.4;
+                })
+                .reduce(
+                  (sum, value, index) =>
+                    sum + value * [0.2126, 0.7152, 0.0722][index],
+                  0,
+                );
+            const blend = (under, over) =>
+              under.map(
+                (value, index) =>
+                  value * (1 - (over[3] ?? 1)) + over[index] * (over[3] ?? 1),
+              );
+            const ratio = (one, two) => {
+              const a = luminance(one),
+                b = luminance(two);
+              return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+            };
+            const panelWash = color("color-panel-wash");
+            const woodWash = color("color-wood-wash");
+            const warmth = color("color-frame-warmth");
+            const panelText = [
+              "color-text",
+              "color-text-muted",
+              "color-accent-strong",
+            ].map(color);
+            const woodText = ["color-wood-text", "color-wood-muted"].map(color);
+            let panel = Infinity,
+              wood = Infinity;
+            for (let index = 0; index < pixels.length; index += 4) {
+              const pixel = [...pixels.slice(index, index + 3)];
+              if (pixels[index + 3] !== 255)
+                throw new Error("Material must be opaque");
+              const panelPixel = blend(pixel, panelWash);
+              const woodPixel = blend(
+                blend(blend(pixel, woodWash), warmth),
+                warmth,
+              );
+              for (const foreground of panelText)
+                panel = Math.min(panel, ratio(foreground, panelPixel));
+              for (const foreground of woodText)
+                wood = Math.min(wood, ratio(foreground, woodPixel));
+            }
+            return { panel, wood };
+          });
+          assert(
+            materialContrast.panel >= 4.5 && materialContrast.wood >= 4.5,
+            JSON.stringify(materialContrast),
+          );
+          checks.push({
+            path: route.url,
+            theme,
+            materialContrast,
+            passed: true,
+          });
+        }
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
+          await page.evaluate(
+            () =>
+              new Promise((resolve) =>
+                requestAnimationFrame(() => requestAnimationFrame(resolve)),
+              ),
+          );
           const layout = await page.evaluate(() => {
             const cards = [...document.querySelectorAll(".link-button")];
             const tabs = [...document.querySelectorAll(".page-tab")];
@@ -138,7 +320,34 @@ const checks = [];
                 const quickContacts = document
                   .querySelector(".quick-contacts")
                   .getBoundingClientRect();
+                const updates = document
+                  .querySelector(".page-updates")
+                  .getBoundingClientRect();
+                const context = document.querySelector(".context-navigation");
+                const suspended = document.querySelector(".suspended-content");
+                const suspendedStyle = getComputedStyle(suspended);
+                const insetStart = parseFloat(suspendedStyle.paddingLeft);
+                const insetEnd = parseFloat(suspendedStyle.paddingRight);
+                const outerAligned = [profile, footer].every(
+                  (rect) =>
+                    Math.abs(rect.width - shell.width) < 1 &&
+                    Math.abs(rect.left - shell.left) < 1 &&
+                    Math.abs(rect.right - shell.right) < 1,
+                );
+                const aligned =
+                  outerAligned &&
+                  [quickContacts, content].every(
+                    (rect) =>
+                      Math.abs(rect.left - shell.left - insetStart) < 1 &&
+                      Math.abs(shell.right - rect.right - insetEnd) < 1,
+                  );
+                if (context) return aligned && !context.open;
                 return (
+                  aligned &&
+                  Math.abs(updates.width - content.width) < 1 &&
+                  Math.abs(updates.left - content.left) < 1 &&
+                  updates.top >= navigation.bottom &&
+                  updates.bottom <= content.top &&
                   Math.abs(navigation.width - content.width) < 1 &&
                   Math.abs(footer.width - profile.width) < 1 &&
                   Math.abs(quickContacts.width - content.width) < 1 &&
@@ -170,8 +379,15 @@ const checks = [];
                 const shell = document.querySelector(".site-shell");
                 const rect = main.getBoundingClientRect();
                 const shellRect = shell.getBoundingClientRect();
+                const suspendedStyle = getComputedStyle(
+                  document.querySelector(".suspended-content"),
+                );
+                const availableWidth =
+                  shellRect.width -
+                  parseFloat(suspendedStyle.paddingLeft) -
+                  parseFloat(suspendedStyle.paddingRight);
                 return (
-                  Math.abs(rect.width - Math.min(640, shellRect.width)) < 1 &&
+                  Math.abs(rect.width - Math.min(640, availableWidth)) < 1 &&
                   Math.abs(
                     rect.left +
                       rect.width / 2 -
@@ -203,11 +419,13 @@ const checks = [];
                 ...document.querySelectorAll(
                   ".page-tab,.ui-button,.site-footer-content > *",
                 ),
-              ].every(
-                (element) =>
-                  element.scrollWidth <= element.clientWidth &&
-                  element.getBoundingClientRect().height >= 44,
-              ),
+              ]
+                .filter((element) => element.getClientRects().length)
+                .every(
+                  (element) =>
+                    element.scrollWidth <= element.clientWidth &&
+                    element.getBoundingClientRect().height >= 44,
+                ),
               columns: [...document.querySelectorAll(".link-row")].map(
                 (list) =>
                   getComputedStyle(list).gridTemplateColumns.split(" ").length,
@@ -274,8 +492,11 @@ const checks = [];
                   Math.abs(frame.bottom - (footerRect.top + footerBorder / 2)) <
                     1 &&
                   Math.abs(center - headerJoint) < 1 &&
-                  Math.abs(center - footerJoint) <=
-                    Math.abs(headerBorder - footerBorder) / 2 + 1 &&
+                  Math.abs(center - footerJoint) < 1 &&
+                  headerJoint >= first.left &&
+                  headerJoint <= first.right &&
+                  footerJoint >= last.left &&
+                  footerJoint <= last.right &&
                   terminals.length === 2 &&
                   terminals[0].src === terminals[1].src &&
                   getComputedStyle(terminals[0]).transform ===
@@ -306,9 +527,87 @@ const checks = [];
                   })
                 );
               }),
+              railContentClearance: (() => {
+                const suspended = document.querySelector(".suspended-content");
+                const style = getComputedStyle(suspended);
+                const rails = [
+                  ...suspended.querySelectorAll(".suspension-rail"),
+                ];
+                if (
+                  rails.every(
+                    (rail) => getComputedStyle(rail).display === "none",
+                  )
+                )
+                  return (
+                    parseFloat(style.paddingLeft) === 0 &&
+                    parseFloat(style.paddingRight) === 0
+                  );
+                const gap =
+                  parseFloat(style.paddingLeft) -
+                  (rails[0].getBoundingClientRect().right -
+                    suspended.getBoundingClientRect().left);
+                const start = rails[0].getBoundingClientRect();
+                const end = rails[1].getBoundingClientRect();
+                return (
+                  gap > 0 &&
+                  [...suspended.children]
+                    .filter(
+                      (element) =>
+                        !element.classList.contains("suspension-rail"),
+                    )
+                    .every((element) => {
+                      const rect = element.getBoundingClientRect();
+                      return (
+                        rect.left - start.right >= gap - 1 &&
+                        end.left - rect.right >= gap - 1
+                      );
+                    })
+                );
+              })(),
+              anchoredLanterns: (() => {
+                const anchors = [
+                  ...document.querySelectorAll("[data-rail-anchor]"),
+                ];
+                if (!anchors.length) return true;
+                const content = document.querySelector(".suspended-content");
+                const gap = parseFloat(getComputedStyle(content).rowGap);
+                return [...content.querySelectorAll(".suspension-body")].every(
+                  (body) => {
+                    if (!body.getClientRects().length) return true;
+                    const frame = body.getBoundingClientRect();
+                    const lanterns = [
+                      ...body.querySelectorAll("[data-rail-lantern]"),
+                    ];
+                    return (
+                      lanterns.length === anchors.length &&
+                      lanterns.every((lantern, index) => {
+                        const expected =
+                          anchors[index].getBoundingClientRect().bottom +
+                          gap / 2 -
+                          frame.top;
+                        const actual = parseFloat(
+                          lantern.style.getPropertyValue(
+                            "--rail-lantern-position",
+                          ),
+                        );
+                        const image = lantern.getBoundingClientRect();
+                        return (
+                          Math.abs(expected - actual) < 1 &&
+                          Math.abs(
+                            image.left +
+                              image.width / 2 -
+                              frame.left -
+                              frame.width / 2,
+                          ) < 1
+                        );
+                      })
+                    );
+                  },
+                );
+              })(),
               repeatingFrames: [
                 ...document.querySelectorAll(
-                  ".profile,.quick-contact-link,.presentation,.home-categories,.link-sections,.site-footer,.presentation-eyebrow,.section-label,.presentation-art,.app-dialog",
+                  ".profile,.quick-contact-link,.presentation,.category-card,.link-sections,.site-footer,.presentation-eyebrow,.section-label,.presentation-art,.app-dialog",
                 ),
               ].every(
                 (element) =>
@@ -318,23 +617,29 @@ const checks = [];
                 ...document.querySelectorAll(
                   ".button-icon,.link-icon,.quick-contact-icon,.category-icon,.external-link-icon",
                 ),
-              ].every((icon) => {
-                const rect = icon.getBoundingClientRect();
-                const image = icon.querySelector(".site-icon");
-                const glyph = image?.getBoundingClientRect();
-                return (
-                  Math.abs(rect.width - rect.height) < 1 &&
-                  image &&
-                  glyph.width <= rect.width &&
-                  glyph.height <= rect.height &&
-                  Math.abs(
-                    rect.left + rect.width / 2 - (glyph.left + glyph.width / 2),
-                  ) < 1 &&
-                  Math.abs(
-                    rect.top + rect.height / 2 - (glyph.top + glyph.height / 2),
-                  ) < 1
-                );
-              }),
+              ]
+                .filter((icon) => icon.getClientRects().length)
+                .every((icon) => {
+                  const rect = icon.getBoundingClientRect();
+                  const image = icon.querySelector(".site-icon");
+                  const glyph = image?.getBoundingClientRect();
+                  return (
+                    Math.abs(rect.width - rect.height) < 1 &&
+                    image &&
+                    glyph.width <= rect.width &&
+                    glyph.height <= rect.height &&
+                    Math.abs(
+                      rect.left +
+                        rect.width / 2 -
+                        (glyph.left + glyph.width / 2),
+                    ) < 1 &&
+                    Math.abs(
+                      rect.top +
+                        rect.height / 2 -
+                        (glyph.top + glyph.height / 2),
+                    ) < 1
+                  );
+                }),
               coloredIcons: (() => {
                 const icons = [...document.querySelectorAll(".site-icon")];
                 return (
@@ -387,7 +692,9 @@ const checks = [];
                   link.target === "_blank" &&
                   link.relList.contains("noopener") &&
                   link.relList.contains("noreferrer") &&
-                  link.querySelector(".external-link-icon"),
+                  (link.classList.contains("quick-contact-link")
+                    ? !link.querySelector(".external-link-icon")
+                    : Boolean(link.querySelector(".external-link-icon"))),
               ),
               footerDisclaimer:
                 document.querySelectorAll(".brand-disclaimer").length === 1 &&
@@ -433,13 +740,169 @@ const checks = [];
                   getComputedStyle(preview).gridTemplateColumns.split(" ")
                     .length === 1,
               ),
-              homeIntroductionColumns: (() => {
+              rusticGeometry: (() => {
+                const sections = [
+                  ...document.querySelectorAll(".category-card"),
+                ];
+                const wide =
+                  document.querySelector(".page-content").clientWidth >= 448;
+                const dividers = sections.map(
+                  (card) =>
+                    card
+                      .querySelector(".category-links")
+                      .getBoundingClientRect().left -
+                    card.getBoundingClientRect().left,
+                );
+                return sections.every((card, index) => {
+                  const style = getComputedStyle(card);
+                  const summary = card.querySelector(".category-summary");
+                  const links = card.querySelector(".category-links");
+                  const summaryRect = summary.getBoundingClientRect();
+                  const listRect = links.getBoundingClientRect();
+                  const linkStyle = getComputedStyle(links);
+                  const icon = card
+                    .querySelector(".category-icon")
+                    .getBoundingClientRect();
+                  return (
+                    style.gridTemplateColumns.split(" ").length ===
+                      (wide ? 2 : 1) &&
+                    Math.abs(icon.width - icon.height) < 1 &&
+                    (wide
+                      ? Math.abs(dividers[index] - dividers[0]) < 1 &&
+                        parseFloat(linkStyle.borderInlineStartWidth) === 1 &&
+                        Math.abs(
+                          summaryRect.top +
+                            summaryRect.height / 2 -
+                            listRect.top -
+                            listRect.height / 2,
+                        ) < 1
+                      : summaryRect.bottom <= listRect.top &&
+                        parseFloat(linkStyle.borderInlineStartWidth) === 0)
+                  );
+                });
+              })(),
+              contiguousLists: [
+                ...document.querySelectorAll(".category-preview"),
+              ].every((list) => {
+                const style = getComputedStyle(list);
+                const items = [...list.children];
+                return (
+                  style.rowGap === "0px" &&
+                  style.borderRadius === "0px" &&
+                  parseFloat(style.borderLeftWidth) === 0 &&
+                  parseFloat(style.borderRightWidth) === 0 &&
+                  parseFloat(style.borderTopWidth) === 1 &&
+                  parseFloat(style.borderBottomWidth) === 1 &&
+                  style.boxShadow === "none" &&
+                  items.every((item, index) => {
+                    const link = item.querySelector("a");
+                    const row = link.getBoundingClientRect();
+                    const rowStyle = getComputedStyle(link);
+                    const itemStyle = getComputedStyle(item);
+                    return (
+                      row.height >=
+                        (document.querySelector(".page-content").clientWidth >=
+                          448 && !matchMedia("(pointer: coarse)").matches
+                          ? 32
+                          : 44) &&
+                      rowStyle.gridTemplateColumns.split(" ").length === 3 &&
+                      rowStyle.borderRadius === "0px" &&
+                      parseFloat(rowStyle.paddingTop) > 0 &&
+                      parseFloat(rowStyle.paddingLeft) > 0 &&
+                      parseFloat(itemStyle.borderTopWidth) ===
+                        (index ? 1 : 0) &&
+                      (!index ||
+                        Math.abs(
+                          item.getBoundingClientRect().top -
+                            items[index - 1].getBoundingClientRect().bottom,
+                        ) < 1)
+                    );
+                  })
+                );
+              }),
+              squareQuickAccess: (() => {
+                const grid = document.querySelector(".quick-contacts");
+                const buttons = [...grid.children];
+                const columns =
+                  getComputedStyle(grid).gridTemplateColumns.split(" ").length;
+                return (
+                  buttons.length === 8 &&
+                  columns ===
+                    (document.querySelector(".site-shell").clientWidth >= 448
+                      ? 8
+                      : 4) &&
+                  buttons.every((button) => {
+                    const rect = button.getBoundingClientRect();
+                    return (
+                      Math.abs(rect.width - rect.height) < 1 &&
+                      rect.width >= 44 &&
+                      Math.abs(
+                        rect.width - buttons[0].getBoundingClientRect().width,
+                      ) < 1
+                    );
+                  })
+                );
+              })(),
+              layeredBackground: (() => {
+                const world = document.querySelector(".world-scene");
+                const landscape = getComputedStyle(
+                  document.querySelector(".world-landscape"),
+                );
+                const dim = document
+                  .querySelector(".world-dim")
+                  .getBoundingClientRect();
+                return (
+                  getComputedStyle(world).position === "fixed" &&
+                  landscape.filter.includes("blur(8px)") &&
+                  dim.top === 0 &&
+                  dim.left === 0 &&
+                  dim.height === innerHeight &&
+                  getComputedStyle(document.querySelector(".site-shell"))
+                    .filter === "none"
+                );
+              })(),
+              minimalContext: (() => {
                 const introduction =
                   document.querySelector(".home-introduction");
+                if (!introduction) return true;
+                const grid = introduction.querySelector(".about-context-grid");
+                const site = introduction.querySelector(".about-site");
+                const siteStyle = getComputedStyle(site);
+                const wide =
+                  document.querySelector(".site-shell").clientWidth >= 448;
+                const rect = introduction.getBoundingClientRect();
+                const navigation = document.querySelector(
+                  ".context-navigation",
+                );
                 return (
-                  !introduction ||
-                  getComputedStyle(introduction).gridTemplateColumns.split(" ")
-                    .length === 1
+                  introduction.querySelectorAll(".about-fact").length === 3 &&
+                  introduction.querySelectorAll(".about-topics > li").length ===
+                    5 &&
+                  !introduction.querySelector(
+                    "a,button,details,.presentation-title,.presentation-intro,.presentation-focus",
+                  ) &&
+                  getComputedStyle(grid).gridTemplateColumns.split(" ")
+                    .length === (wide ? 2 : 1) &&
+                  (wide
+                    ? parseFloat(siteStyle.borderInlineStartWidth) === 1 &&
+                      parseFloat(siteStyle.borderBlockStartWidth) === 0 &&
+                      rect.height < rect.width
+                    : parseFloat(siteStyle.borderBlockStartWidth) === 1 &&
+                      parseFloat(siteStyle.borderInlineStartWidth) === 0) &&
+                  [
+                    ...introduction.querySelectorAll(
+                      ".about-fact-icon,.about-topic-check",
+                    ),
+                  ].every((icon) => {
+                    const box = icon.getBoundingClientRect();
+                    return Math.abs(box.width - box.height) < 1;
+                  }) &&
+                  navigation.closest(".site-footer") !== null &&
+                  navigation.getBoundingClientRect().top >=
+                    document
+                      .querySelector(".home-updates")
+                      .getBoundingClientRect().bottom &&
+                  !navigation.open
                 );
               })(),
               galleryAligned: [
@@ -500,6 +963,8 @@ const checks = [];
             "iconBoxes",
             "repeatingFrames",
             "railConnections",
+            "railContentClearance",
+            "anchoredLanterns",
             "coloredIcons",
             "beveledIcons",
             "localIcons",
@@ -509,7 +974,11 @@ const checks = [];
             "uniformMedia",
             "galleryAligned",
             "categoryPreviewColumns",
-            "homeIntroductionColumns",
+            "rusticGeometry",
+            "contiguousLists",
+            "squareQuickAccess",
+            "layeredBackground",
+            "minimalContext",
             "galleryLinksAccessible",
             "footerAligned",
             "settingsClosed",
@@ -555,7 +1024,7 @@ const checks = [];
           })),
         );
         const expectedCategories = pagesFor(config, route.language)
-          .filter((entry) => entry.id !== "home")
+          .filter((entry) => entry.type === "links-page")
           .map((entry) => ({
             id: entry.id,
             href: href(entry.url),
@@ -573,6 +1042,72 @@ const checks = [];
                   ),
           }));
         assert.deepEqual(categories, expectedCategories);
+        assert.deepEqual(
+          await page.$$eval(
+            '[data-home-update="now"] [data-preview-id]',
+            (links) =>
+              links.map((link) => ({
+                id: link.dataset.previewId,
+                href: link.href,
+              })),
+          ),
+          (config.now[route.language] || config.now.en).sections.map(
+            (section) => ({
+              id: `now-${section.id}`,
+              href: `${href(nowPage.url)}#now-${section.id}`,
+            }),
+          ),
+        );
+        if (route.language === config.language_options[0].id) {
+          await page.evaluate(() => {
+            window.linkClicks = [];
+            document.addEventListener("click", (event) => {
+              const anchor = event.target.closest("a");
+              if (!anchor) return;
+              event.preventDefault();
+              window.linkClicks.push(anchor.href);
+            });
+          });
+          for (const anchor of await page.$$(".category-preview-link")) {
+            const expected = await anchor.evaluate((link) => link.href);
+            await anchor.click();
+            assert.equal(
+              await page.evaluate(() => window.linkClicks.at(-1)),
+              expected,
+            );
+          }
+          for (const card of await page.$$(".category-card")) {
+            await card.evaluate((element) =>
+              element.scrollIntoView({ block: "center", behavior: "instant" }),
+            );
+            const expected = await card.$eval(
+              ".category-main-link",
+              (link) => link.href,
+            );
+            const rect = await card.boundingBox();
+            await page.mouse.click(rect.x + 12, rect.y + 12);
+            assert.equal(
+              await page.evaluate(() => window.linkClicks.at(-1)),
+              expected,
+            );
+          }
+          await page.focus(".category-main-link");
+          await page.keyboard.press("Tab");
+          assert.equal(
+            await page.$eval(
+              ":focus",
+              (link) => getComputedStyle(link).outlineStyle,
+            ),
+            "solid",
+          );
+          const expected = await page.$eval(":focus", (link) => link.href);
+          await page.keyboard.press("Enter");
+          assert.equal(
+            await page.evaluate(() => window.linkClicks.at(-1)),
+            expected,
+          );
+          await page.reload({ waitUntil: "networkidle2" });
+        }
       }
       for (const entry of route.links || []) {
         if (!entry.stats) continue;
@@ -601,18 +1136,22 @@ const checks = [];
       }
       if (
         route.language === config.language_options[0].id &&
-        ["home", config.navigation.sections[0]].includes(route.id)
+        ["home", ...config.navigation.sections, "now"].includes(route.id)
       ) {
         const original = await page.evaluate(() =>
-          [".category-title a", ".link-title", ".link-url-text"].flatMap(
-            (selector) => {
-              const element = document.querySelector(selector);
-              if (!element) return [];
-              const text = element.textContent;
-              element.textContent = text.repeat(6);
-              return [{ selector, text }];
-            },
-          ),
+          [
+            ".category-title a",
+            ".category-description",
+            ".category-preview-link > span:not(.button-icon)",
+            ".link-title",
+            ".link-url-text",
+          ].flatMap((selector) => {
+            const element = document.querySelector(selector);
+            if (!element) return [];
+            const text = element.textContent;
+            element.textContent = text.repeat(6);
+            return [{ selector, text }];
+          }),
         );
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
@@ -633,9 +1172,45 @@ const checks = [];
           for (const { selector, text } of original)
             document.querySelector(selector).textContent = text;
         }, original);
+        await page.evaluate(
+          () => (document.documentElement.style.fontSize = "200%"),
+        );
+        for (const width of widths) {
+          await page.setViewport({ width, height: 900 });
+          const enlarged = await page.evaluate(() => ({
+            overflow: document.documentElement.scrollWidth > innerWidth,
+            contentFits: [
+              ...document.querySelectorAll(
+                ".category-summary,.category-preview-link,.link-button,.presentation-copy,.presentation-focus",
+              ),
+            ].every(
+              (element) => element.scrollWidth <= element.clientWidth + 1,
+            ),
+          }));
+          assert.equal(
+            enlarged.overflow,
+            false,
+            `${route.url} text enlarged at ${width}`,
+          );
+          assert.equal(
+            enlarged.contentFits,
+            true,
+            `${route.url} enlarged content fit at ${width}`,
+          );
+          checks.push({
+            path: route.url,
+            width,
+            enlargedText: true,
+            passed: true,
+          });
+        }
+        await page.evaluate(() =>
+          document.documentElement.style.removeProperty("font-size"),
+        );
       }
       const control =
         (await page.$(".link-button")) ||
+        (await page.$(".context-navigation > summary")) ||
         (await page.$(".page-tab:not([aria-current])"));
       await control.evaluate((element) =>
         element.scrollIntoView({ block: "center", behavior: "instant" }),
@@ -724,6 +1299,7 @@ const checks = [];
         await page.$eval("#credits-dialog", (dialog) => dialog.open),
         false,
       );
+      console.log(JSON.stringify({ path: route.url, layout: "passed" }));
     }
     assert.deepEqual(
       [...represented].sort(),
@@ -735,8 +1311,24 @@ const checks = [];
     await page.setJavaScriptEnabled(false);
     for (const route of routes) {
       await page.goto(href(route.url), { waitUntil: "networkidle2" });
+      if (route.id === "home") {
+        await page.focus(".context-navigation > summary");
+        await page.keyboard.press("Enter");
+        assert.equal(
+          await page.$eval(".context-navigation", (details) => details.open),
+          true,
+        );
+        assert.equal(
+          await page.$eval(
+            ".page-tab",
+            (tab) => tab.getBoundingClientRect().height >= 44,
+          ),
+          true,
+        );
+      }
       const destination = pagesFor(config, route.language).find(
-        (entry) => entry.id !== route.id && !entry.fallback,
+        (entry) =>
+          entry.id !== route.id && ["home", "links-page"].includes(entry.type),
       );
       await page.focus(
         `.page-tab[href="${new URL(href(destination.url)).pathname}"]`,
@@ -760,6 +1352,20 @@ const checks = [];
       });
     }
     await page.setJavaScriptEnabled(true);
+    for (const language of config.language_options) {
+      for (const id of ["start-here", "networks", "personal"]) {
+        for (const suffix of ["/", ""]) {
+          const response = await fetch(href(`${language.path}${id}${suffix}`), {
+            redirect: "manual",
+          });
+          assert.equal(
+            response.status,
+            404,
+            `${language.path}${id}${suffix} must return 404`,
+          );
+        }
+      }
+    }
     await page.goto(href(config.language_options[0].path), {
       waitUntil: "networkidle2",
     });

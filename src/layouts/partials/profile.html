@@ -4,6 +4,8 @@
 {{ $nameParts := split $profile.name " " }}
 {{ $initials := printf "%s%s" (substr (index $nameParts 0) 0 1) (substr (index $nameParts (sub (len $nameParts) 1)) 0 1) }}
 <header class="profile">
+  <span class="frame-ornament frame-ornament-start" aria-hidden="true"></span>
+  <span class="frame-ornament frame-ornament-end" aria-hidden="true"></span>
   {{ partial "lantern.html" "lantern-start" }}
   {{ partial "lantern.html" "lantern-end" }}
   <div class="profile-copy">

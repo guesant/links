@@ -182,6 +182,7 @@ try {
         "--port",
         "4173",
         "--noBuildLock",
+        "--cleanDestinationDir",
         "--baseURL",
         "http://localhost:4173/",
         "--destination",

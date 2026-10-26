@@ -1,26 +1,22 @@
 {{ $content := .content }}
-<section class="presentation home-introduction" aria-labelledby="presentation-title">
-  <div class="presentation-copy">
-    {{ with $content.eyebrow }}<p class="presentation-eyebrow">{{ . }}</p>{{ end }}
-    <h2 class="presentation-title" id="presentation-title">{{ $content.title }}</h2>
-    <p class="presentation-intro">{{ $content.intro }}</p>
-    <div class="presentation-actions">
-      <a class="ui-button ui-button-primary" href="#home-categories">{{ partial "button-icon.html" "map" }}<span>{{ .ui.home_explore }}</span></a>
-      <a class="ui-button" href="#about-details">{{ partial "button-icon.html" "users" }}<span>{{ .ui.home_about }}</span></a>
-    </div>
-  </div>
-  {{ if hugo.Data.links.home.illustration_enabled }}
-    <div class="presentation-art" aria-hidden="true"></div>
-  {{ end }}
-  <div class="presentation-focus" id="about-details">
-    {{ range $content.focus }}
-      <article class="presentation-focus-item">
-        <span class="presentation-focus-marker" aria-hidden="true"></span>
-        <div class="presentation-focus-copy">
-          <h3>{{ .title }}</h3>
-          <p>{{ .description }}</p>
-        </div>
-      </article>
-    {{ end }}
+<section class="presentation home-introduction" aria-labelledby="presentation-title" data-rail-anchor>
+  <h2 class="presentation-eyebrow" id="presentation-title">{{ $content.title }}</h2>
+  <div class="about-context-grid">
+    <ul class="about-facts">
+      {{ range $content.facts }}
+        <li class="about-fact">
+          <span class="about-fact-icon">{{ partial "icon.html" .icon }}</span>
+          <span>{{ .text }}</span>
+        </li>
+      {{ end }}
+    </ul>
+    <section class="about-site" aria-labelledby="about-site-title">
+      <h3 class="about-site-title" id="about-site-title">{{ partial "button-icon.html" "target" }}<span>{{ $content.site_title }}</span></h3>
+      <ul class="about-topics">
+        {{ range $content.topics }}
+          <li><span class="about-topic-check">{{ partial "icon.html" "check" }}</span><span>{{ . }}</span></li>
+        {{ end }}
+      </ul>
+    </section>
   </div>
 </section>

@@ -1,0 +1,12 @@
+<ul class="category-preview">
+  {{ range . }}
+    {{ $destination := partial "link-destination.html" . }}
+    <li>
+      <a class="category-preview-link" data-preview-id="{{ .id }}" href="{{ $destination.href }}"{{ if $destination.target }} target="{{ $destination.target }}"{{ end }}{{ with $destination.rel }} rel="{{ . }}"{{ end }}>
+        {{ partial "button-icon.html" (.icon | default "link") }}
+        <span>{{ .title }}</span>
+        {{ if $destination.external }}<span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>{{ end }}
+      </a>
+    </li>
+  {{ end }}
+</ul>

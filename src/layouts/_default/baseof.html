@@ -17,13 +17,13 @@
         <div class="suspended-content">
           {{ partial "suspension-rails.html" . }}
           {{ partial "quick-contacts.html" (dict "sections" $data.sections "contactIDs" $data.quick_contacts "language" $locale "label" $localized.ui.quick_contacts_label) }}
-          {{ partial "page-navigation.html" . }}
+          {{ if not .IsHome }}{{ partial "page-navigation.html" . }}{{ end }}
           <main class="page-content" id="main-content">
             {{ block "main" . }}{{ end }}
           </main>
         </div>
+        {{ partial "footer.html" . }}
       </div>
-      {{ partial "footer.html" . }}
     </div>
     {{ partial "site-controls.html" (dict "language" $locale "theme" $data.theme "ui" $localized.ui "languages" $data.language_options "pageKey" (.Params.page_key | default "home")) }}
   </body>

@@ -44,5 +44,8 @@
   "website": false,
   "education": true,
   "gear": false,
-  "chevron-right": false
+  "chevron-right": false,
+  "user": false,
+  "gamepad": false,
+  "target": false
 }

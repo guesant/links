@@ -1,7 +1,7 @@
 {{ $locale := .language }}
 {{ $section := .section }}
 {{ $labels := index $section.labels $locale }}
-{{ $links := where (partialCached "public-links.html" (dict "language" $locale) $locale) "sectionID" $section.id }}
+{{ $links := partial "section-links.html" (dict "section" $section "language" $locale) }}
 <section class="link-section" id="{{ $section.id }}">
   <header class="section-heading">
     <h1 id="page-title">{{ $labels.title }}</h1>

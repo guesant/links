@@ -7,7 +7,22 @@ const readConfiguration = (path = "src/data/links.yaml") =>
 const visibleLinks = (configuration) =>
   configuration.sections
     .filter(visible)
-    .flatMap((section) => section.links.filter(visible));
+    .flatMap((section) => (section.links || []).filter(visible));
+function linksForSection(configuration, section) {
+  const definitions = configuration.sections.flatMap(
+    (entry) => entry.links || [],
+  );
+  const ids = (section.links || []).map((entry) => entry.id);
+  for (const id of section.link_refs || []) {
+    if (!definitions.some((entry) => entry.id === id))
+      throw new Error(`Unknown link reference: ${id}`);
+    if (ids.includes(id)) throw new Error(`Duplicate section link: ${id}`);
+    ids.push(id);
+  }
+  if (!visible(section)) return [];
+  const catalog = visibleLinks(configuration);
+  return ids.flatMap((id) => catalog.filter((entry) => entry.id === id));
+}
 const localizedURL = (entry, language) =>
   entry.localized_urls?.[language] || entry.localized_urls?.en || entry.url;
 function pagesFor(configuration, language) {
@@ -34,7 +49,7 @@ function pagesFor(configuration, language) {
       title: section.labels[language].title,
       url: `${option.path}${id}/`,
       icon: section.icon || "book",
-      links: section.links.filter(visible),
+      links: linksForSection(configuration, section),
     });
   }
   for (const id of configuration.navigation.links) {
@@ -55,6 +70,7 @@ module.exports = {
   readConfiguration,
   visible,
   visibleLinks,
+  linksForSection,
   localizedURL,
   pagesFor,
 };
