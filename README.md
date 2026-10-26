@@ -25,6 +25,6 @@ O desenvolvimento e o CI usam o mesmo [Dockerfile](.config/container/Dockerfile)
 - [Publicação](.github/workflows/pages.yml)
 - [Créditos e licenças](src/data/credits.yaml)
 
-O GitHub Pages usa GitHub Actions como origem. A coleta de estatísticas roda separadamente; uma falha mantém os últimos dados válidos.
+O site é publicado no GitHub Pages. As estatísticas só são substituídas quando a atualização dá certo.
 
 [Licença MIT](LICENSE)

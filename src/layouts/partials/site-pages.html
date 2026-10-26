@@ -1,0 +1,28 @@
+{{ $data := hugo.Data.links }}
+{{ $locale := .locale }}
+{{ $language := index (where $data.language_options "id" $locale) 0 }}
+{{ $pages := slice (dict "id" "home" "type" "home" "title" (index $data.navigation.home.labels $locale) "url" $language.path "icon" $data.navigation.home.icon) }}
+{{ range $data.navigation.sections }}
+  {{ $section := index (where $data.sections "id" .) 0 }}
+  {{ if and (ne $section.enabled false) (ne $section.public false) }}
+    {{ $labels := index $section.labels $locale }}
+    {{ $url := printf "%s%s/" $language.path $section.id }}
+    {{ $pages = $pages | append (dict "id" $section.id "type" "links-page" "title" $labels.title "description" $labels.description "url" $url "icon" ($section.icon | default "book") "section" $section) }}
+  {{ end }}
+{{ end }}
+{{ range $data.navigation.links }}
+  {{ $id := . }}
+  {{ range $data.sections }}
+    {{ $visible := and (ne .enabled false) (ne .public false) }}
+    {{ range .links }}
+      {{ if and $visible (eq .id $id) (ne .enabled false) (ne .public false) }}
+        {{ $labels := index .labels $locale | default (index .labels "en") }}
+        {{ $url := .url }}
+        {{ with .localized_urls }}{{ $url = index . $locale | default (index . "en") }}{{ end }}
+        {{ if or (not (hasPrefix $url "/")) (hasPrefix $url "//") }}{{ errorf "links.yaml: navigation link %q must use an internal path" .id }}{{ end }}
+        {{ $pages = $pages | append (dict "id" .id "type" .id "title" $labels.title "description" $labels.description "url" $url "icon" .icon "fallback" (not (isset $data.now $locale))) }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ return $pages }}

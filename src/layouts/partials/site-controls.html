@@ -2,32 +2,55 @@
 {{ $theme := .theme }}
 {{ $ui := .ui }}
 {{ $languages := .languages }}
-{{ $basePath := replaceRE "/$" "" site.Home.RelPermalink }}
-{{ if ne $language "en" }}
-  {{ $languageSuffix := printf "/%s$" $language }}
-  {{ $basePath = replaceRE $languageSuffix "" $basePath }}
-{{ end }}
-<div class="site-preferences">
-  <div class="site-controls">
-    <div class="toggle-control">
-      <span class="toggle-label" id="language-label">{{ $ui.language_aria_label }}</span>
-      <nav class="toggle-group toggle-group-language" aria-labelledby="language-label">
+{{ $pageKey := .pageKey | default "home" }}
+<dialog class="app-dialog settings-dialog" id="settings-dialog" aria-labelledby="settings-dialog-title">
+  <div class="app-dialog-content settings-content">
+    <header class="app-dialog-header">
+      <h2 id="settings-dialog-title">
+        {{ partial "button-icon.html" "gear" }}
+        <span>{{ $ui.settings_label }}</span>
+      </h2>
+      <form method="dialog">
+        <button class="dialog-close" type="submit" data-dialog-close aria-label="{{ $ui.settings_close }}">
+          {{ partial "button-icon.html" "xmark" }}
+        </button>
+      </form>
+    </header>
+    <div class="site-controls">
+    <div class="toggle-control language-control">
+      <span class="toggle-label" id="language-label">{{ partial "button-icon.html" "language" }}<span>{{ $ui.language_aria_label }}</span></span>
+      <div class="language-select-wrap">
+        <select class="language-select" aria-labelledby="language-label" data-language-switcher>
         {{ range $languages }}
-          <a class="toggle-button{{ if eq $language .id }} toggle-button-active{{ end }}" href="{{ printf "%s%s" $basePath .path }}"{{ if eq $language .id }} aria-current="page"{{ end }}>{{ .label }}</a>
+          {{ $destination := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
+          {{ $languagePath := .path }}
+          {{ if and $destination (not $destination.fallback) }}{{ $languagePath = $destination.url }}{{ end }}
+          <option value="{{ strings.TrimPrefix "/" $languagePath | relURL }}"{{ if eq $language .id }} selected{{ end }}>{{ .label }}</option>
         {{ end }}
-      </nav>
-    </div>
-    <fieldset class="toggle-control">
-      <legend class="toggle-label">{{ $ui.theme_label }}</legend>
-      <div class="toggle-group" role="group" aria-label="{{ $ui.theme_aria_label }}">
-        <input class="toggle-input" type="radio" name="theme" id="theme-system" value="system" data-theme-option{{ if eq $theme.appearance "system" }} checked{{ end }}>
-        <label class="toggle-button" for="theme-system">{{ $ui.theme_system }}</label>
-        <input class="toggle-input" type="radio" name="theme" id="theme-dark" value="dark" data-theme-option>
-        <label class="toggle-button" for="theme-dark">{{ $ui.theme_dark }}</label>
-        <input class="toggle-input" type="radio" name="theme" id="theme-light" value="light" data-theme-option>
-        <label class="toggle-button" for="theme-light">{{ $ui.theme_light }}</label>
+        </select>
+        <span class="language-select-icon" aria-hidden="true">{{ partial "button-icon.html" "chevron-right" }}</span>
       </div>
-    </fieldset>
+    </div>
+    <div class="toggle-control">
+      <span class="toggle-label" id="theme-label">{{ $ui.theme_label }}</span>
+      <div class="toggle-group" role="radiogroup" aria-labelledby="theme-label">
+        <input class="toggle-input" type="radio" name="theme" id="theme-system" value="system" data-theme-option{{ if eq $theme.appearance "system" }} checked{{ end }}>
+        <label class="toggle-button" for="theme-system">{{ partial "button-icon.html" "desktop" }}<span>{{ $ui.theme_system }}</span></label>
+        <input class="toggle-input" type="radio" name="theme" id="theme-dark" value="dark" data-theme-option{{ if eq $theme.appearance "dark" }} checked{{ end }}>
+        <label class="toggle-button" for="theme-dark">{{ partial "button-icon.html" "moon" }}<span>{{ $ui.theme_dark }}</span></label>
+        <input class="toggle-input" type="radio" name="theme" id="theme-light" value="light" data-theme-option{{ if eq $theme.appearance "light" }} checked{{ end }}>
+        <label class="toggle-button" for="theme-light">{{ partial "button-icon.html" "sun" }}<span>{{ $ui.theme_light }}</span></label>
+      </div>
+    </div>
+    <div class="toggle-control motion-control">
+      <span class="toggle-label" id="motion-label">{{ $ui.animations_label }}</span>
+      <div class="toggle-group toggle-group-motion" role="radiogroup" aria-labelledby="motion-label">
+        <input class="toggle-input" type="radio" name="motion" id="motion-on" value="on" data-motion-option{{ if ne $theme.animations_enabled false }} checked{{ end }}>
+        <label class="toggle-button" for="motion-on">{{ partial "button-icon.html" "play" }}<span>{{ $ui.animations_enabled }}</span></label>
+        <input class="toggle-input" type="radio" name="motion" id="motion-off" value="off" data-motion-option{{ if eq $theme.animations_enabled false }} checked{{ end }}>
+        <label class="toggle-button" for="motion-off">{{ partial "button-icon.html" "pause" }}<span>{{ $ui.animations_disabled }}</span></label>
+      </div>
+    </div>
+    </div>
   </div>
-  {{ with $ui.translation_disclaimer }}<p class="translation-disclaimer">{{ . }}</p>{{ end }}
-</div>
+</dialog>

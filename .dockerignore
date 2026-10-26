@@ -1,8 +1,5 @@
 .git
 .github
-public
-resources
-src/resources
-.hugo_build.lock
-src/.hugo_build.lock
+.local
+.cache
 .DS_Store

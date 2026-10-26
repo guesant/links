@@ -1,19 +1,15 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./lighthouse-public",
-      "url": [
-        "http://localhost/",
-        "http://localhost/pt-br/",
-        "http://localhost/fr/",
-        "http://localhost/es/",
-        "http://localhost/it/",
-        "http://localhost/zh/"
-      ],
+      "staticDistDir": "./.local/build/lighthouse",
       "numberOfRuns": 1,
       "settings": {
         "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
       }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "./.cache/lighthouseci"
     },
     "assert": {
       "assertions": {

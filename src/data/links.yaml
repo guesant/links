@@ -2,31 +2,173 @@ profile:
   name: Gabriel R. Antunes
   username: guesant
   avatar: ""
+  birth_date: "2005-09-13"
+  same_as_links:
+    - github-stats
+    - gitlab
+    - linkedin
+    - youtube
+    - lattes
+    - orcid
 
 theme:
   preset: minecraft
   appearance: system
   background: default
+  animations_enabled: true
+
+site:
+  repository: guesant/lobby
+  repository_label: GitHub
 
 language_options:
   - id: pt-br
     path: /pt-br/
-    label: PT-BR
+    label: Português (Brasil) (PT-BR)
+    hreflang: pt-BR
   - id: zh
     path: /zh/
-    label: ZH
+    label: 中文 (ZH)
+    hreflang: zh-CN
   - id: fr
     path: /fr/
-    label: FR
+    label: Français (FR)
+    hreflang: fr-FR
   - id: es
     path: /es/
-    label: ES
+    label: Español (ES)
+    hreflang: es-ES
   - id: it
     path: /it/
-    label: IT
+    label: Italiano (IT)
+    hreflang: it-IT
   - id: en
     path: /
-    label: EN
+    label: English (EN)
+    hreflang: en
+
+navigation:
+  labels:
+    en: Page navigation
+    pt-br: Navegação entre páginas
+    zh: 页面导航
+    fr: Navigation entre les pages
+    es: Navegación entre páginas
+    it: Navigazione tra le pagine
+  home:
+    icon: house
+    labels:
+      en: Home
+      pt-br: Início
+      zh: 首页
+      fr: Accueil
+      es: Inicio
+      it: Home
+  links:
+    - now
+  sections:
+    - start-here
+    - networks
+    - contact
+    - personal
+
+home:
+  illustration_enabled: true
+
+statistics:
+  updated:
+    en: Updated
+    pt-br: Atualizado
+    zh: 更新于
+    fr: Mis à jour
+    es: Actualizado
+    it: Aggiornato
+  unavailable:
+    en: Statistics have not been collected yet.
+    pt-br: As estatísticas ainda não foram coletadas.
+    zh: 尚未收集统计数据。
+    fr: Les statistiques ne sont pas encore disponibles.
+    es: Las estadísticas aún no se han recopilado.
+    it: Le statistiche non sono ancora state raccolte.
+  metrics:
+    followers:
+      icon: users
+      labels:
+        {
+          en: Followers,
+          pt-br: Seguidores,
+          zh: 关注者,
+          fr: Abonnés,
+          es: Seguidores,
+          it: Follower,
+        }
+    repositories:
+      icon: code
+      labels:
+        {
+          en: Repositories,
+          pt-br: Repositórios,
+          zh: 仓库,
+          fr: Dépôts,
+          es: Repositorios,
+          it: Repository,
+        }
+    stars:
+      icon: star
+      labels:
+        {
+          en: Stars,
+          pt-br: Estrelas,
+          zh: 星标,
+          fr: Étoiles,
+          es: Estrellas,
+          it: Stelle,
+        }
+    forks:
+      icon: fork
+      labels:
+        { en: Forks, pt-br: Forks, zh: 复刻, fr: Forks, es: Forks, it: Fork }
+    ranking:
+      icon: trophy
+      labels:
+        {
+          en: Global ranking,
+          pt-br: Ranking global,
+          zh: 全球排名,
+          fr: Classement mondial,
+          es: Clasificación global,
+          it: Classifica globale,
+        }
+    solved:
+      icon: check
+      labels:
+        {
+          en: Solved,
+          pt-br: Resolvidos,
+          zh: 已解决,
+          fr: Résolus,
+          es: Resueltos,
+          it: Risolti,
+        }
+    easy:
+      icon: check
+      labels:
+        { en: Easy, pt-br: Fácil, zh: 简单, fr: Facile, es: Fácil, it: Facile }
+    medium:
+      icon: check
+      labels:
+        { en: Medium, pt-br: Médio, zh: 中等, fr: Moyen, es: Medio, it: Medio }
+    hard:
+      icon: check
+      labels:
+        {
+          en: Hard,
+          pt-br: Difícil,
+          zh: 困难,
+          fr: Difficile,
+          es: Difícil,
+          it: Difficile,
+        }
 
 quick_contacts:
   - email
@@ -37,6 +179,46 @@ quick_contacts:
   - lattes
   - orcid
   - youtube
+
+now:
+  en:
+    seo:
+      title: Now | Gabriel R. Antunes
+      description: Current interests, projects and work in progress by Gabriel R. Antunes.
+    title: Now
+    intro: A current view of the interests I cultivate, the work I do and the things I still want to build.
+    sections:
+      - id: personal-context
+        title: Personal context
+        description: Music, games and personal ambitions are part of the context behind these links.
+      - id: current-focus
+        title: Current focus
+        description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
+      - id: work-in-progress
+        title: Work in progress
+        description: Building and maintaining public software, documenting what I learn and connecting practical projects with open-source work.
+      - id: next
+        title: What comes next
+        description: Keep improving the lab, learn through practical projects and make room for the things I still want to build.
+  pt-br:
+    seo:
+      title: Agora | Gabriel R. Antunes
+      description: Interesses atuais, projetos e trabalho em andamento de Gabriel R. Antunes.
+    title: Agora
+    intro: Um retrato atual dos interesses que cultivo, do trabalho que faço e das coisas que ainda quero construir.
+    sections:
+      - id: personal-context
+        title: Contexto pessoal
+        description: Música, jogos e ambições pessoais também fazem parte do contexto por trás destes links.
+      - id: current-focus
+        title: Foco atual
+        description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
+      - id: work-in-progress
+        title: Trabalho em andamento
+        description: Construo e mantenho software público, documento o que aprendo e conecto projetos práticos ao trabalho open source.
+      - id: next
+        title: O que vem pela frente
+        description: Continuar aprimorando o laboratório, aprender com projetos práticos e abrir espaço para as coisas que ainda quero construir.
 
 audiences:
   - id: developers
@@ -98,6 +280,7 @@ audiences:
 
 sections:
   - id: start-here
+    icon: book
     enabled: true
     public: true
     labels:
@@ -122,10 +305,11 @@ sections:
     links:
       - id: blog
         url: https://blog.guesant.net
-        icon: website
+        icon: book
         featured: true
         enabled: true
-        audiences: [developers, recruiters, collaborators, academics, open-source]
+        audiences:
+          [developers, recruiters, collaborators, academics, open-source]
         labels:
           en:
             title: Blog
@@ -151,6 +335,54 @@ sections:
             title: 博客
             description: 阅读关于软件、基础设施、项目和学习内容的技术文章。
             badge: 文章
+      - id: dev-community
+        url: https://dev.to/guesant
+        icon: devto
+        enabled: true
+        audiences: [developers, collaborators, open-source]
+        labels:
+          en:
+            title: DEV Community
+            description: My profile on DEV Community, a place to read and discuss software development.
+          pt-br:
+            title: DEV Community
+            description: Meu perfil no DEV Community, espaço para ler e conversar sobre desenvolvimento de software.
+          fr:
+            title: DEV Community
+            description: Mon profil sur DEV Community, un espace pour lire et échanger sur le développement logiciel.
+          es:
+            title: DEV Community
+            description: Mi perfil en DEV Community, un espacio para leer y conversar sobre desarrollo de software.
+          it:
+            title: DEV Community
+            description: Il mio profilo su DEV Community, uno spazio per leggere e discutere di sviluppo software.
+          zh:
+            title: DEV Community
+            description: 我的 DEV Community 个人主页，这是一个阅读和讨论软件开发的平台。
+      - id: medium
+        url: https://medium.com/@gabrielrodantunes
+        icon: medium
+        enabled: true
+        audiences: [developers, collaborators, friends, family]
+        labels:
+          en:
+            title: Medium
+            description: My profile on Medium, a platform for publishing and reading articles.
+          pt-br:
+            title: Medium
+            description: Meu perfil no Medium, plataforma de publicação e leitura de artigos.
+          fr:
+            title: Medium
+            description: Mon profil sur Medium, une plateforme de publication et de lecture d’articles.
+          es:
+            title: Medium
+            description: Mi perfil en Medium, una plataforma para publicar y leer artículos.
+          it:
+            title: Medium
+            description: Il mio profilo su Medium, una piattaforma per pubblicare e leggere articoli.
+          zh:
+            title: Medium
+            description: 我的 Medium 个人主页，这是一个发布和阅读文章的平台。
       - id: curriculum
         url: https://curriculum.guesant.net
         icon: document
@@ -184,7 +416,7 @@ sections:
             badge: 简介
       - id: atlas
         url: https://atlas.guesant.net/guest/links
-        icon: link
+        icon: map
         featured: true
         enabled: true
         audiences: [developers, academics, open-source]
@@ -297,7 +529,67 @@ sections:
             title: YouTube
             description: 观看项目演示、基础设施工作、算法和编程实验。
             badge: 视频
+  - id: personal-pages
+    enabled: true
+    public: true
+    labels:
+      en:
+        title: Personal pages
+        description: A closer view of what I am doing now.
+      pt-br:
+        title: Páginas pessoais
+        description: Um olhar mais próximo sobre o que estou fazendo agora.
+      fr:
+        title: Pages personnelles
+        description: Un regard plus proche sur ce que je fais actuellement.
+      es:
+        title: Páginas personales
+        description: Una mirada más cercana a lo que estoy haciendo ahora.
+      it:
+        title: Pagine personali
+        description: Uno sguardo più vicino a ciò che sto facendo ora.
+      zh:
+        title: 个人页面
+        description: 更深入地了解我目前正在做的事情。
+    links:
+      - id: now
+        localized_urls:
+          en: /now/
+          pt-br: /agora/
+        icon: clock
+        featured: true
+        enabled: true
+        audiences:
+          [
+            developers,
+            recruiters,
+            collaborators,
+            academics,
+            open-source,
+            friends,
+            family,
+          ]
+        labels:
+          en:
+            title: Now
+            description: See what I am interested in, working on and building next.
+          pt-br:
+            title: Agora
+            description: Veja meus interesses atuais, o que estou fazendo e o que quero construir.
+          fr:
+            title: Maintenant
+            description: Découvrez ce qui m’intéresse, ce que je fais et ce que je veux construire ensuite.
+          es:
+            title: Ahora
+            description: Conoce mis intereses actuales, lo que hago y lo que quiero construir después.
+          it:
+            title: Ora
+            description: Scopri i miei interessi attuali, ciò che faccio e ciò che voglio costruire.
+          zh:
+            title: 现在
+            description: 了解我目前感兴趣的事情、正在做的工作以及接下来想要构建的内容。
   - id: contact
+    icon: email
     enabled: true
     public: true
     labels:
@@ -369,8 +661,9 @@ sections:
             title: LinkedIn
             description: 查看我的职业资料、工作经历和教育背景。
   - id: personal
+    icon: star
     enabled: true
-    public: false
+    public: true
     labels:
       en:
         title: Personal
@@ -608,6 +901,7 @@ sections:
             title: Minecraft
             description: 查找我的 Minecraft 资料以及 Briel_Rodriguess 的用户名历史。
   - id: networks
+    icon: academic
     enabled: true
     public: true
     labels:
@@ -682,18 +976,9 @@ sections:
         url: https://leetcode.com/u/guesant/
         icon: leetcode
         enabled: true
-        visual:
-          kind: card
-          src: https://leetcard.jacoblin.cool/guesant?theme=dark&font=Roboto%20Slab&ext=heatmap
-          width: 500
-          height: 320
-          alt:
-            en: LeetCode practice statistics for guesant
-            pt-br: Estatísticas de prática no LeetCode de guesant
-            fr: Statistiques de pratique LeetCode de guesant
-            es: Estadísticas de práctica en LeetCode de guesant
-            it: Statistiche di pratica su LeetCode di guesant
-            zh: guesant 的 LeetCode 练习统计
+        stats:
+          provider: leetcode
+          metrics: [solved, ranking, easy, medium, hard]
         audiences: [developers, recruiters]
         labels:
           en:
@@ -718,18 +1003,9 @@ sections:
         url: https://github.com/guesant
         icon: github
         enabled: true
-        visual:
-          kind: card
-          src: /images/cards/github-stats.svg
-          width: 467
-          height: 195
-          alt:
-            en: GitHub activity statistics for guesant
-            pt-br: Estatísticas de atividade no GitHub de guesant
-            fr: Statistiques d’activité GitHub de guesant
-            es: Estadísticas de actividad en GitHub de guesant
-            it: Statistiche di attività GitHub di guesant
-            zh: guesant 的 GitHub 活动统计
+        stats:
+          provider: github
+          metrics: [followers, repositories, stars, forks]
         audiences: [developers, recruiters, collaborators, open-source]
         labels:
           en:
@@ -779,12 +1055,18 @@ locales:
   en:
     seo:
       title: Gabriel R. Antunes | Links
-      description: Software development, open-source work and infrastructure by Gabriel R. Antunes.
+      description: Interests, projects and links by Gabriel R. Antunes, including open-source work and infrastructure.
     profile:
-      bio: Software developer, open-source contributor, and a person with interests, relationships, and plans beyond the screen.
+      bio: Music, games, open source and the ideas I keep returning to.
     ui:
       html_lang: en
-      canonical_path: /
+      og_locale: en_US
+      uptime_label: Uptime
+      animations_label: Ambient animations
+      animations_enabled: On
+      animations_disabled: Paused
+      brand_disclaimer: This is an independent project with an interface inspired by the visual language of voxel games. It is not an official Minecraft product, nor is it approved by, associated with or endorsed by Mojang or Microsoft. Minecraft and its related trademarks belong to their respective owners.
+      now_updated: Updated
       skip_link: Skip to content
       language_aria_label: Change language
       quick_contacts_label: Main contact links
@@ -797,32 +1079,45 @@ locales:
       footer_repository: View the source repository on GitHub
       footer_commit: View commit
       footer_build: View build
+      local_build: Local build
+      local_commit: local
       credits: Credits
       credits_dialog_title: Credits and licenses
       credits_dialog_description: Dependencies, tools, references and their licensing information.
       credits_close: Close credits
+      settings_label: Settings
+      settings_close: Close settings
+      home_sections_label: Explore the sections
+      home_explore: Explore sections
+      home_about: About me
       credits_authors: Authors
       credits_license: License
       credits_license_text: Read license text
       credits_official_url: Official website
     presentation:
       eyebrow: About
-      title: Work, interests, people and what comes next.
-      intro: Software development is part of my life, not its whole definition. This page brings together my work, interests, close connections and the things I still want to build.
+      title: Interests, work and what comes next.
+      intro: This page brings together the interests I cultivate, the work I do and the things I still want to build.
       focus:
-        - title: Current focus
-          description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
         - title: Beyond work
           description: Music, games, friends and personal ambitions are part of the context behind these links too.
+        - title: Current focus
+          description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
   pt-br:
     seo:
       title: Gabriel R. Antunes | Links
-      description: Desenvolvimento de software, open source e infraestrutura por Gabriel R. Antunes.
+      description: Interesses, projetos e links de Gabriel R. Antunes, incluindo trabalho open source e infraestrutura.
     profile:
-      bio: Desenvolvedor de software, colaborador open source e uma pessoa com interesses, relações e planos que vão além da tela.
+      bio: Música, jogos, open source e as ideias às quais sempre volto.
     ui:
       html_lang: pt-BR
-      canonical_path: /pt-br/
+      og_locale: pt_BR
+      uptime_label: Uptime
+      animations_label: Animações do ambiente
+      animations_enabled: Ativas
+      animations_disabled: Pausadas
+      brand_disclaimer: Este é um projeto independente, com interface inspirada em linguagens visuais de jogos voxel. Não é um produto oficial do Minecraft, nem é aprovado, associado ou endossado pela Mojang ou pela Microsoft. Minecraft e suas marcas relacionadas pertencem aos seus respectivos proprietários.
+      now_updated: Atualizado
       skip_link: Ir para o conteúdo
       language_aria_label: Alterar idioma
       quick_contacts_label: Principais formas de contato
@@ -835,32 +1130,45 @@ locales:
       footer_repository: Ver o repositório fonte no GitHub
       footer_commit: Ver commit
       footer_build: Ver build
+      local_build: Build local
+      local_commit: local
       credits: Créditos
       credits_dialog_title: Créditos e licenças
       credits_dialog_description: Dependências, ferramentas, referências e suas informações de licenciamento.
       credits_close: Fechar créditos
+      settings_label: Configurações
+      settings_close: Fechar configurações
+      home_sections_label: Explore as seções
+      home_explore: Explorar seções
+      home_about: Sobre mim
       credits_authors: Autores
       credits_license: Licença
       credits_license_text: Ler o texto da licença
       credits_official_url: Site oficial
     presentation:
       eyebrow: Sobre
-      title: Trabalho, interesses, pessoas e o que vem pela frente.
-      intro: Desenvolvimento de software é uma parte da minha vida, não a sua definição inteira. Esta página reúne meu trabalho, meus interesses, minhas relações próximas e as coisas que ainda quero construir.
+      title: Interesses, trabalho e o que vem pela frente.
+      intro: Esta página reúne os interesses que cultivo, o trabalho que faço e as coisas que ainda quero construir.
       focus:
-        - title: Foco atual
-          description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
         - title: Além do trabalho
           description: Música, jogos, amigos e ambições pessoais também fazem parte do contexto por trás destes links.
+        - title: Foco atual
+          description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
   fr:
     seo:
       title: Gabriel R. Antunes | Liens
-      description: Développement logiciel, open source et infrastructure par Gabriel R. Antunes.
+      description: Intérêts, projets et liens de Gabriel R. Antunes, avec du travail open source et de l’infrastructure.
     profile:
-      bio: Développeur logiciel, contributeur open source, et une personne avec des intérêts, des relations et des projets qui vont au-delà de l’écran.
+      bio: Musique, jeux, open source et les idées auxquelles je reviens.
     ui:
       html_lang: fr
-      canonical_path: /fr/
+      og_locale: fr_FR
+      uptime_label: Uptime
+      animations_label: Animations du décor
+      animations_enabled: Activées
+      animations_disabled: En pause
+      brand_disclaimer: Ce projet indépendant présente une interface inspirée des univers visuels des jeux voxel. Ce n’est pas un produit officiel Minecraft et il n’est ni approuvé, ni associé, ni soutenu par Mojang ou Microsoft. Minecraft et les marques associées appartiennent à leurs propriétaires respectifs.
+      now_updated: Mis à jour
       skip_link: Aller au contenu
       language_aria_label: Changer de langue
       quick_contacts_label: Principaux moyens de contact
@@ -874,32 +1182,45 @@ locales:
       footer_repository: Voir le dépôt source sur GitHub
       footer_commit: Voir le commit
       footer_build: Voir le build
+      local_build: Build local
+      local_commit: local
       credits: Crédits
       credits_dialog_title: Crédits et licences
       credits_dialog_description: Dépendances, outils, références et leurs informations de licence.
       credits_close: Fermer les crédits
+      settings_label: Réglages
+      settings_close: Fermer les réglages
+      home_sections_label: Explorer les rubriques
+      home_explore: Explorer les rubriques
+      home_about: À propos de moi
       credits_authors: Auteurs
       credits_license: Licence
       credits_license_text: Lire le texte de la licence
       credits_official_url: Site officiel
     presentation:
       eyebrow: À propos
-      title: Travail, intérêts, personnes et ce qui vient ensuite.
-      intro: Le développement logiciel fait partie de ma vie, mais ne la définit pas entièrement. Cette page rassemble mon travail, mes intérêts, mes relations proches et les choses que je veux encore construire.
+      title: Intérêts, travail et ce qui vient ensuite.
+      intro: Cette page rassemble les intérêts que je cultive, le travail que je fais et les choses que je veux encore construire.
       focus:
-        - title: Focus actuel
-          description: J’étudie Go et l’infrastructure dans un laboratoire personnel tout en continuant à travailler sur des applications et des projets open source.
         - title: Au-delà du travail
           description: La musique, les jeux, les amis et les ambitions personnelles font aussi partie du contexte derrière ces liens.
+        - title: Focus actuel
+          description: J’étudie Go et l’infrastructure dans un laboratoire personnel tout en continuant à travailler sur des applications et des projets open source.
   es:
     seo:
       title: Gabriel R. Antunes | Enlaces
-      description: Desarrollo de software, open source e infraestructura de Gabriel R. Antunes.
+      description: Intereses, proyectos y enlaces de Gabriel R. Antunes, incluido el trabajo open source y la infraestructura.
     profile:
-      bio: Desarrollador de software, colaborador de open source y una persona con intereses, relaciones y planes que van más allá de la pantalla.
+      bio: Música, juegos, open source y las ideas a las que siempre vuelvo.
     ui:
       html_lang: es
-      canonical_path: /es/
+      og_locale: es_ES
+      uptime_label: Uptime
+      animations_label: Animaciones del entorno
+      animations_enabled: Activas
+      animations_disabled: En pausa
+      brand_disclaimer: Este es un proyecto independiente con una interfaz inspirada en el lenguaje visual de los juegos voxel. No es un producto oficial de Minecraft ni está aprobado, asociado o respaldado por Mojang o Microsoft. Minecraft y sus marcas relacionadas pertenecen a sus respectivos propietarios.
+      now_updated: Actualizado
       skip_link: Ir al contenido
       language_aria_label: Cambiar idioma
       quick_contacts_label: Principales formas de contacto
@@ -913,32 +1234,45 @@ locales:
       footer_repository: Ver el repositorio fuente en GitHub
       footer_commit: Ver commit
       footer_build: Ver build
+      local_build: Build local
+      local_commit: local
       credits: Créditos
       credits_dialog_title: Créditos y licencias
       credits_dialog_description: Dependencias, herramientas, referencias y su información de licencia.
       credits_close: Cerrar créditos
+      settings_label: Ajustes
+      settings_close: Cerrar ajustes
+      home_sections_label: Explora las secciones
+      home_explore: Explorar secciones
+      home_about: Sobre mí
       credits_authors: Autores
       credits_license: Licencia
       credits_license_text: Leer el texto de la licencia
       credits_official_url: Sitio oficial
     presentation:
       eyebrow: Sobre mí
-      title: Trabajo, intereses, personas y lo que viene.
-      intro: El desarrollo de software es parte de mi vida, pero no la define por completo. Esta página reúne mi trabajo, mis intereses, mis relaciones cercanas y las cosas que todavía quiero construir.
+      title: Intereses, trabajo y lo que viene.
+      intro: Esta página reúne los intereses que cultivo, el trabajo que hago y las cosas que todavía quiero construir.
       focus:
-        - title: Enfoque actual
-          description: Estudio Go e infraestructura en un laboratorio personal mientras sigo trabajando con aplicaciones y proyectos open source.
         - title: Más allá del trabajo
           description: La música, los juegos, los amigos y las ambiciones personales también forman parte del contexto detrás de estos enlaces.
+        - title: Enfoque actual
+          description: Estudio Go e infraestructura en un laboratorio personal mientras sigo trabajando con aplicaciones y proyectos open source.
   it:
     seo:
       title: Gabriel R. Antunes | Link
-      description: Sviluppo software, open source e infrastruttura di Gabriel R. Antunes.
+      description: Interessi, progetti e link di Gabriel R. Antunes, compresi il lavoro open source e l’infrastruttura.
     profile:
-      bio: Sviluppatore software, collaboratore open source e una persona con interessi, relazioni e progetti che vanno oltre lo schermo.
+      bio: Musica, giochi, open source e le idee a cui torno.
     ui:
       html_lang: it
-      canonical_path: /it/
+      og_locale: it_IT
+      uptime_label: Uptime
+      animations_label: Animazioni ambientali
+      animations_enabled: Attive
+      animations_disabled: In pausa
+      brand_disclaimer: Questo progetto indipendente presenta un’interfaccia ispirata al linguaggio visivo dei giochi voxel. Non è un prodotto ufficiale Minecraft e non è approvato, associato o sostenuto da Mojang o Microsoft. Minecraft e i marchi correlati appartengono ai rispettivi proprietari.
+      now_updated: Aggiornato
       skip_link: Vai al contenuto
       language_aria_label: Cambia lingua
       quick_contacts_label: Principali modi per contattarmi
@@ -952,32 +1286,45 @@ locales:
       footer_repository: Vedi il repository sorgente su GitHub
       footer_commit: Vedi commit
       footer_build: Vedi build
+      local_build: Build locale
+      local_commit: locale
       credits: Crediti
       credits_dialog_title: Crediti e licenze
       credits_dialog_description: Dipendenze, strumenti, riferimenti e relative informazioni sulle licenze.
       credits_close: Chiudi i crediti
+      settings_label: Impostazioni
+      settings_close: Chiudi le impostazioni
+      home_sections_label: Esplora le sezioni
+      home_explore: Esplora le sezioni
+      home_about: Su di me
       credits_authors: Autori
       credits_license: Licenza
       credits_license_text: Leggi il testo della licenza
       credits_official_url: Sito ufficiale
     presentation:
       eyebrow: Chi sono
-      title: Lavoro, interessi, persone e ciò che viene dopo.
-      intro: Lo sviluppo software è una parte della mia vita, ma non la definisce interamente. Questa pagina raccoglie il mio lavoro, i miei interessi, le relazioni importanti e ciò che voglio ancora costruire.
+      title: Interessi, lavoro e ciò che viene dopo.
+      intro: Questa pagina raccoglie gli interessi che coltivo, il lavoro che svolgo e ciò che voglio ancora costruire.
       focus:
-        - title: Focus attuale
-          description: Studio Go e infrastruttura in un laboratorio personale mentre continuo a lavorare su applicazioni e progetti open source.
         - title: Oltre il lavoro
           description: La musica, i giochi, gli amici e le ambizioni personali fanno parte del contesto dietro questi link.
+        - title: Focus attuale
+          description: Studio Go e infrastruttura in un laboratorio personale mentre continuo a lavorare su applicazioni e progetti open source.
   zh:
     seo:
       title: Gabriel R. Antunes | 链接
-      description: Gabriel R. Antunes 的软件开发、开源工作和基础设施。
+      description: Gabriel R. Antunes 的兴趣、项目和链接，包括开源工作与基础设施。
     profile:
-      bio: 软件开发者、开源贡献者，也是拥有兴趣、关系和屏幕之外计划的一个人。
+      bio: 音乐、游戏、开源，以及我总会回到的那些想法。
     ui:
       html_lang: zh-CN
-      canonical_path: /zh/
+      og_locale: zh_CN
+      uptime_label: Uptime
+      animations_label: 环境动画
+      animations_enabled: 开启
+      animations_disabled: 暂停
+      brand_disclaimer: 本项目为独立项目，界面灵感来自体素游戏的视觉语言。它不是 Minecraft 官方产品，也未获 Mojang 或 Microsoft 批准、关联或认可。Minecraft 及其相关商标归各自所有者所有。
+      now_updated: 更新于
       skip_link: 跳转到内容
       language_aria_label: 切换语言
       quick_contacts_label: 主要联系方式
@@ -991,20 +1338,27 @@ locales:
       footer_repository: 在 GitHub 上查看源代码仓库
       footer_commit: 查看提交
       footer_build: 查看构建
+      local_build: 本地构建
+      local_commit: 本地
       credits: 致谢
       credits_dialog_title: 致谢与许可证
       credits_dialog_description: 依赖项、工具、参考项目及其许可信息。
       credits_close: 关闭致谢
+      settings_label: 设置
+      settings_close: 关闭设置
+      home_sections_label: 浏览各个栏目
+      home_explore: 浏览栏目
+      home_about: 关于我
       credits_authors: 作者
       credits_license: 许可证
       credits_license_text: 阅读许可证文本
       credits_official_url: 官方网站
     presentation:
       eyebrow: 关于我
-      title: 工作、兴趣、朋友以及接下来要做的事。
-      intro: 软件开发是我生活的一部分，但并不能定义我的全部。这一页汇集了我的工作、兴趣、亲近的人际关系以及我还想实现的事情。
+      title: 兴趣、工作，以及接下来要做的事。
+      intro: 这一页汇集了我所培养的兴趣、正在做的工作，以及我还想实现的事情。
       focus:
-        - title: 当前重点
-          description: 我在个人实验室学习 Go 和基础设施，同时继续开发应用和参与开源项目。
         - title: 工作之外
           description: 音乐、游戏、朋友和个人抱负也是这些链接背后的一部分。
+        - title: 当前重点
+          description: 我在个人实验室学习 Go 和基础设施，同时继续开发应用和参与开源项目。

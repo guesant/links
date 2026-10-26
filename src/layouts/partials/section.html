@@ -1,61 +1,16 @@
+{{ $locale := .language }}
 {{ $section := .section }}
-{{ $language := .language }}
-{{ $audienceID := .audienceID }}
-{{ $renderedLinks := .renderedLinks }}
-{{ $renderedIDs := $renderedLinks.Get "ids" | default (slice) }}
-{{ $sectionLabels := index $section.labels $language }}
-{{ if not $sectionLabels }}{{ $sectionLabels = index $section.labels "en" }}{{ end }}
-{{ $sectionID := $section.id | default $sectionLabels.title | urlize }}
-{{ if $audienceID }}{{ $sectionID = printf "%s-%s" $audienceID $sectionID }}{{ end }}
-<section class="link-section" id="{{ $sectionID }}">
+{{ $labels := index $section.labels $locale }}
+{{ $links := where (partialCached "public-links.html" (dict "language" $locale) $locale) "sectionID" $section.id }}
+<section class="link-section" id="{{ $section.id }}">
   <header class="section-heading">
-    {{ if $audienceID }}
-      <h3>{{ $sectionLabels.title }}</h3>
-    {{ else }}
-      <h2>{{ $sectionLabels.title }}</h2>
-    {{ end }}
-    {{ with $sectionLabels.description }}<p>{{ . }}</p>{{ end }}
+    <h1 id="page-title">{{ $labels.title }}</h1>
+    {{ with $labels.description }}<p>{{ . }}</p>{{ end }}
   </header>
   <div class="link-list">
-    {{ range $section.links }}
-      {{ $enabled := true }}
-      {{ if isset . "enabled" }}
-        {{ $enabled = .enabled }}
-      {{ end }}
-      {{ $public := true }}
-      {{ if isset . "public" }}
-        {{ $public = .public }}
-      {{ end }}
-      {{ $included := true }}
-      {{ if $audienceID }}
-        {{ $included = false }}
-        {{ with .audiences }}
-          {{ $included = in . $audienceID }}
-        {{ end }}
-      {{ end }}
-      {{ $linkID := .id | default .url }}
-      {{ if and $enabled $public $included (not (in $renderedIDs $linkID)) }}
-        {{ $linkLabels := index .labels $language }}
-        {{ if not $linkLabels }}{{ $linkLabels = index .labels "en" }}{{ end }}
-        {{ $visual := .visual }}
-        {{ if $visual }}
-          {{ $visualAlt := index $visual.alt $language }}
-          {{ if not $visualAlt }}{{ $visualAlt = index $visual.alt "en" }}{{ end }}
-          {{ $visual = dict "kind" (index $visual "kind") "src" (index $visual "src") "alt" $visualAlt "width" (index $visual "width") "height" (index $visual "height") }}
-        {{ end }}
-        {{ $link := dict
-          "title" $linkLabels.title
-          "description" $linkLabels.description
-          "badge" $linkLabels.badge
-          "url" .url
-          "icon" .icon
-          "featured" .featured
-          "target" .target
-          "visual" $visual
-        }}
-        {{ $renderedIDs = $renderedIDs | append $linkID }}
-        {{ $renderedLinks.Set "ids" $renderedIDs }}
-        {{ partial "link.html" $link }}
+    {{ if $links }}
+      {{ range $links }}
+        <div class="link-row">{{ partial "link.html" . }}</div>
       {{ end }}
     {{ end }}
   </div>

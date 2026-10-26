@@ -1,0 +1,9 @@
+{{ $url := trim .url " " }}
+{{ $external := gt (len (findRE `(?i)^(https?://|mailto:|tel:)` $url)) 0 }}
+{{ $href := $url }}
+{{ if not $external }}{{ $href = strings.TrimPrefix "/" $href | relURL }}{{ end }}
+{{ $target := .target | default "_self" }}
+{{ if and $external (not .target) }}{{ $target = "_blank" }}{{ end }}
+{{ $rel := "" }}
+{{ if eq $target "_blank" }}{{ $rel = "noopener noreferrer" }}{{ end }}
+{{ return (dict "href" $href "external" $external "target" $target "rel" $rel "display" (replaceRE `(?i)^mailto:` "" $url)) }}

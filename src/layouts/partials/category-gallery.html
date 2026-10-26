@@ -1,0 +1,38 @@
+{{ $locale := lower .Site.Language.Lang }}
+{{ $data := hugo.Data.links }}
+{{ $localized := index $data.locales $locale }}
+{{ $pages := partial "site-pages.html" (dict "locale" $locale) }}
+{{ $links := partialCached "public-links.html" (dict "language" $locale) $locale }}
+<section class="home-categories" id="home-categories" aria-labelledby="home-categories-title">
+  <span class="frame-moss" aria-hidden="true"></span>
+  <h2 class="section-label" id="home-categories-title">{{ $localized.ui.home_sections_label }}</h2>
+  <div class="category-grid">
+    {{ range where $pages "id" "ne" "home" }}
+      {{ $page := . }}
+      {{ $destination := strings.TrimPrefix "/" .url | relURL }}
+      <article class="category-card" data-category="{{ .id }}" aria-labelledby="category-{{ .id }}-title">
+        <span class="category-icon" aria-hidden="true">{{ partial "icon.html" .icon }}</span>
+        <div class="category-copy">
+          <h3 class="category-title" id="category-{{ .id }}-title">
+            <a class="category-main-link" href="{{ $destination }}">{{ .title }}</a>
+          </h3>
+          {{ with .description }}<p class="category-description">{{ . }}</p>{{ end }}
+          <ul class="category-preview">
+            {{ if eq .type "links-page" }}
+              {{ range where $links "sectionID" $page.id }}
+                {{ $link := partial "link-destination.html" . }}
+                <li><a class="category-preview-link" data-preview-id="{{ .id }}" href="{{ $link.href }}"{{ if $link.target }} target="{{ $link.target }}"{{ end }}{{ with $link.rel }} rel="{{ . }}"{{ end }}>{{ partial "button-icon.html" .icon }}<span>{{ .title }}</span>{{ if $link.external }}<span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>{{ end }}</a></li>
+              {{ end }}
+            {{ else }}
+              {{ $now := index $data.now $locale | default (index $data.now "en") }}
+              {{ range $now.sections }}
+                <li><a class="category-preview-link" data-preview-id="now-{{ .id }}" href="{{ $destination }}#now-{{ .id }}">{{ partial "button-icon.html" "clock" }}<span>{{ .title }}</span></a></li>
+              {{ end }}
+            {{ end }}
+          </ul>
+        </div>
+        <span class="category-indicator" aria-hidden="true">{{ partial "icon.html" "chevron-right" }}</span>
+      </article>
+    {{ end }}
+  </div>
+</section>

@@ -1,33 +1,29 @@
-{{ $href := .url }}
-{{ $lowerURL := lower $href }}
+{{ $destination := partial "link-destination.html" . }}
 {{ $sitePath := replaceRE "/$" "" site.Home.RelPermalink }}
 {{ $currentLanguage := lower site.Language.Lang }}
 {{ if ne $currentLanguage "en" }}
   {{ $languageSuffix := printf "(?i)/%s$" $currentLanguage }}
   {{ $sitePath = replaceRE $languageSuffix "" $sitePath }}
 {{ end }}
-{{ $isExternal := or (hasPrefix $lowerURL "http://") (hasPrefix $lowerURL "https://") (hasPrefix $lowerURL "mailto:") (hasPrefix $lowerURL "tel:") }}
-{{ if not $isExternal }}
-  {{ $href = $href | relURL }}
-{{ end }}
-{{ $displayURL := .url }}
-{{ if hasPrefix $lowerURL "mailto:" }}
-  {{ $displayURL = replaceRE "(?i)^mailto:" "" .url }}
-{{ end }}
-{{ $target := .target | default "_blank" }}
-{{ $rel := "" }}
-{{ if eq $target "_blank" }}{{ $rel = "noopener noreferrer" }}{{ end }}
-<a class="link-button{{ if .featured }} link-button-featured{{ end }}" href="{{ $href }}" target="{{ $target }}" data-link-confirm data-link-title="{{ .title }}" data-link-url="{{ .url }}"{{ with .description }} data-link-description="{{ . }}"{{ end }}{{ with $rel }} rel="{{ . }}"{{ end }}>
+<a class="link-button" href="{{ $destination.href }}" target="{{ $destination.target }}"{{ with $destination.rel }} rel="{{ . }}"{{ end }}>
+  {{ partial "frame-rivets.html" . }}
+  <div class="link-summary">
   <span class="link-icon">{{ partial "icon.html" (.icon | default "link") }}</span>
-  <span class="link-copy">
+  <div class="link-copy">
     <span class="link-title">{{ .title }}</span>
     <span class="link-url">
       <span class="link-url-icon">{{ partial "icon.html" "link" }}</span>
-      <span class="link-url-text">{{ $displayURL }}</span>
+      <span class="link-url-text">{{ $destination.display }}</span>
     </span>
     {{ with .description }}<span class="link-description">{{ . }}</span>{{ end }}
-  </span>
-  {{ with .badge }}<span class="link-badge">{{ . }}</span>{{ end }}
+    {{ with .badge }}<span class="link-badge">{{ . }}</span>{{ end }}
+  </div>
+  {{ if $destination.external }}
+    <span class="link-actions">
+      <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
+    </span>
+  {{ end }}
+  </div>
   {{ with .visual }}
     {{ $visualSrc := .src }}
     {{ if hasPrefix $visualSrc "/" }}{{ $visualSrc = printf "%s%s" $sitePath $visualSrc }}{{ end }}
@@ -35,4 +31,5 @@
       <img src="{{ $visualSrc }}" alt="{{ .alt }}" width="{{ index . "width" }}" height="{{ index . "height" }}" loading="lazy" decoding="async" fetchpriority="low">
     </span>
   {{ end }}
+  {{ if .stats }}{{ partial "statistics.html" (dict "entry" . "language" .language) }}{{ end }}
 </a>

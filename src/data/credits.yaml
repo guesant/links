@@ -1,4 +1,63 @@
 licenses:
+  isc:
+    name: ISC License
+    url: https://github.com/eemeli/yaml/blob/main/LICENSE
+    text: |-
+      Copyright Eemeli Aro <eemeli@gmail.com>
+
+      Permission to use, copy, modify, and/or distribute this software for any purpose
+      with or without fee is hereby granted, provided that the above copyright notice
+      and this permission notice appear in all copies.
+
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+      REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+      FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+      INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+      OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+      TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+      THIS SOFTWARE.
+  go-fonts:
+    name: Go fonts BSD license
+    url: https://go.googlesource.com/image/+/refs/heads/master/font/gofont/ttfs/README
+    text: |-
+      Copyright (c) 2016 Bigelow & Holmes Inc.. All rights reserved.
+
+      Distribution of this font is governed by the following license. If you do not
+      agree to this license, including the disclaimer, do not distribute or modify
+      this font.
+
+      Redistribution and use in source and binary forms, with or without
+      modification, are permitted provided that the following conditions are met:
+
+      * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+
+      * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+      * Neither the name of Google Inc. nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
+
+      DISCLAIMER: THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+      "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+      THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+      ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+      FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+      SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+      OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  image-generation-service:
+    name: OpenAI service terms
+    url: https://openai.com/policies/terms-of-use/
+    text: |-
+      OpenAI image generation was used during the creation of the scenery.
+      It is a hosted authoring tool, not a runtime dependency or software
+      redistributed by this website. The service is governed by its terms of use.
+      No OpenAI model, SDK or font is distributed with this website.
   apache-2.0:
     name: Apache License 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
@@ -128,8 +187,92 @@ licenses:
       Google Fonts is used as a hosted font delivery service. The service is
       not redistributed by this site. Its use is subject to Google's terms,
       while each font remains subject to its own license.
+  system-font:
+    name: Proprietary system font, not redistributed
+    url: https://learn.microsoft.com/en-us/typography/fonts/font-faq
+    text: |-
+      Arial is a proprietary typeface by Monotype, designed by Robin Nicholas
+      and Patricia Saunders. This website names Arial in its CSS font stack
+      and uses the visitor's installed copy when available. No Arial font
+      files are hosted, embedded or redistributed by this website. Licensing
+      remains governed by the terms accompanying the installed font.
 
 entries:
+  - id: minecraft
+    name: Minecraft, visual reference
+    authors: Mojang Studios / Microsoft
+    license: reference-only
+    official_url: https://www.minecraft.net/en-us/usage-guidelines
+  - id: just
+    name: just
+    authors: Casey Rodarmor and contributors
+    license: cc0-1.0
+    official_url: https://just.systems/
+  - id: devcontainers
+    name: Dev Containers CLI and CI
+    authors: Microsoft and Dev Containers contributors
+    license: mit
+    official_url: https://containers.dev/
+  - id: leetcode-stats-reference
+    name: LeetCode Stats Card, API reference
+    authors: JacobLinCool and contributors
+    license: reference-only
+    official_url: https://github.com/JacobLinCool/LeetCode-Stats-Card
+  - id: github-stats-reference
+    name: GitHub Readme Stats, API reference
+    authors: Anurag Hazra and contributors
+    license: reference-only
+    official_url: https://github.com/anuraghazra/github-readme-stats
+  - id: minecraft-clone-unity
+    name: MinecraftClone-Unity, visual reference
+    authors: stalomeow and contributors
+    license: reference-only
+    official_url: https://github.com/stalomeow/MinecraftClone-Unity
+  - id: ourcraft
+    name: ourCraft, visual reference
+    authors: meemknight and contributors
+    license: reference-only
+    official_url: https://github.com/meemknight/ourCraft
+  - id: rustcraft
+    name: rustcraft, visual reference
+    authors: c2i-junia and contributors
+    license: reference-only
+    official_url: https://github.com/c2i-junia/rustcraft
+  - id: polymer
+    name: Polymer, visual reference
+    authors: atxi and contributors
+    license: reference-only
+    official_url: https://github.com/atxi/Polymer
+  - id: mycraft
+    name: Mycraft, visual reference
+    authors: Clapeysron and contributors
+    license: reference-only
+    official_url: https://github.com/Clapeysron/Mycraft
+  - id: minecraft-wiki
+    name: Minecraft Wiki, visual reference
+    authors: Minecraft Wiki contributors
+    license: reference-only
+    official_url: https://pt.minecraft.wiki/
+  - id: chunkbase
+    name: Chunk Base, visual reference
+    authors: Chunk Base
+    license: reference-only
+    official_url: https://www.chunkbase.com/
+  - id: go-fonts
+    name: Go fonts, used by Hugo for the Open Graph image
+    authors: Bigelow & Holmes Inc.
+    license: go-fonts
+    official_url: https://go.dev/blog/go-fonts
+  - id: image-generation
+    name: OpenAI image generation
+    authors: OpenAI
+    license: image-generation-service
+    official_url: https://openai.com/
+  - id: original-voxel-art
+    name: Original voxel scenery and interface
+    authors: Gabriel R. Antunes, with scenery generated using OpenAI image generation
+    license: mit
+    official_url: https://github.com/guesant/lobby
   - id: hugo
     name: Hugo Extended
     authors: Hugo Authors
@@ -156,30 +299,25 @@ entries:
     license: github-service
     official_url: https://docs.github.com/en/rest
   - id: font-awesome
-    name: Font Awesome Free
+    name: Font Awesome Free, icon reference
     authors: Fonticons, Inc. and contributors
     license: font-awesome-free
     official_url: https://fontawesome.com/
   - id: simple-icons
-    name: Simple Icons
+    name: Simple Icons, platform mark reference
     authors: Simple Icons contributors
     license: cc0-1.0
     official_url: https://simpleicons.org/
-  - id: sweetalert2
-    name: SweetAlert2
-    authors: SweetAlert2 contributors
-    license: mit
-    official_url: https://sweetalert2.github.io/
   - id: press-start-2p
     name: Press Start 2P
     authors: The Press Start 2P Project Authors
     license: ofl-1.1
     official_url: https://fonts.google.com/specimen/Press+Start+2P
-  - id: roboto-slab
-    name: Roboto Slab
-    authors: The Roboto Slab Project Authors
-    license: apache-2.0
-    official_url: https://fonts.google.com/specimen/Roboto+Slab
+  - id: arial
+    name: Arial
+    authors: Robin Nicholas and Patricia Saunders, Monotype
+    license: system-font
+    official_url: https://learn.microsoft.com/en-us/typography/font-list/arial
   - id: google-fonts
     name: Google Fonts
     authors: Google
@@ -190,11 +328,6 @@ entries:
     authors: Eric A. Meyer
     license: public-domain
     official_url: https://meyerweb.com/eric/tools/css/reset/
-  - id: shields
-    name: Shields.io
-    authors: Shields contributors
-    license: cc0-1.0
-    official_url: https://shields.io/
   - id: lychee
     name: Lychee
     authors: Lychee contributors
@@ -205,6 +338,11 @@ entries:
     authors: Pa11y contributors
     license: mit
     official_url: https://github.com/pa11y/pa11y-ci
+  - id: yaml
+    name: yaml
+    authors: Eemeli Aro and contributors
+    license: isc
+    official_url: https://eemeli.org/yaml/
   - id: lighthouse-ci
     name: Lighthouse CI
     authors: Chrome team and contributors

@@ -6,17 +6,10 @@
     "timeout": 30000,
     "wait": 1000,
     "threshold": 0,
+    "viewport": { "width": 1280, "height": 1024 },
     "chromeLaunchConfig": {
       "args": ["--no-sandbox", "--disable-dev-shm-usage"],
       "executablePath": "/usr/bin/chromium"
     }
-  },
-  "urls": [
-    "http://127.0.0.1:4173/",
-    "http://127.0.0.1:4173/pt-br/",
-    "http://127.0.0.1:4173/fr/",
-    "http://127.0.0.1:4173/es/",
-    "http://127.0.0.1:4173/it/",
-    "http://127.0.0.1:4173/zh/"
-  ]
+  }
 }

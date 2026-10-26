@@ -1,0 +1,14 @@
+{{ $locale := lower .Site.Language.Lang }}
+{{ $current := .Params.page_key | default "home" }}
+<nav class="page-navigation" aria-label="{{ index hugo.Data.links.navigation.labels $locale }}">
+  <ul class="page-tabs">
+    {{ range partial "site-pages.html" (dict "locale" $locale) }}
+      <li>
+        <a class="page-tab" href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
+          {{ partial "button-icon.html" .icon }}
+          <span>{{ .title }}</span>
+        </a>
+      </li>
+    {{ end }}
+  </ul>
+</nav>

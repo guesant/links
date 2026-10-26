@@ -1,0 +1,16 @@
+name: guesant-links
+
+services:
+  workspace:
+    build:
+      context: ..
+      dockerfile: .config/container/Dockerfile
+      target: workspace
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    ports:
+      - "127.0.0.1:4173:4173"
+    environment:
+      GITHUB_STATS_TOKEN: ${GITHUB_STATS_TOKEN:-}
+    init: true

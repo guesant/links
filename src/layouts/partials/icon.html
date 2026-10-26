@@ -1,30 +1,4 @@
 {{ $name := lower (. | default "link") }}
-{{ $svgIcons := slice "hyperskill" "leetcode" "orcid" }}
-{{ $svgIcon := resources.Get (printf "icons/%s.svg" $name) }}
-{{ if and (in $svgIcons $name) $svgIcon }}
-  {{ $svg := replaceRE "<svg " "<svg class=\"link-icon-symbol-svg\" aria-hidden=\"true\" " $svgIcon.Content }}
-  {{ $svg | safeHTML }}
-{{ else }}
-{{ $icons := dict
-  "academic" "fa-solid fa-graduation-cap"
-  "code" "fa-solid fa-code"
-  "document" "fa-solid fa-file-lines"
-  "education" "fa-solid fa-graduation-cap"
-  "email" "fa-solid fa-envelope"
-  "github" "fa-brands fa-github"
-  "gitlab" "fa-brands fa-gitlab"
-  "instagram" "fa-brands fa-instagram"
-  "lastfm" "fa-brands fa-lastfm"
-  "link" "fa-solid fa-link"
-  "linkedin" "fa-brands fa-linkedin"
-  "minecraft" "fa-solid fa-cube"
-  "playstation" "fa-brands fa-playstation"
-  "website" "fa-solid fa-globe"
-  "spotify" "fa-brands fa-spotify"
-  "steam" "fa-brands fa-steam"
-  "xbox" "fa-brands fa-xbox"
-  "youtube" "fa-brands fa-youtube"
-}}
-{{ $classes := index $icons $name | default (index $icons "link") }}
-<span class="link-icon-symbol {{ $classes }}" aria-hidden="true"></span>
-{{ end }}
+{{ $sprite := resources.Get "icons/pixel.svg" | fingerprint }}
+{{ if not (findRE (printf `<symbol id="%s"` $name) $sprite.Content) }}{{ $name = "link" }}{{ end }}
+<svg class="link-icon-symbol-svg" data-platform="{{ $name }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><use href="{{ $sprite.RelPermalink }}#{{ $name }}"></use></svg>

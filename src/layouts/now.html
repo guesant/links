@@ -1,0 +1,24 @@
+{{ define "main" }}
+  {{ $locale := lower .Site.Language.Lang }}
+  {{ $now := index hugo.Data.links.now $locale }}
+  {{ $ui := (index hugo.Data.links.locales $locale).ui }}
+  <article class="presentation" aria-labelledby="now-title">
+    <span class="frame-moss" aria-hidden="true"></span>
+    <h1 class="presentation-title" id="now-title">{{ $now.title }}</h1>
+    <p class="presentation-intro">{{ $now.intro }}</p>
+    <div class="presentation-focus">
+      {{ range $now.sections }}
+        <section class="presentation-focus-item" aria-labelledby="now-{{ .id }}">
+          <span class="presentation-focus-marker" aria-hidden="true"></span>
+          <div class="presentation-focus-copy">
+            <h2 id="now-{{ .id }}">{{ .title }}</h2>
+            <p>{{ .description }}</p>
+          </div>
+        </section>
+      {{ end }}
+    </div>
+    {{ with getenv "HUGO_BUILD_DATE" }}
+      <p class="now-updated"><span>{{ $ui.now_updated }}</span><time datetime="{{ . }}">{{ time.Format "2006-01-02" . }}</time></p>
+    {{ end }}
+  </article>
+{{ end }}

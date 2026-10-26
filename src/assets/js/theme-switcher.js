@@ -2,7 +2,7 @@
   const storageKey = "guesant-links-theme";
   const themes = new Set(["system", "dark", "light"]);
   const root = document.documentElement;
-  const options = document.querySelectorAll("[data-theme-option]");
+  root.dataset.themeReady = "true";
 
   let storedTheme = "";
 
@@ -10,7 +10,9 @@
     storedTheme = window.localStorage.getItem(storageKey) || "";
   } catch {}
 
-  const initialTheme = themes.has(storedTheme) ? storedTheme : root.dataset.theme || "system";
+  const initialTheme = themes.has(storedTheme)
+    ? storedTheme
+    : root.dataset.theme || "system";
 
   const applyTheme = (theme, persist) => {
     if (!themes.has(theme)) {
@@ -19,7 +21,7 @@
 
     root.dataset.theme = theme;
 
-    options.forEach((option) => {
+    document.querySelectorAll("[data-theme-option]").forEach((option) => {
       option.checked = option.value === theme;
     });
 
@@ -32,9 +34,16 @@
 
   applyTheme(initialTheme, false);
 
-  options.forEach((option) => {
-    option.addEventListener("change", () => {
-      applyTheme(option.value, true);
-    });
+  document.addEventListener("DOMContentLoaded", () => {
+    applyTheme(root.dataset.theme, false);
+  });
+
+  document.addEventListener("change", (event) => {
+    if (
+      event.target instanceof HTMLInputElement &&
+      event.target.matches("[data-theme-option]")
+    ) {
+      applyTheme(event.target.value, true);
+    }
   });
 })();

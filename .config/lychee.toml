@@ -1,0 +1,16 @@
+root_dir = "../../.local/build/site"
+index_files = ["index.html"]
+accept = [200, 206, 301, 302, 403, 999]
+accept_timeouts = true
+max_concurrency = 8
+max_retries = 1
+retry_wait_time = 2
+timeout = 20
+exclude = ["(^|//)(guesant.net|blog.guesant.net)(/|$)", "^(mailto:|tel:)"]
+cache = true
+max_cache_age = "1d"
+cache_exclude_status = "400.."
+
+[hosts."steamcommunity.com"]
+concurrency = 1
+request_interval = "2s"

@@ -1,10 +1,10 @@
 {{ $data := hugo.Data.links }}
 {{ $localized := index $data.locales (lower site.Language.Lang) }}
-{{ $repository := getenv "HUGO_GITHUB_REPOSITORY" | default "guesant/links" }}
+{{ $repository := getenv "HUGO_GITHUB_REPOSITORY" | default $data.site.repository }}
 {{ $serverURL := getenv "HUGO_GITHUB_SERVER_URL" | default "https://github.com" }}
 {{ $repositoryURL := printf "%s/%s" $serverURL $repository }}
 {{ $commit := getenv "HUGO_GITHUB_SHA" }}
-{{ $commitLabel := $commit | default "local" }}
+{{ $commitLabel := $commit | default $localized.ui.local_commit }}
 {{ if gt (len $commit) 7 }}
   {{ $commitLabel = substr $commit 0 7 }}
 {{ end }}
@@ -15,37 +15,54 @@
   {{ $buildURL = printf "%s/actions/runs/%s" $repositoryURL $runID }}
 {{ end }}
 {{ $buildDate := getenv "HUGO_BUILD_DATE" | default "" }}
-{{ $buildDateLabel := getenv "HUGO_BUILD_DATE_LABEL" | default "Local build" }}
+{{ $buildDateLabel := getenv "HUGO_BUILD_DATE_LABEL" | default $localized.ui.local_build }}
 {{ $credits := hugo.Data.credits }}
 <footer class="site-footer">
+  <span class="frame-moss" aria-hidden="true"></span>
+  {{ partial "frame-rivets.html" . }}
   <nav class="site-footer-content" aria-label="{{ $localized.ui.footer_aria_label }}">
-    <a class="site-footer-repository" href="{{ $repositoryURL }}" aria-label="{{ $localized.ui.footer_repository }}">
-      {{ partial "icon.html" "github" }}
+    <a class="site-footer-repository" href="{{ $repositoryURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_repository }}">
+      {{ partial "button-icon.html" "git-alt" }}
+      <span>{{ $data.site.repository_label }}</span>
+      <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
     </a>
     {{ if $commit }}
-      <a class="site-footer-link" href="{{ $commitURL }}" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">
+      <a class="site-footer-link" href="{{ $commitURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">
+        {{ partial "button-icon.html" "code-commit" }}
         <span>{{ $commitLabel }}</span>
+        <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
       </a>
     {{ else }}
-      <span class="site-footer-link">{{ $commitLabel }}</span>
+      <span class="site-footer-link">
+        {{ partial "button-icon.html" "code-commit" }}
+        <span>{{ $commitLabel }}</span>
+      </span>
     {{ end }}
-    <a class="site-footer-link" href="{{ $buildURL }}" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">
+    <a class="site-footer-link" href="{{ $buildURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">
+      {{ partial "button-icon.html" "githubactions" }}
       <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>
+      <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
     </a>
-    <button class="site-footer-link site-footer-button" type="button" data-credits-open aria-controls="credits-dialog">
-      {{ $localized.ui.credits }}
+    <button class="site-footer-link site-footer-button" type="button" data-credits-open data-dialog-open="credits-dialog" command="show-modal" commandfor="credits-dialog">
+      {{ partial "button-icon.html" "scale-balanced" }}
+      <span>{{ $localized.ui.credits }}</span>
+    </button>
+    <button class="site-footer-link site-footer-button" type="button" data-settings-open data-dialog-open="settings-dialog" command="show-modal" commandfor="settings-dialog">
+      {{ partial "button-icon.html" "gear" }}<span>{{ $localized.ui.settings_label }}</span>
     </button>
   </nav>
+  {{ with $localized.ui.translation_disclaimer }}<p class="translation-disclaimer">{{ . }}</p>{{ end }}
+  <p class="brand-disclaimer">{{ $localized.ui.brand_disclaimer }}</p>
 </footer>
-<dialog class="credits-dialog" id="credits-dialog" data-credits-dialog aria-labelledby="credits-dialog-title" aria-describedby="credits-dialog-description">
-  <div class="credits-dialog-content">
-    <header class="credits-dialog-header">
+<dialog class="app-dialog credits-dialog" id="credits-dialog" data-credits-dialog aria-labelledby="credits-dialog-title" aria-describedby="credits-dialog-description">
+  <div class="app-dialog-content credits-dialog-content">
+    <header class="app-dialog-header credits-dialog-header">
       <div class="credits-dialog-heading">
         <h2 id="credits-dialog-title">{{ $localized.ui.credits_dialog_title }}</h2>
         <p id="credits-dialog-description">{{ $localized.ui.credits_dialog_description }}</p>
       </div>
       <form method="dialog">
-        <button class="credits-dialog-close" type="submit" aria-label="{{ $localized.ui.credits_close }}">×</button>
+        <button class="dialog-close" type="submit" data-dialog-close aria-label="{{ $localized.ui.credits_close }}">{{ partial "button-icon.html" "xmark" }}</button>
       </form>
     </header>
     <div class="credits-list">
@@ -61,7 +78,7 @@
             <div>
               <dt>{{ $localized.ui.credits_license }}</dt>
               <dd>
-                <a class="credit-license-link" href="{{ $license.url }}" target="_blank" rel="noopener noreferrer">{{ $license.name }}</a>
+                <a class="credit-license-link" href="{{ $license.url }}" target="_blank" rel="noopener noreferrer">{{ $license.name }} <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span></a>
               </dd>
             </div>
           </dl>
@@ -71,16 +88,16 @@
           </details>
           <a class="credit-official-link" href="{{ .official_url }}" target="_blank" rel="noopener noreferrer">
             {{ $localized.ui.credits_official_url }}
+            <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
           </a>
         </section>
       {{ end }}
     </div>
   </div>
 </dialog>
-{{ $linkScript := resources.Get "js/link-interceptor.js" | minify | fingerprint }}
-{{ $themeScript := resources.Get "js/theme-switcher.js" | minify | fingerprint }}
-{{ $creditsScript := resources.Get "js/credits-dialog.js" | minify | fingerprint }}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js" integrity="sha512-TA1p+I1AtmUN2QnvpJT01/hjvxCxjyBfXtNuKNnvvwyCaQpdl5JUfiJ7geQtMnJ55myntTq5JwPLiH3j6e222A==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-<script src="{{ $themeScript.RelPermalink }}" defer></script>
-<script src="{{ $linkScript.RelPermalink }}" defer></script>
-<script src="{{ $creditsScript.RelPermalink }}" defer></script>
+{{ $dialogsScript := resources.Get "js/dialogs.js" | minify | fingerprint }}
+{{ $uptimeScript := resources.Get "js/uptime.js" | minify | fingerprint }}
+{{ $motionScript := resources.Get "js/ambient-motion.js" | minify | fingerprint }}
+<script src="{{ $dialogsScript.RelPermalink }}" defer></script>
+<script src="{{ $uptimeScript.RelPermalink }}" defer></script>
+<script src="{{ $motionScript.RelPermalink }}" defer></script>

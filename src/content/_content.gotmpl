@@ -1,0 +1,7 @@
+{{ .EnableAllLanguages }}
+{{ $locale := lower .Site.Language.Lang }}
+{{ range partial "site-pages.html" (dict "locale" $locale) }}
+  {{ if and (ne .id "home") (not .fallback) }}
+    {{ $.AddPage (dict "kind" "page" "path" .id "url" .url "title" .title "layout" .type "params" (dict "page_key" .id)) }}
+  {{ end }}
+{{ end }}

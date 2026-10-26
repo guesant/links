@@ -2,8 +2,7 @@ name: Publish GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -11,212 +10,54 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  workflow-quality:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - name: Run actionlint
-        run: |
-          docker run --rm \
-            --volume "$PWD:/repo:ro" \
-            --workdir /repo \
-            rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
-      - name: Run zizmor
-        run: |
-          docker run --rm \
-            --volume "$PWD:/repo:ro" \
-            --workdir /repo \
-            ghcr.io/zizmorcore/zizmor:1.31.1@sha256:42d409dbb851d4c5d35a058cf042b828bea1e3f2884378c526eb0974780e18d9 \
-            --format=github \
-            .github/workflows
-
   build:
     runs-on: ubuntu-latest
-    needs: workflow-quality
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          submodules: recursive
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Build Hugo image
-        run: docker build --file .config/container/Dockerfile --tag guesant-links:ci .
-      - name: Build static site
-        run: |
-          mkdir -p public
-          docker create \
-            --env HUGO_GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            --env HUGO_GITHUB_SERVER_URL="$GITHUB_SERVER_URL" \
-            --env HUGO_GITHUB_SHA="$GITHUB_SHA" \
-            --env HUGO_GITHUB_RUN_ID="$GITHUB_RUN_ID" \
-            --env HUGO_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --env HUGO_BUILD_DATE_LABEL="$(date -u '+%Y-%m-%d %H:%M UTC')" \
-            --name guesant-links-build \
-            guesant-links:ci \
-            --minify \
-            --cleanDestinationDir \
-            --baseURL https://guesant.net/ \
-            --destination /tmp/public
-          trap 'docker rm --force guesant-links-build' EXIT
-          docker start --attach guesant-links-build
-          docker cp guesant-links-build:/tmp/public/. public/
-          if [ -d public/pt-BR ] && [ ! -e public/pt-br ]; then
-            cp --recursive public/pt-BR public/pt-br
-          fi
-      - name: Upload site artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
-        with:
-          name: site-public
-          path: public
-          if-no-files-found: error
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
-        with:
-          path: public
-
-  dead-links:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download site artifact
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
-        with:
-          name: site-public
-          path: public
-      - name: Check links
-        run: |
-          docker run --rm \
-            --volume "$PWD/public:/input/public:ro" \
-            lycheeverse/lychee:0.24.2 \
-            --verbose \
-            --no-progress \
-            --root-dir /input/public \
-            --index-files index.html \
-            --accept 200,206,301,302,403,999 \
-            --accept-timeouts \
-            --max-concurrency 16 \
-            --max-retries 1 \
-            --retry-wait-time 1 \
-            --timeout 20 \
-            --exclude '(^|//)(guesant.net|blog.guesant.net)(/|$)' \
-            --exclude '^(mailto:|tel:)' \
-            /input/public
-
-  accessibility:
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: Build Hugo image
-        run: docker build --file .config/container/Dockerfile --target site --tag guesant-links-site:ci .
-      - name: Build local site
-        run: |
-          mkdir -p public
-          docker create \
-            --name guesant-links-accessibility \
-            guesant-links-site:ci \
-            --minify \
-            --cleanDestinationDir \
-            --baseURL http://127.0.0.1:4173/ \
-            --destination /tmp/public
-          trap 'docker rm --force guesant-links-accessibility >/dev/null 2>&1 || true' EXIT
-          docker start --attach guesant-links-accessibility
-          docker cp guesant-links-accessibility:/tmp/public/. public/
-          if [ -d public/pt-BR ] && [ ! -e public/pt-br ]; then
-            cp --recursive public/pt-BR public/pt-br
-          fi
-      - name: Build quality image
-        run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
-      - name: Check ARIA and accessibility
-        run: |
-          docker run --rm \
-            --volume "$PWD/public:/work/public:ro" \
-            --volume "$PWD/.config/pa11yci.json:/work/.pa11yci.json:ro" \
-            guesant-links-quality:ci \
-            sh -c 'serve -l 4173 /work/public >/tmp/links-http.log 2>&1 & server_pid=$!; trap "kill $server_pid 2>/dev/null || true" EXIT; for attempt in $(seq 1 30); do if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then break; fi; sleep 1; done; for path in / /pt-br/ /fr/ /es/ /it/ /zh/; do curl --fail --silent "http://127.0.0.1:4173$path" >/dev/null; done; pa11y-ci --config=/work/.pa11yci.json'
-
-  lighthouse:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Validate and build in Dev Container
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca
         with:
-          persist-credentials: false
-      - name: Download site artifact
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
-        with:
-          name: site-public
-          path: public
-      - name: Build quality image
-        run: docker build --file .config/container/Dockerfile --target quality --tag guesant-links-quality:ci .
-      - name: Build Hugo image
-        run: docker build --file .config/container/Dockerfile --target site --tag guesant-links-site:ci .
-      - name: Build Lighthouse site
-        run: |
-          mkdir -p lighthouse-public
-          docker create \
-            --name guesant-links-lighthouse \
-            guesant-links-site:ci \
-            --minify \
-            --cleanDestinationDir \
-            --baseURL http://localhost/ \
-            --destination /tmp/lighthouse-public
-          trap 'docker rm --force guesant-links-lighthouse >/dev/null 2>&1 || true' EXIT
-          docker start --attach guesant-links-lighthouse
-          docker cp guesant-links-lighthouse:/tmp/lighthouse-public/. lighthouse-public/
-          if [ -d lighthouse-public/pt-BR ] && [ ! -e lighthouse-public/pt-br ]; then
-            cp --recursive lighthouse-public/pt-BR lighthouse-public/pt-br
-          fi
-      - name: Run Lighthouse CI
-        run: |
-          mkdir -p .lighthouseci
-          docker run --rm \
-            --volume "$PWD/lighthouse-public:/work/lighthouse-public:ro" \
-            --volume "$PWD/.config/lighthouserc.json:/work/.lighthouserc.json:ro" \
-            --volume "$PWD/.lighthouseci:/work/.lighthouseci" \
-            guesant-links-quality:ci \
-            lhci autorun --config=/work/.lighthouserc.json
-      - name: Upload Lighthouse reports
+          push: never
+          env: |
+            GITHUB_REPOSITORY
+            GITHUB_SERVER_URL
+            GITHUB_SHA
+            GITHUB_RUN_ID
+          runCmd: |
+            just check
+            just build
+      - name: Upload reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: lighthouse-reports
-          path: .lighthouseci
+          name: quality-reports
+          path: |
+            .local/reports
+            .cache/lighthouseci
           if-no-files-found: ignore
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: .local/build/site
 
   deploy:
     if: github.event_name != 'pull_request'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
     runs-on: ubuntu-latest
-    needs:
-      - build
-      - dead-links
-      - accessibility
-      - lighthouse
     permissions:
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Configure Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
-        with:
-          enablement: true
-      - name: Deploy to GitHub Pages
+      - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346

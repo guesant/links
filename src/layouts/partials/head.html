@@ -1,35 +1,90 @@
 {{ $config := hugo.Data.links }}
 {{ $localized := index $config.locales (lower site.Language.Lang) }}
-{{ $seoTitle := $localized.seo.title | default site.Title }}
-{{ $seoDescription := $localized.seo.description | default site.Params.description }}
+{{ $pageKey := .Params.page_key | default "home" }}
+{{ $page := index (where (partial "site-pages.html" (dict "locale" (lower site.Language.Lang))) "id" $pageKey) 0 }}
+{{ $pageData := $localized }}
+{{ $pagePath := $page.url }}
+{{ if eq $pageKey "now" }}{{ $pageData = index $config.now (lower site.Language.Lang) }}{{ end }}
+{{ if eq $page.type "links-page" }}{{ $pageData = dict "seo" (dict "title" (printf "%s | %s" $page.title $config.profile.name) "description" $page.description) }}{{ end }}
+{{ $seoTitle := $pageData.seo.title }}
+{{ $seoDescription := $pageData.seo.description }}
 {{ $canonicalBase := replaceRE "/$" "" site.BaseURL }}
-{{ $canonical := printf "%s%s" $canonicalBase $localized.ui.canonical_path }}
-{{ $resetCSS := resources.Get "css/reset.css" | minify | fingerprint }}
-{{ $mainCSS := resources.Get "css/main.css" | minify | fingerprint }}
+{{ $canonical := printf "%s%s" $canonicalBase $pagePath }}
+{{ $language := index (where $config.language_options "id" (lower site.Language.Lang)) 0 }}
+{{ $siteCanonical := printf "%s%s" $canonicalBase $language.path }}
+{{ $socialImage := partialCached "social-image.html" $config $config.profile.name $config.profile.username }}
+{{ $resetCSS := resources.Get "css/reset.css" }}
+{{ $night := resources.Get "images/scenery/night.png" }}
+{{ $day := resources.Get "images/scenery/day.png" }}
+{{ $styleData := dict
+  "wood" ((resources.Get "images/ui/wood.svg").RelPermalink)
+  "stone" ((resources.Get "images/ui/stone.svg").RelPermalink)
+  "moss" ((resources.Get "images/ui/moss.svg").RelPermalink)
+  "clouds" ((resources.Get "images/ui/clouds.svg").RelPermalink)
+  "nightDesktop" (($night.Resize "1536x webp q78").RelPermalink)
+  "nightMobile" (($night.Fill "768x1024 center webp q78").RelPermalink)
+  "dayDesktop" (($day.Resize "1536x webp q78").RelPermalink)
+  "dayMobile" (($day.Fill "768x1024 center webp q78").RelPermalink)
+}}
+{{ $mainCSS := resources.Get "css/main.css" | resources.ExecuteAsTemplate "css/main.css" $styleData }}
+{{ $styles := slice $resetCSS $mainCSS | resources.Concat "css/site.css" | minify | fingerprint }}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ $styles.RelPermalink }}">
 <meta name="description" content="{{ $seoDescription }}">
+<meta name="author" content="{{ $config.profile.name }}">
+<meta name="creator" content="{{ $config.profile.name }}">
+<meta name="publisher" content="{{ $config.profile.name }}">
+<meta name="robots" content="index, follow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#111111">
+{{ $themeScript := resources.Get "js/theme-switcher.js" | minify }}
+<script>{{ $themeScript.Content | safeJS }}</script>
+{{ $languageScript := resources.Get "js/language-switcher.js" | minify }}
+<script>{{ $languageScript.Content | safeJS }}</script>
 <link rel="canonical" href="{{ $canonical }}">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
+{{ $manifest := dict "name" $localized.seo.title "short_name" $config.profile.name "description" $localized.seo.description "start_url" (strings.TrimPrefix "/" $language.path | relURL) "scope" ("" | relURL) "display" "standalone" "background_color" "#1b1b18" "theme_color" "#38651f" "lang" $localized.ui.html_lang "icons" (slice (dict "src" ("apple-touch-icon.png" | relURL) "sizes" "180x180" "type" "image/png" "purpose" "any") (dict "src" ("favicon.svg" | relURL) "sizes" "any" "type" "image/svg+xml" "purpose" "any maskable")) }}
+{{ $manifestFile := resources.FromString (printf "manifests/%s.webmanifest" (lower site.Language.Lang)) ($manifest | jsonify) }}
+<link rel="manifest" href="{{ $manifestFile.RelPermalink }}">
+<link rel="mask-icon" href="{{ "favicon.svg" | relURL }}" color="#3c8527">
+{{ range $config.language_options }}
+  {{ $alternate := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
+  {{ if and $alternate (not $alternate.fallback) }}
+    {{ $alternateURL := printf "%s%s" $canonicalBase $alternate.url }}
+    <link rel="alternate" hreflang="{{ .hreflang }}" href="{{ $alternateURL }}">
+  {{ end }}
+{{ end }}
+{{ $defaultPath := (index (where (partial "site-pages.html" (dict "locale" "en")) "id" $pageKey) 0).url }}
+<link rel="alternate" hreflang="x-default" href="{{ printf "%s%s" $canonicalBase $defaultPath }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Slab:wght@400;500;600;700&display=swap" as="style">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Slab:wght@400;500;600;700&display=swap" media="print" onload="this.onload=null;this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Slab:wght@400;500;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="{{ $resetCSS.RelPermalink }}">
-<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.onload=null;this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
-<link rel="preload" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.min.css" as="style" integrity="sha512-6/+HUJuCrUvBnvz1/099uvZ8kFmzGn1EPDfXBX9W2sNukWwduYJ2VkteUX/DARp8mtr845p97CxyVLpok8axRg==" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.min.css" integrity="sha512-6/+HUJuCrUvBnvz1/099uvZ8kFmzGn1EPDfXBX9W2sNukWwduYJ2VkteUX/DARp8mtr845p97CxyVLpok8axRg==" crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.onload=null;this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.min.css" integrity="sha512-6/+HUJuCrUvBnvz1/099uvZ8kFmzGn1EPDfXBX9W2sNukWwduYJ2VkteUX/DARp8mtr845p97CxyVLpok8axRg==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
-<link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" media="print" onload="this.onload=null;this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"></noscript>
 <title>{{ $seoTitle }}</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="{{ $seoTitle }}">
 <meta property="og:description" content="{{ $seoDescription }}">
 <meta property="og:url" content="{{ $canonical }}">
-<meta name="twitter:card" content="summary">
+<meta property="og:site_name" content="{{ $config.profile.name }} | Links">
+<meta property="og:locale" content="{{ $localized.ui.og_locale }}">
+{{ range $config.language_options }}
+  {{ if ne .id (lower site.Language.Lang) }}
+    {{ $alternateLocale := index $config.locales .id }}
+    <meta property="og:locale:alternate" content="{{ $alternateLocale.ui.og_locale }}">
+  {{ end }}
+{{ end }}
+<meta property="og:image" content="{{ $socialImage }}">
+<meta property="og:image:secure_url" content="{{ $socialImage }}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ $seoTitle }}">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ $seoTitle }}">
 <meta name="twitter:description" content="{{ $seoDescription }}">
+<meta name="twitter:image" content="{{ $socialImage }}">
+<meta name="twitter:image:alt" content="{{ $seoTitle }}">
+{{ partial "structured-data.html" (dict "config" $config "localized" $localized "pageData" $pageData "pageKey" $pageKey "canonical" $canonical "siteCanonical" $siteCanonical "socialImage" $socialImage) }}

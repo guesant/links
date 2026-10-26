@@ -1,13 +1,16 @@
 baseURL = 'https://guesant.net/'
 defaultContentLanguage = 'en'
 defaultContentLanguageInSubdir = false
-disablePathToLower = true
-title = 'Gabriel R. Antunes | Links'
+disablePathToLower = false
 enableRobotsTXT = true
-disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap']
+disableKinds = ['taxonomy', 'term', 'RSS']
+noBuildLock = true
+publishDir = '../.local/build/site'
+resourceDir = '../.cache/hugo/resources'
 
-[params]
-  description = 'Perfis, projetos e links de Gabriel R. Antunes.'
+[sitemap]
+  changefreq = 'monthly'
+  priority = 0.8
 
 [markup]
   [markup.goldmark.renderer]

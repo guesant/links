@@ -1,35 +1,12 @@
-{{ $sections := .sections }}
-{{ $contactIDs := .contactIDs }}
-{{ $language := .language }}
-{{ $label := .label }}
-<nav class="quick-contacts" aria-label="{{ $label }}">
-  {{ range $contactIDs }}
-    {{ $contactID := . }}
-    {{ range $sections }}
-      {{ $sectionPublic := true }}
-      {{ if isset . "public" }}{{ $sectionPublic = .public }}{{ end }}
-      {{ if $sectionPublic }}
-        {{ range .links }}
-          {{ $linkPublic := true }}
-          {{ if isset . "public" }}{{ $linkPublic = .public }}{{ end }}
-          {{ if and $linkPublic (eq .id $contactID) }}
-          {{ $labels := index .labels $language }}
-          {{ if not $labels }}{{ $labels = index .labels "en" }}{{ end }}
-          {{ $href := .url }}
-          {{ $lowerURL := lower $href }}
-          {{ if not (or (hasPrefix $lowerURL "http://") (hasPrefix $lowerURL "https://") (hasPrefix $lowerURL "mailto:") (hasPrefix $lowerURL "tel:")) }}
-            {{ $href = $href | relURL }}
-          {{ end }}
-          {{ $displayURL := .url }}
-          {{ if hasPrefix $lowerURL "mailto:" }}
-            {{ $displayURL = replaceRE "(?i)^mailto:" "" .url }}
-          {{ end }}
-          <a class="quick-contact-link" href="{{ $href }}" target="_blank" rel="noopener noreferrer" data-link-confirm data-link-title="{{ $labels.title }}" data-link-url="{{ $displayURL }}"{{ with $labels.description }} data-link-description="{{ . }}"{{ end }} title="{{ $labels.title }}" aria-label="{{ $labels.title }}">
-            <span class="quick-contact-icon">{{ partial "icon.html" (.icon | default "link") }}</span>
-          </a>
-          {{ end }}
-        {{ end }}
-      {{ end }}
+{{ $links := partialCached "public-links.html" (dict "language" .language) .language }}
+<nav class="quick-contacts" aria-label="{{ .label }}">
+  {{ range .contactIDs }}
+    {{ range where $links "id" . }}
+      {{ $destination := partial "link-destination.html" . }}
+      <a class="quick-contact-link" href="{{ $destination.href }}" target="{{ $destination.target }}"{{ with $destination.rel }} rel="{{ . }}"{{ end }} title="{{ .title }}" aria-label="{{ .title }}">
+        <span class="quick-contact-icon">{{ partial "icon.html" .icon }}</span>
+        {{ if $destination.external }}<span class="external-link-icon quick-contact-external-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>{{ end }}
+      </a>
     {{ end }}
   {{ end }}
 </nav>

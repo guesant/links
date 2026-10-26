@@ -1,0 +1,9 @@
+{{ $background := (resources.Get "images/scenery/night.png").Fill "1200x630 center" }}
+{{ $image := $background.Filter
+  (images.Brightness -5)
+  (images.Text .profile.name (dict "size" 64 "color" "#fff4dc" "x" 80 "y" 210))
+  (images.Text (printf "@%s" .profile.username) (dict "size" 32 "color" "#dedfb3" "x" 84 "y" 310))
+  (images.Text (urls.Parse site.BaseURL).Host (dict "size" 28 "color" "#f4f2e9" "x" 84 "y" 420))
+}}
+{{ $image = resources.Copy "images/og-voxel.png" $image }}
+{{ return $image.Permalink }}

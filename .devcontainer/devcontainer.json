@@ -1,0 +1,20 @@
+{
+  "name": "Links",
+  "build": {
+    "dockerfile": "../.config/container/Dockerfile",
+    "context": "..",
+    "target": "workspace"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "forwardPorts": [4173],
+  "portsAttributes": {
+    "4173": { "label": "Links", "onAutoForward": "notify" }
+  },
+  "overrideCommand": false,
+  "customizations": {
+    "vscode": {
+      "extensions": ["nefrob.vscode-just", "tamasfe.even-better-toml"]
+    }
+  }
+}

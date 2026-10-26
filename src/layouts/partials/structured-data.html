@@ -1,0 +1,56 @@
+{{ $config := .config }}
+{{ $localized := .localized }}
+{{ $pageData := .pageData }}
+{{ $pageKey := .pageKey | default "home" }}
+{{ $canonical := .canonical }}
+{{ $siteCanonical := .siteCanonical }}
+{{ $socialImage := .socialImage }}
+{{ $personID := printf "%s#person" $siteCanonical }}
+{{ $websiteID := printf "%s#website" $siteCanonical }}
+{{ $publicLinks := partialCached "public-links.html" (dict "language" (lower site.Language.Lang)) (lower site.Language.Lang) }}
+{{ $sameAs := slice }}
+{{ range $config.profile.same_as_links }}
+  {{ range where $publicLinks "id" . }}{{ $sameAs = $sameAs | append .url }}{{ end }}
+{{ end }}
+{{ $person := dict
+  "@type" "Person"
+  "@id" $personID
+  "name" $config.profile.name
+  "alternateName" (printf "@%s" $config.profile.username)
+  "url" $siteCanonical
+  "image" $socialImage
+  "sameAs" $sameAs
+}}
+{{ $website := dict
+  "@type" "WebSite"
+  "@id" $websiteID
+  "url" $siteCanonical
+  "name" $localized.seo.title
+  "description" $localized.seo.description
+  "inLanguage" $localized.ui.html_lang
+  "publisher" (dict "@id" $personID)
+}}
+{{ $page := dict
+  "@type" "ProfilePage"
+  "@id" (printf "%s#profile" $canonical)
+  "url" $canonical
+  "name" $localized.seo.title
+  "description" $localized.seo.description
+  "inLanguage" $localized.ui.html_lang
+  "isPartOf" (dict "@id" $websiteID)
+  "mainEntity" (dict "@id" $personID)
+}}
+{{ if ne $pageKey "home" }}
+  {{ $page = dict
+    "@type" "WebPage"
+    "@id" (printf "%s#now" $canonical)
+    "url" $canonical
+    "name" $pageData.seo.title
+    "description" $pageData.seo.description
+    "inLanguage" $localized.ui.html_lang
+    "isPartOf" (dict "@id" $websiteID)
+    "about" (dict "@id" $personID)
+  }}
+{{ end }}
+{{ $structuredData := dict "@context" "https://schema.org" "@graph" (slice $person $website $page) }}
+<script type="application/ld+json">{{ $structuredData | jsonify | safeJS }}</script>

@@ -1,5 +1,11 @@
 {{ if not .profile }}{{ errorf "links.yaml: profile is required" }}{{ end }}
 {{ if not .profile.name }}{{ errorf "links.yaml: profile.name is required" }}{{ end }}
+{{ if not .profile.birthDate }}{{ errorf "links.yaml: profile.birth_date is required" }}{{ else if not (findRE `^\d{4}-\d{2}-\d{2}$` .profile.birthDate) }}{{ errorf "links.yaml: profile.birth_date must use YYYY-MM-DD" }}{{ end }}
+{{ with .profile.same_as }}
+  {{ range . }}
+    {{ if not (or (hasPrefix (lower .) "http://") (hasPrefix (lower .) "https://")) }}{{ errorf "links.yaml: profile.same_as entries must use HTTP or HTTPS" }}{{ end }}
+  {{ end }}
+{{ end }}
 {{ if not .seo }}{{ errorf "links.yaml: seo is required" }}{{ end }}
 {{ if not .seo.title }}{{ errorf "links.yaml: seo.title is required" }}{{ end }}
 {{ if not .seo.description }}{{ errorf "links.yaml: seo.description is required" }}{{ end }}
@@ -74,7 +80,12 @@
         {{ if not $linkLabels }}{{ errorf "links.yaml: link %q needs labels for %s" .id $.language }}{{ end }}
         {{ if not $linkLabels.title }}{{ errorf "links.yaml: link %q needs a title for %s" .id $.language }}{{ end }}
         {{ if not $linkLabels.description }}{{ errorf "links.yaml: link %q needs a description for %s" .id $.language }}{{ end }}
-        {{ if not .url }}{{ errorf "links.yaml: link %q needs a URL" $linkLabels.title }}{{ end }}
+        {{ $linkURL := .url }}
+        {{ with .localized_urls }}
+          {{ $linkURL = index . $.language }}
+          {{ if not $linkURL }}{{ $linkURL = index . "en" }}{{ end }}
+        {{ end }}
+        {{ if not $linkURL }}{{ errorf "links.yaml: link %q needs a URL" $linkLabels.title }}{{ end }}
         {{ if not .audiences }}{{ errorf "links.yaml: link %q needs at least one audience" $linkLabels.title }}{{ end }}
         {{ with .visual }}
           {{ if not .src }}{{ errorf "links.yaml: visual for link %q needs an image URL" $linkLabels.title }}{{ end }}
@@ -89,7 +100,7 @@
         {{ range .audiences }}
           {{ if not (in $audienceIDs .) }}{{ errorf "links.yaml: link %q references unknown audience %q" $linkLabels.title . }}{{ end }}
         {{ end }}
-        {{ $url := lower (trim .url " ") }}
+        {{ $url := lower (trim $linkURL " ") }}
         {{ $safeProtocol := false }}
         {{ range $allowedProtocols }}
           {{ if hasPrefix $url . }}{{ $safeProtocol = true }}{{ end }}
