@@ -84,6 +84,7 @@ async function tests() {
     ".config/scripts/check-link-retries.mjs",
     ".config/scripts/check-raster.mjs",
     ".config/scripts/check-pointer-sound.mjs",
+    ".config/scripts/check-language-preference.mjs",
   ]);
 }
 async function check() {

@@ -25,7 +25,7 @@
           {{ $destination := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
           {{ $languagePath := .path }}
           {{ if and $destination (not $destination.fallback) }}{{ $languagePath = $destination.url }}{{ end }}
-          <option value="{{ strings.TrimPrefix "/" $languagePath | relURL }}"{{ if eq $language .id }} selected{{ end }}>{{ .label }}</option>
+          <option value="{{ strings.TrimPrefix "/" $languagePath | relURL }}" data-language="{{ .id }}"{{ if eq $language .id }} selected{{ end }}>{{ .label }}</option>
         {{ end }}
         </select>
         <span class="language-select-icon" aria-hidden="true">{{ partial "button-icon.html" "chevron-right" }}</span>

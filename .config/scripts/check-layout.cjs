@@ -1394,6 +1394,7 @@ const checks = [];
       "light",
     );
     assert.deepEqual(errors, []);
+    await require("./check-language-browser.cjs")(browser, base.href);
     fs.writeFileSync(
       `${reportDirectory}/layout-checks.json`,
       JSON.stringify(

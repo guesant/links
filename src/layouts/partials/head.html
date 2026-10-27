@@ -60,7 +60,15 @@
 {{ $themeScript := resources.Get "js/theme-switcher.js" | minify }}
 <script>{{ $themeScript.Content | safeJS }}</script>
 {{ $languageScript := resources.Get "js/language-switcher.js" | minify }}
-<script>{{ $languageScript.Content | safeJS }}</script>
+{{ $languageRoutes := slice }}
+{{ range $config.language_options }}
+  {{ $translation := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
+  {{ $url := "" }}
+  {{ if and $translation (not $translation.fallback) }}{{ $url = strings.TrimPrefix "/" $translation.url | relURL }}{{ end }}
+  {{ $languageRoutes = $languageRoutes | append (dict "id" .id "url" $url "home" (strings.TrimPrefix "/" .path | relURL)) }}
+{{ end }}
+{{ $languagePreference := dict "default" $config.language_preference.default "current" $language.id "neutral" (eq $language.path "/") "routes" $languageRoutes }}
+<script data-language-config="{{ $languagePreference | jsonify }}">{{ $languageScript.Content | safeJS }}</script>
 <link rel="canonical" href="{{ $canonical }}">
 <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">

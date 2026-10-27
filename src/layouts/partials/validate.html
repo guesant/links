@@ -52,6 +52,7 @@
   {{ if not .label }}{{ errorf "links.yaml: language %q needs a label" .id }}{{ end }}
 {{ end }}
 {{ $quickContactIDs := slice }}
+{{ if not (in $languageIDs hugo.Data.links.language_preference.default) }}{{ errorf "links.yaml: language_preference.default must reference a known language" }}{{ end }}
 {{ range .quickContacts }}
   {{ $quickContactID := . }}
   {{ if in $quickContactIDs $quickContactID }}{{ errorf "links.yaml: quick contact %q is duplicated" $quickContactID }}{{ end }}

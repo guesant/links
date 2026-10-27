@@ -112,6 +112,40 @@ const expectedSections = {
   profiles: ["instagram", "personal-youtube"],
   contact: ["email", "linkedin"],
 };
+test("Hugo emits prefixed language routing data for each page", async () => {
+  await fixture(
+    () => {},
+    async (result, output) => {
+      assert.equal(result.status, 0, result.stderr);
+      for (const language of source.language_options) {
+        const html = await readFile(
+          join(output, language.path, "code/index.html"),
+          "utf8",
+        );
+        assert.match(html, /data-language-config=/);
+        assert.match(html, /data-language=pt-br|data-language="pt-br"/);
+        assert(html.includes("/prefix/pt-br/code/"));
+        assert(!html.includes("/prefix/prefix/"));
+      }
+    },
+  );
+});
+test("Hugo rejects an unknown default language preference", async () => {
+  await fixture(
+    (config) => {
+      config.language_preference.default = "unknown";
+    },
+    async (result) => {
+      assert.notEqual(result.status, 0);
+      assert(
+        result.stderr.includes(
+          "language_preference.default must reference a known language",
+        ),
+        result.stderr,
+      );
+    },
+  );
+});
 test("thematic pages preserve link order and use one canonical LinkedIn entry", () => {
   assert.deepEqual(source.navigation.sections, Object.keys(expectedSections));
   assert.equal(

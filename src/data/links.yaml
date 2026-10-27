@@ -21,6 +21,9 @@ site:
   repository: guesant/lobby
   repository_label: GitHub
 
+language_preference:
+  default: pt-br
+
 language_options:
   - id: pt-br
     path: /pt-br/

@@ -16,6 +16,12 @@ just build
 
 O desenvolvimento e o CI usam o mesmo [Dockerfile](.config/container/Dockerfile). Nenhuma ferramenta de build precisa ser instalada na máquina.
 
+## Idiomas
+
+Nos acessos sem prefixo, o site consulta as preferências de idioma do navegador e usa português quando nenhuma delas estiver disponível. Na primeira visita, um endereço com prefixo explícito conserva seu idioma. A escolha feita no menu é salva neste navegador e passa a prevalecer nas próximas aberturas, inclusive quando o endereço aponta para outro idioma.
+
+Os redirecionamentos preservam a página equivalente, os parâmetros e as âncoras. Quando não há tradução, a detecção automática mantém o conteúdo atual. Se o navegador bloquear o armazenamento, a escolha manual permanece explícita no parâmetro `lang`. As rotas estáticas existentes continuam disponíveis sem JavaScript.
+
 ## Arquivos
 
 - [Conteúdo](src/data/links.yaml)
