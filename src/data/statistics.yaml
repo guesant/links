@@ -1,7 +1,7 @@
 leetcode:
   username: guesant
   metrics:
-    ranking: 1797572
+    ranking: 1798465
     solved: 94
     easy: 60
     medium: 33
@@ -13,14 +13,14 @@ leetcode:
     hard: 986
   profile_url: https://leetcode.com/u/guesant/
   provider: leetcode
-  updated_at: 2026-10-26T08:13:04.455Z
+  updated_at: 2026-10-27T08:27:39.807Z
 github-stats:
   username: guesant
   metrics:
-    followers: 137
+    followers: 136
     repositories: 126
     stars: 88
     forks: 2
   profile_url: https://github.com/guesant
   provider: github
-  updated_at: 2026-10-26T08:13:07.956Z
+  updated_at: 2026-10-27T08:27:39.485Z
