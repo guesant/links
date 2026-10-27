@@ -29,17 +29,17 @@
   "clouds" ((resources.Get "images/ui/clouds.png").RelPermalink)
   "stoneFrame" ((((resources.Get "images/ui/stone-frame.png").Crop "1140x1140 center").Resize "384x webp q82").RelPermalink)
   "oakFrame" ((((resources.Get "images/ui/oak-frame.png").Crop "1140x1140 center").Resize "512x webp q82").RelPermalink)
-  "oakDrapeStart" ((((resources.Get "images/ui/oak-frame.png").Crop "384x448 TopLeft").Resize "192x webp q90").RelPermalink)
-  "oakDrapeEnd" ((((resources.Get "images/ui/oak-frame.png").Crop "384x448 TopRight").Resize "192x webp q90").RelPermalink)
-  "stoneFootStart" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomLeft").Resize "192x webp q90").RelPermalink)
-  "stoneFootEnd" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomRight").Resize "192x webp q90").RelPermalink)
+  "oakDrapeStart" ((((resources.Get "images/ui/oak-frame.png").Crop "384x448 TopLeft").Resize "160x webp q85").RelPermalink)
+  "oakDrapeEnd" ((((resources.Get "images/ui/oak-frame.png").Crop "384x448 TopRight").Resize "160x webp q85").RelPermalink)
+  "stoneFootStart" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomLeft").Resize "160x webp q85").RelPermalink)
+  "stoneFootEnd" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomRight").Resize "160x webp q85").RelPermalink)
   "profileLantern" (((index $railAssets "profile-lantern").Resize "96x webp q82").RelPermalink)
   "railChain" $railAssets.chain.RelPermalink
-  "agedOakSurface" (printf "data:image/webp;base64,%s" ((((resources.Get "images/ui/charcoal-planks.png").Resize "256x webp q80").Content) | encoding.Base64Encode))
+  "agedOakSurface" (printf "data:image/webp;base64,%s" ((((resources.Get "images/ui/charcoal-planks.png").Resize "160x webp q80").Content) | encoding.Base64Encode))
   "nightDesktop" (($night.Resize "1536x webp q78").RelPermalink)
-  "nightMobile" (($night.Fill "512x768 center webp q65").RelPermalink)
+  "nightMobile" (($night.Fill "384x576 center webp q60").RelPermalink)
   "dayDesktop" (($day.Resize "1536x webp q78").RelPermalink)
-  "dayMobile" (($day.Fill "512x768 center webp q65").RelPermalink)
+  "dayMobile" (($day.Fill "384x576 center webp q60").RelPermalink)
 }}
 {{ $mainCSS := resources.Get "css/main.css" | resources.ExecuteAsTemplate "css/main.css" $styleData }}
 {{ $styles := slice $resetCSS $mainCSS | resources.Concat "css/site.css" | minify | fingerprint }}
