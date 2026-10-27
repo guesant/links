@@ -54,7 +54,9 @@
   {{ if and (eq .type "project") (eq .source "resume") }}
     {{ with .metadata.content_url }}
       {{ $title := partial "platform-content.html" (dict "url" . "title" $entry.title) }}
-      {{ $entry = merge $entry (dict "title" $title "url" . "details_url" $entry.url) }}
+      {{ $platform := index (dict "github.com" "GitHub" "gitlab.com" "GitLab" "youtube.com" "YouTube" "www.youtube.com" "YouTube" "youtu.be" "YouTube") (lower (urls.Parse .).Hostname) }}
+      {{ $detailsLabel := replace (index hugo.Data.editorial.ui $locale).platform_link "{platform}" $platform }}
+      {{ $entry = merge $entry (dict "title" $title "details_url" . "details_label" $detailsLabel) }}
     {{ end }}
   {{ end }}
   {{ $displayItems = $displayItems | append $entry }}

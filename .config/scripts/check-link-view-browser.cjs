@@ -159,6 +159,31 @@ module.exports = async function checkLinkViewBrowser(
                     link.parentElement.matches("li") &&
                     link.parentElement.closest("a") === null,
                 ),
+                editorialDestinations: [
+                  ...document.querySelectorAll(
+                    ".editorial-entry:has(.editorial-details)",
+                  ),
+                ].every(
+                  (entry) =>
+                    new URL(entry.querySelector("h3 a").href).hostname ===
+                      "curriculum.guesant.net" &&
+                    [
+                      "github.com",
+                      "gitlab.com",
+                      "www.youtube.com",
+                      "youtube.com",
+                      "youtu.be",
+                    ].includes(
+                      new URL(entry.querySelector(".editorial-details").href)
+                        .hostname,
+                    ) &&
+                    visible(entry.querySelector(".editorial-details")) &&
+                    Boolean(
+                      entry.querySelector(
+                        ".editorial-details .link-third-party-badge",
+                      ),
+                    ),
+                ),
                 numericFit: [...document.querySelectorAll(".statistic dd")]
                   .filter(visible)
                   .every((element) => {
@@ -213,6 +238,7 @@ module.exports = async function checkLinkViewBrowser(
               "columns",
               "fullWidth",
               "linksIndependent",
+              "editorialDestinations",
               "numericFit",
               "rails",
             ])

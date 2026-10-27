@@ -19,7 +19,7 @@
       {{ $sectionURL := (index (where (partial "site-pages.html" (dict "locale" $locale "interface" $interface)) "id" $section) 0).url }}
       {{ $url := .url | default (printf "%s#page-%s-%s" (strings.TrimPrefix "/" $sectionURL | relURL) $section .id) }}
       {{ if hasPrefix $url "/" }}{{ $url = partial "interface-url.html" (dict "url" $url "locale" $locale "interface" $interface) }}{{ end }}
-      {{ $entries = $entries | append (dict "id" (printf "%s-%s-%s" $section .source .id) "title" .title "summary" .summary "url" $url "details_url" (.details_url | default "") "type" .type "group" (index $ui .type | default (index $ui $section)) "source" .source "language" .language "tags" .tags "metadata" .metadata) }}
+      {{ $entries = $entries | append (dict "id" (printf "%s-%s-%s" $section .source .id) "title" .title "summary" .summary "url" $url "details_url" (.details_url | default "") "details_label" (.details_label | default "") "type" .type "group" (index $ui .type | default (index $ui $section)) "source" .source "language" .language "tags" .tags "metadata" .metadata) }}
       {{ end }}
     {{ end }}
   {{ end }}

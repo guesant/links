@@ -68,6 +68,34 @@ module.exports = async function checkTerminalBrowser(
               (item) => item.dataset.linkId || item.dataset.editorialId,
             ),
         );
+        assert.equal(
+          await page.$$eval(
+            ".editorial-entry:has(.editorial-details)",
+            (entries) =>
+              entries.every(
+                (entry) =>
+                  new URL(entry.querySelector("h3 a").href).hostname ===
+                    "curriculum.guesant.net" &&
+                  [
+                    "github.com",
+                    "gitlab.com",
+                    "www.youtube.com",
+                    "youtube.com",
+                    "youtu.be",
+                  ].includes(
+                    new URL(entry.querySelector(".editorial-details").href)
+                      .hostname,
+                  ) &&
+                  Boolean(
+                    entry.querySelector(
+                      ".editorial-details .link-third-party-badge",
+                    ),
+                  ),
+              ),
+          ),
+          true,
+          `${path} curriculum and platform destinations`,
+        );
         for (const mode of ["compact", "detailed"]) {
           if (route.type !== "now")
             await page.click(`label[for="link-view-${mode}"]`);

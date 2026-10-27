@@ -85,7 +85,6 @@ function searchHarness() {
     searchSource: "Source",
     searchLanguage: "Language",
     searchPartial: "Showing {shown} of {total}",
-    searchDetailsLabel: "Details in the Curriculum",
   };
   dialog.querySelector = (selector) =>
     ({
@@ -186,18 +185,21 @@ test("project search results keep the repository and curriculum as independent l
   h.resolve([
     {
       ...searchEntry,
-      url: "https://github.com/guesant/ava-pro",
-      details_url: "https://curriculum.guesant.net/en/#project-one",
+      url: "https://curriculum.guesant.net/en/#project-one",
+      details_url: "https://github.com/guesant/ava-pro",
+      details_label: "View on GitHub",
     },
   ]);
   await h.flush();
   const row = h.results.children[1].children[0];
-  assert.equal(row.children[0].href, "https://github.com/guesant/ava-pro");
   assert.equal(
-    row.children[2].href,
+    row.children[0].href,
     "https://curriculum.guesant.net/en/#project-one",
   );
-  assert.equal(row.children[2].textContent, "Details in the Curriculum");
+  assert.equal(row.children[2].href, "https://github.com/guesant/ava-pro");
+  assert.equal(row.children[2].textContent, "View on GitHub");
+  assert.equal(row.children[2].target, "_blank");
+  assert.equal(row.children[2].rel, "noopener noreferrer");
 });
 test("search shows loading rather than no results while preparing its index", async () => {
   const h = searchHarness();

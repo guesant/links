@@ -89,7 +89,13 @@ function lobbySearchItems(index, query) {
       if (item.details_url) {
         const details = document.createElement("a");
         details.href = item.details_url;
-        details.textContent = dialog.dataset.searchDetailsLabel;
+        details.textContent = item.details_label;
+        details.target = "_blank";
+        details.rel = "noopener noreferrer";
+        details.setAttribute(
+          "aria-label",
+          `${item.details_label}: ${item.title}`,
+        );
         details.className = "editorial-details";
         row.append(details);
       }
@@ -116,7 +122,8 @@ function lobbySearchItems(index, query) {
             ["title", "summary", "url", "group", "source", "language"].every(
               (key) => typeof item[key] === "string",
             ) &&
-            Array.isArray(item.tags),
+            Array.isArray(item.tags) &&
+            (!item.details_url || typeof item.details_label === "string"),
         )
       )
         throw new Error("Invalid search index");

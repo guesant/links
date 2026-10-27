@@ -914,7 +914,7 @@ test("a populated case list does not hide the empty post state", async () => {
     feed,
   );
 });
-test("platform project labels preserve public destinations and curriculum details", async () => {
+test("platform project titles open the curriculum and keep separate platform links", async () => {
   const editorial = parse(await readFile("src/data/editorial.yaml", "utf8"));
   const examples = [
     [
@@ -972,6 +972,11 @@ test("platform project labels preserve public destinations and curriculum detail
               );
               assert(article, `${language.id}/${name}/${id}`);
               assert(article[0].includes(title));
+              assert(
+                article[0]
+                  .match(/<h3>[\s\S]*?<\/h3>/)[0]
+                  .includes(`https://curriculum.guesant.net/en/#project-${id}`),
+              );
               if (url) {
                 assert(
                   article[0].includes(`href=${url}`) ||
@@ -980,7 +985,10 @@ test("platform project labels preserve public destinations and curriculum detail
                 assert(article[0].includes("editorial-details"));
                 assert(
                   article[0].includes(
-                    editorial.ui[language.id].curriculum_details,
+                    editorial.ui[language.id].platform_link.replace(
+                      "{platform}",
+                      title.split(" - ")[0],
+                    ),
                   ),
                 );
                 assert(
@@ -1009,11 +1017,17 @@ test("platform project labels preserve public destinations and curriculum detail
             assert.equal(entry.title, title);
             assert.equal(
               entry.url,
-              url || `https://curriculum.guesant.net/en/#project-${id}`,
+              `https://curriculum.guesant.net/en/#project-${id}`,
             );
+            assert.equal(entry.details_url, url);
             assert.equal(
-              entry.details_url,
-              url ? `https://curriculum.guesant.net/en/#project-${id}` : "",
+              entry.details_label,
+              url
+                ? editorial.ui[language.id].platform_link.replace(
+                    "{platform}",
+                    title.split(" - ")[0],
+                  )
+                : "",
             );
           }
         }

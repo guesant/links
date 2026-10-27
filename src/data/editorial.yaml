@@ -1,6 +1,6 @@
 ui:
   pt-br:
-    curriculum_details: "Detalhes no Currículo"
+    platform_link: "Ver no {platform}"
     list_partial: "Mostrando {shown} de {total}"
     list_view_all: "Ver Todos"
     search_loading: "Carregando a busca…"
@@ -62,7 +62,7 @@ ui:
     status: "Status"
     group: "Grupo"
   en:
-    curriculum_details: "Details in the Curriculum"
+    platform_link: "View on {platform}"
     list_partial: "Showing {shown} of {total}"
     list_view_all: "View All"
     search_loading: "Loading search…"
@@ -124,7 +124,7 @@ ui:
     status: "Status"
     group: "Group"
   fr:
-    curriculum_details: "Détails dans le CV"
+    platform_link: "Voir sur {platform}"
     list_partial: "Affichage de {shown} sur {total}"
     list_view_all: "Tout Voir"
     search_loading: "Chargement de la recherche…"
@@ -186,7 +186,7 @@ ui:
     status: "Statut"
     group: "Groupe"
   es:
-    curriculum_details: "Detalles en el Currículum"
+    platform_link: "Ver en {platform}"
     list_partial: "Mostrando {shown} de {total}"
     list_view_all: "Ver Todos"
     search_loading: "Cargando la búsqueda…"
@@ -248,7 +248,7 @@ ui:
     status: "Estado"
     group: "Grupo"
   it:
-    curriculum_details: "Dettagli nel Curriculum"
+    platform_link: "Apri su {platform}"
     list_partial: "Visualizzati {shown} di {total}"
     list_view_all: "Vedi Tutti"
     search_loading: "Caricamento della ricerca…"
@@ -310,7 +310,7 @@ ui:
     status: "Stato"
     group: "Gruppo"
   zh:
-    curriculum_details: "简历中的详情"
+    platform_link: "在 {platform} 上查看"
     list_partial: "显示 {shown} 项，共 {total} 项"
     list_view_all: "查看全部"
     search_loading: "正在加载搜索…"

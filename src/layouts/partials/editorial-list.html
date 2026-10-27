@@ -21,11 +21,10 @@
       {{ end }}
       <article class="editorial-entry" data-editorial-id="{{ .id }}" id="{{ $scope }}-{{ $id }}-{{ .id }}" lang="{{ .language }}">
         <header class="editorial-entry-heading">
-          <h3>{{ if .url }}<a href="{{ if hasPrefix .url "/" }}{{ partial "interface-url.html" (dict "url" .url "locale" $locale "interface" $interface) }}{{ else }}{{ .url }}{{ end }}"{{ if .details_url }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</h3>
-          {{ if .details_url }}<span class="link-third-party-badge">{{ (index hugo.Data.links.locales $locale).ui.third_party }}</span>{{ end }}
+          <h3>{{ if .url }}<a href="{{ if hasPrefix .url "/" }}{{ partial "interface-url.html" (dict "url" .url "locale" $locale "interface" $interface) }}{{ else }}{{ .url }}{{ end }}">{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</h3>
           <span class="editorial-origin">{{ index $ui .type | default (index $ui $id) }} · {{ .source }}{{ if ne .language $locale }} · {{ $ui.language }}: {{ .language }}{{ end }}</span>
         </header>
-        {{ with .details_url }}<a class="editorial-details" href="{{ . }}">{{ $ui.curriculum_details }}</a>{{ end }}
+        {{ with .details_url }}<a class="editorial-details" href="{{ . }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $entry.details_label }}: {{ $entry.title }}">{{ $entry.details_label }} <span class="link-third-party-badge">{{ (index hugo.Data.links.locales $locale).ui.third_party }}</span></a>{{ end }}
         {{ with .summary }}<p class="editorial-description">{{ . }}</p>{{ end }}
         {{ with .tags }}<ul class="editorial-tags">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
         {{ with .metadata }}
