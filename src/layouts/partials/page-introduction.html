@@ -1,0 +1,8 @@
+<section class="presentation-group page-introduction" aria-labelledby="{{ .id }}">
+  <header class="section-toolbar">
+    <h1 class="section-toolbar-title" id="{{ .id }}">{{ .title }}</h1>
+  </header>
+  <div class="presentation page-introduction-content" data-rail-anchor>
+    {{ with .description }}<p class="presentation-intro">{{ . }}</p>{{ end }}
+  </div>
+</section>

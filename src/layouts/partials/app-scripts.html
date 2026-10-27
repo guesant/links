@@ -1,0 +1,18 @@
+{{ $dialogsScript := resources.Get "js/dialogs.js" | minify | fingerprint }}
+{{ $uptimeScript := resources.Get "js/uptime.js" | minify | fingerprint }}
+{{ $motionScript := resources.Get "js/ambient-motion.js" | minify | fingerprint }}
+{{ $railScript := resources.Get "js/rail-layout.js" | minify | fingerprint }}
+{{ $pointerPress := resources.Get "audio/mouse-press.wav" | fingerprint }}
+{{ $pointerRelease := resources.Get "audio/mouse-release.wav" | fingerprint }}
+{{ $pointerSoundScript := resources.Get "js/pointer-sound.js" | minify | fingerprint }}
+{{ $navigationScript := resources.Get "js/page-navigation.js" | minify | fingerprint }}
+{{ $tooltipScript := resources.Get "js/tooltips.js" | minify }}
+{{ $searchScript := resources.Get "js/search.js" | minify | fingerprint }}
+<script>{{ $tooltipScript.Content | safeJS }}</script>
+<script src="{{ $searchScript.RelPermalink }}" defer></script>
+<script src="{{ $navigationScript.RelPermalink }}" defer></script>
+<script src="{{ $dialogsScript.RelPermalink }}" defer></script>
+<script src="{{ $uptimeScript.RelPermalink }}" defer></script>
+<script src="{{ $motionScript.RelPermalink }}" defer></script>
+{{ if ne .Params.interface "terminal" }}<script src="{{ $railScript.RelPermalink }}" defer></script>{{ end }}
+<script src="{{ $pointerSoundScript.RelPermalink }}" data-pointer-press="{{ $pointerPress.RelPermalink }}" data-pointer-release="{{ $pointerRelease.RelPermalink }}" defer></script>

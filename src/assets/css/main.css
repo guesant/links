@@ -709,6 +709,14 @@ input {
   color: var(--color-wood-text);
   text-decoration: none;
 }
+.quick-contact-label {
+  position: absolute;
+  width: var(--visually-hidden-size);
+  height: var(--visually-hidden-size);
+  overflow: hidden;
+  clip-path: inset(var(--size-half));
+  white-space: nowrap;
+}
 .quick-contact-icon {
   display: grid;
   place-items: center;
@@ -878,7 +886,7 @@ input {
   justify-content: center;
   min-height: var(--control-min-height);
   gap: var(--space-2);
-  padding-inline: var(--space-2);
+  padding-inline: var(--space-3);
   border: var(--space-1) solid var(--color-wood-border);
   border-image-source: var(--ornament-oak-frame);
   border-image-slice: var(--profile-frame-slice);
@@ -1272,24 +1280,11 @@ input {
   gap: var(--summary-gap);
   min-width: var(--space-0);
 }
+.category-card:has(.editorial-entry) .category-summary {
+  align-self: start;
+}
 .category-links {
   min-width: var(--space-0);
-}
-.category-main-link {
-  display: block;
-  min-width: var(--space-0);
-  color: inherit;
-  text-decoration: none;
-}
-.category-main-link::after {
-  position: absolute;
-  z-index: 1;
-  inset: calc(-1 * var(--panel-frame-width));
-  content: "";
-}
-.category-card:has(.category-main-link:focus-visible) {
-  outline: var(--pixel-border) solid var(--color-focus);
-  outline-offset: var(--space-1);
 }
 .category-icon {
   display: grid;
@@ -1365,9 +1360,6 @@ input {
 }
 .category-preview-link:active {
   box-shadow: var(--shadow-pressed);
-}
-.category-card:has(.category-main-link:active) {
-  box-shadow: var(--shadow-pressed), var(--shadow-contact);
 }
 .presentation-focus-item {
   display: grid;
@@ -2067,7 +2059,7 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
 }
 @container shell (min-width: 36rem) {
   .page-navigation {
-    --quick-navigation-contact-size: var(--control-min-height);
+    --quick-navigation-contact-size: calc(var(--space-6) + var(--space-2));
     grid-template-columns:
       auto var(--quick-navigation-divider-width) minmax(0, 1fr)
       var(--quick-navigation-divider-width) auto;
@@ -2080,11 +2072,21 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
   }
   .page-navigation .quick-contact-link {
     border-width: var(--space-1);
+    max-width: var(--quick-navigation-contact-size);
+    min-height: var(--quick-navigation-contact-size);
+  }
+  .page-navigation .quick-contact-icon {
+    width: calc(var(--space-6) - var(--space-1));
+    height: calc(var(--space-6) - var(--space-1));
+  }
+  .page-navigation .quick-contact-icon .site-icon {
+    width: calc(var(--icon-grid-size) - var(--space-1));
+    height: calc(var(--icon-grid-size) - var(--space-1));
   }
   .page-navigation :is(.navigation-home, .section-switcher-trigger) {
     --button-icon-size: var(--space-4);
     gap: var(--pixel-border);
-    padding-inline: var(--space-0);
+    padding-inline: var(--space-2);
     border-width: var(--pixel-border);
     font-size: var(--font-size-disclaimer);
   }
@@ -2217,15 +2219,24 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
 :root[data-link-view-ready="true"] .link-view-control {
   display: block;
 }
+.quick-access,
+.presentation-group {
+  display: grid;
+  min-width: var(--space-0);
+  gap: var(--space-3);
+}
+.section-toolbar,
 .link-view-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  padding-inline: var(--space-3);
   padding-block: var(--space-1);
   border-block: var(--divider-width) solid var(--color-border-control);
 }
+.section-toolbar-title,
 .link-view-caption {
   flex: 1 1 var(--control-min-height);
   min-width: var(--space-0);
@@ -2233,11 +2244,13 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
   font-size: var(--font-size-small);
   overflow-wrap: anywhere;
 }
+.section-toolbar-title,
 .page-content > .link-view-control .link-view-caption {
   color: var(--color-wood-text);
   font-weight: 600;
   text-shadow: var(--shadow-scene-text);
 }
+.section-toolbar,
 .page-content > .link-view-control .link-view-toolbar {
   background-color: var(--color-wood-copy);
   background-image:

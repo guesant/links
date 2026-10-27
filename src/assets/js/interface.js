@@ -1,13 +1,8 @@
 (() => {
   const root = document.documentElement;
-  const key = "guesant-lobby-interface";
   const interfaces = new Set(["minecraft", "terminal"]);
-  let selected = "minecraft";
-  try {
-    const saved = localStorage.getItem(key);
-    if (interfaces.has(saved)) selected = saved;
-  } catch {}
-  root.dataset.interface = selected;
+  const selected = root.dataset.interface;
+  if (!interfaces.has(selected)) root.dataset.interface = "minecraft";
   root.dataset.interfaceReady = "true";
   const url = new URL(location.href);
   const reboot = url.searchParams.get("lobby-boot") === "1";
@@ -19,6 +14,7 @@
     const bios = document.querySelector("#bios-dialog");
     let timer;
     let previous;
+    let bootStep = 0;
     const reduced = () =>
       matchMedia("(prefers-reduced-motion: reduce)").matches ||
       root.dataset.motion === "off";
@@ -38,9 +34,31 @@
         if (dialog !== bios) dialog.close();
       clearTimeout(timer);
       bios.querySelector("[data-bios-interface]").textContent =
-        root.dataset.interface === "terminal" ? "Terminal" : "Minecraft";
+        root.dataset.interface === "terminal"
+          ? "TEXT_INTERFACE"
+          : "GRAPHICAL_INTERFACE";
+      bootStep = 0;
+      for (const line of bios.querySelectorAll("[data-bios-step]"))
+        line.hidden = true;
+      bios.querySelector("[data-bios-boot-line]").hidden = true;
+      bios.querySelector("[data-bios-progress]").textContent = "▓▒░";
       bios.showModal();
-      timer = setTimeout(finish, 2000);
+      function advance() {
+        bootStep++;
+        for (const line of bios.querySelectorAll("[data-bios-step]"))
+          if (bootStep >= Number(line.dataset.biosStep)) line.hidden = false;
+        const bootLine = bios.querySelector("[data-bios-boot-line]");
+        if (bootStep >= 19) {
+          bootLine.hidden = false;
+          const blocks = Math.max(0, Math.min(10, bootStep - 19));
+          bios.querySelector("[data-bios-progress]").textContent =
+            "█".repeat(blocks) +
+            (blocks < 10 ? "▓▒░".slice(0, 10 - blocks) : "");
+        }
+        if (bootStep >= 31) finish();
+        else timer = setTimeout(advance, 80);
+      }
+      timer = setTimeout(advance, 80);
     }
     function sync() {
       for (const option of document.querySelectorAll("[data-interface-option]"))
@@ -56,13 +74,16 @@
         !interfaces.has(option.value)
       )
         return;
-      const old = root.dataset.interface;
-      root.dataset.interface = option.value;
-      try {
-        localStorage.setItem(key, option.value);
-      } catch {}
-      sync();
-      if (old !== "terminal" && option.value === "terminal") boot();
+      const destination = option.dataset.interfaceUrl;
+      if (!destination || option.value === root.dataset.interface) return;
+      const target = new URL(destination, location.href);
+      const current = new URL(location.href);
+      target.search = current.search;
+      target.hash = current.hash;
+      if (option.value === "terminal")
+        target.searchParams.set("lobby-boot", "1");
+      else target.searchParams.delete("lobby-boot");
+      location.assign(target.href);
     });
     bios?.querySelector("[data-bios-skip]")?.addEventListener("click", finish);
     bios?.addEventListener("cancel", (event) => {

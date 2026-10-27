@@ -20,10 +20,24 @@ test("search matches accents, case, tags, metadata and multiple terms", () => {
   assert.equal(context.lobbySearchItems(items, "backend missing").length, 0);
   assert.equal(context.lobbySearchItems(items, " ").length, 0);
 });
-test("search bounds results without changing source records", () => {
+test("search returns every match without changing source records", () => {
   const many = Array.from({ length: 150 }, (_, id) => ({ ...items[0], id }));
-  assert.equal(context.lobbySearchItems(many, "backend").length, 100);
+  assert.equal(context.lobbySearchItems(many, "backend").length, 150);
   assert.equal(many.length, 150);
+});
+test("explicit list limits preserve totals and reject invalid limits", () => {
+  const selection = context.lobbySelectList(items, 1);
+  assert.equal(selection.shown, 1);
+  assert.equal(selection.total, 2);
+  assert.equal(selection.partial, true);
+  assert.equal(items.length, 2);
+  for (const limit of [undefined, 0, 2, 10]) {
+    const complete = context.lobbySelectList(items, limit);
+    assert.equal(complete.shown, 2);
+    assert.equal(complete.partial, false);
+  }
+  for (const limit of [-1, 1.5, "invalid"])
+    assert.throws(() => context.lobbySelectList(items, limit), /List limit/);
 });
 
 function searchHarness() {
@@ -63,13 +77,15 @@ function searchHarness() {
   const button = new Element();
   const dialog = new Element();
   dialog.dataset = {
-    searchIndex: "/search/pt-br.json",
+    searchIndex: "/search/pt-br-minecraft.json",
     searchLoading: "Loading",
     searchStart: "Start",
     searchUnavailable: "Unavailable",
     searchEmpty: "Empty",
     searchSource: "Source",
     searchLanguage: "Language",
+    searchPartial: "Showing {shown} of {total}",
+    searchDetailsLabel: "Details in the Curriculum",
   };
   dialog.querySelector = (selector) =>
     ({
@@ -141,6 +157,48 @@ const searchEntry = {
   source: "lobby",
   language: "pt-br",
 };
+test("search renders and counts more than one hundred matches", async () => {
+  const h = searchHarness();
+  h.open();
+  h.input("backend");
+  h.resolve(Array.from({ length: 150 }, (_, id) => ({ ...searchEntry, id })));
+  await h.flush();
+  assert.equal(h.status.textContent, "150");
+  assert.equal(h.results.children[1].children.length, 150);
+});
+test("an explicit search limit reports the full matching count", async () => {
+  const h = searchHarness();
+  h.dialog.dataset.searchLimit = "2";
+  h.open();
+  h.input("backend");
+  h.resolve([
+    ...Array.from({ length: 3 }, (_, id) => ({ ...searchEntry, id })),
+    { ...searchEntry, title: "Other", summary: "", tags: [], metadata: {} },
+  ]);
+  await h.flush();
+  assert.equal(h.status.textContent, "Showing 2 of 3");
+  assert.equal(h.results.children[1].children.length, 2);
+});
+test("project search results keep the repository and curriculum as independent links", async () => {
+  const h = searchHarness();
+  h.open();
+  h.input("backend");
+  h.resolve([
+    {
+      ...searchEntry,
+      url: "https://github.com/guesant/ava-pro",
+      details_url: "https://curriculum.guesant.net/en/#project-one",
+    },
+  ]);
+  await h.flush();
+  const row = h.results.children[1].children[0];
+  assert.equal(row.children[0].href, "https://github.com/guesant/ava-pro");
+  assert.equal(
+    row.children[2].href,
+    "https://curriculum.guesant.net/en/#project-one",
+  );
+  assert.equal(row.children[2].textContent, "Details in the Curriculum");
+});
 test("search shows loading rather than no results while preparing its index", async () => {
   const h = searchHarness();
   h.open();

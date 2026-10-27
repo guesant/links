@@ -1,13 +1,20 @@
 {{ $data := hugo.Data.links }}
 {{ $locale := .locale }}
 {{ $language := index (where $data.language_options "id" $locale) 0 }}
-{{ $pages := slice (dict "id" "home" "type" "home" "title" (index $data.navigation.home.labels $locale) "url" $language.path "icon" $data.navigation.home.icon) }}
+{{ $interface := .interface | default "minecraft" }}
+{{ $terminalRoot := printf "%sterminal/" $language.path }}
+{{ $homeTitle := index $data.navigation.home.labels $locale }}
+{{ $homeURL := $language.path }}
+{{ if eq $interface "terminal" }}{{ $homeURL = $terminalRoot }}{{ end }}
+{{ $pages := slice (dict "id" "home" "type" "home" "title" $homeTitle "url" $homeURL "standard_url" $language.path "terminal_url" $terminalRoot "icon" $data.navigation.home.icon) }}
 {{ range $data.navigation.sections }}
   {{ $section := index (where $data.sections "id" .) 0 }}
   {{ if and (ne $section.enabled false) (ne $section.public false) }}
     {{ $labels := index $section.labels $locale }}
     {{ $url := printf "%s%s/" $language.path $section.id }}
-    {{ $pages = $pages | append (dict "id" $section.id "type" "links-page" "title" $labels.title "description" $labels.description "url" $url "icon" ($section.icon | default "book") "section" $section) }}
+    {{ $terminalURL := printf "%sterminal/%s/" $language.path $section.id }}
+    {{ if eq $interface "terminal" }}{{ $url = $terminalURL }}{{ end }}
+    {{ $pages = $pages | append (dict "id" $section.id "type" "links-page" "title" $labels.title "description" $labels.description "url" $url "standard_url" (printf "%s%s/" $language.path $section.id) "terminal_url" $terminalURL "icon" ($section.icon | default "book") "section" $section) }}
   {{ end }}
 {{ end }}
 {{ range $data.navigation.links }}
@@ -20,7 +27,12 @@
         {{ $url := .url }}
         {{ with .localized_urls }}{{ $url = index . $locale | default (index . "en") }}{{ end }}
         {{ if or (not (hasPrefix $url "/")) (hasPrefix $url "//") }}{{ errorf "links.yaml: navigation link %q must use an internal path" .id }}{{ end }}
-        {{ $pages = $pages | append (dict "id" .id "type" .id "title" $labels.title "description" $labels.description "url" $url "icon" .icon "fallback" (not (isset $data.now $locale))) }}
+        {{ $terminalURL := printf "%sterminal/now/" $language.path }}
+        {{ if eq $interface "terminal" }}
+          {{ $url = $terminalURL }}
+          {{ if not (isset $data.now $locale) }}{{ $url = $terminalRoot }}{{ end }}
+        {{ end }}
+        {{ $pages = $pages | append (dict "id" .id "type" .id "title" $labels.title "description" $labels.description "url" $url "standard_url" .url "terminal_url" $terminalURL "icon" .icon "fallback" (not (isset $data.now $locale))) }}
       {{ end }}
     {{ end }}
   {{ end }}

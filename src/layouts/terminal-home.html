@@ -1,0 +1,34 @@
+{{ define "main" }}
+  {{ $locale := lower .Site.Language.Lang }}
+  {{ $data := hugo.Data.links }}
+  {{ $localized := index $data.locales $locale }}
+  {{ $pages := partial "site-pages.html" (dict "locale" $locale "interface" "terminal") }}
+  <section class="terminal-about" aria-labelledby="terminal-about-title">
+    <p class="terminal-prompt">cat about.txt</p>
+    <h2 id="terminal-about-title">{{ $localized.presentation.title }}</h2>
+    <div class="terminal-about-grid">
+      <ul>{{ range $localized.presentation.facts }}<li>{{ .text }}</li>{{ end }}</ul>
+      <ul>{{ range $localized.presentation.topics }}<li>{{ . }}</li>{{ end }}</ul>
+    </div>
+  </section>
+  {{ partial "link-view.html" (dict "pageKey" "sections" "interface" "terminal") }}
+  <section class="terminal-directory" aria-labelledby="terminal-directory-title">
+    <header class="terminal-section-heading"><p class="terminal-prompt">ls -la ~/</p><h2 id="terminal-directory-title">{{ $localized.ui.home_sections_label }}</h2></header>
+    {{ range where $pages "type" "links-page" }}
+      {{ $allLinks := partial "section-links.html" (dict "section" .section "language" $locale) }}
+      <section class="terminal-directory-entry" data-category="{{ .id }}" aria-labelledby="terminal-directory-{{ .id }}">
+        <header><h3 id="terminal-directory-{{ .id }}"><a href="{{ strings.TrimPrefix "/" .url | relURL }}">{{ .title }}</a></h3>{{ with .description }}<p>{{ . }}</p>{{ end }}</header>
+        {{ if $allLinks }}{{ partial "terminal-link-list.html" (dict "items" $allLinks "language" $locale "url" (strings.TrimPrefix "/" .url | relURL)) }}{{ end }}
+        {{ partial "editorial-list.html" (dict "section" .id "language" $locale "interface" "terminal" "preview" true "empty" (not $allLinks)) }}
+      </section>
+    {{ end }}
+    {{ range where $pages "id" "now" }}
+      {{ $now := index $data.now $locale | default (index $data.now "en") }}
+      {{ $nowURL := .url }}
+      <section class="terminal-directory-entry" aria-labelledby="terminal-now-title">
+        <header><h3 id="terminal-now-title"><a href="{{ strings.TrimPrefix "/" $nowURL | relURL }}">{{ .title }}</a></h3><p>{{ $now.intro }}</p></header>
+        <ul>{{ range $now.sections }}<li><a href="{{ strings.TrimPrefix "/" $nowURL | relURL }}#now-{{ .id }}">{{ .title }}</a></li>{{ end }}</ul>
+      </section>
+    {{ end }}
+  </section>
+{{ end }}

@@ -1,7 +1,8 @@
 {{ $locale := lower .Site.Language.Lang }}
 {{ $localized := index hugo.Data.links.locales $locale }}
 {{ $current := .Params.page_key | default "home" }}
-{{ $pages := partial "site-pages.html" (dict "locale" $locale) }}
+{{ $interface := .Params.interface | default "minecraft" }}
+{{ $pages := partial "site-pages.html" (dict "locale" $locale "interface" $interface) }}
 <nav class="footer-navigation" aria-labelledby="footer-navigation-title">
   <h2 class="footer-navigation-title" id="footer-navigation-title">{{ $localized.ui.navigation_label }}</h2>
   <ul class="footer-navigation-links">

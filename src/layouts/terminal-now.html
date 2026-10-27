@@ -1,0 +1,7 @@
+{{ define "main" }}
+  {{ $locale := lower .Site.Language.Lang }}
+  {{ $now := index hugo.Data.links.now $locale | default (index hugo.Data.links.now "en") }}
+  <header class="terminal-section-heading"><p class="terminal-prompt">cat ~/now/status.txt</p><h1>{{ $now.title }}</h1><p>{{ $now.intro }}</p></header>
+  <div class="terminal-now-list">{{ range $now.sections }}<section id="now-{{ .id }}"><h2>{{ .title }}</h2><p>{{ .description }}</p></section>{{ end }}</div>
+  {{ partial "now-activity.html" (dict "language" $locale) }}
+{{ end }}

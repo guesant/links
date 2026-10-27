@@ -1,5 +1,5 @@
 {{ $assets := partialCached "rail-assets.html" . }}
-{{ $lanterns := slice "upper" "middle" "lower" }}
+{{ $lanterns := slice "upper" }}
 {{ if .IsHome }}
   {{ $count := 1 }}
   {{ range partial "site-pages.html" (dict "locale" (lower .Site.Language.Lang)) }}

@@ -187,6 +187,7 @@ licenses:
     text: |-
       Copyright 2012 The Press Start 2P Project Authors (cody@zone38.net), with Reserved Font Name "Press Start 2P".
       Copyright 2019 The Oxanium Project Authors (https://github.com/sevmeyer/oxanium).
+      Copyright 2020 The JetBrains Mono Project Authors.
 
       This Font Software is licensed under the SIL Open Font License, Version 1.1.
       This license is copied below, and is also available with a FAQ at:
@@ -290,12 +291,12 @@ licenses:
       distributed by this site. Consult the official project repository for its
       current license and terms.
   service-terms:
-    name: Service terms
+    name: Google Fonts service terms
     url: https://developers.google.com/terms
     text: |-
-      Google Fonts is used as a hosted font delivery service. The service is
-      not redistributed by this site. Its use is subject to Google's terms,
-      while each font remains subject to its own license.
+      Google Fonts was used as a source for font files hosted by this site.
+      The Google Fonts service is not a runtime dependency. Each font remains
+      subject to its own license.
   system-font:
     name: Proprietary system font, not redistributed
     url: https://learn.microsoft.com/en-us/typography/fonts/font-faq
@@ -442,6 +443,11 @@ entries:
     authors: Severin Meyer and The Oxanium Project Authors
     license: ofl-1.1
     official_url: https://github.com/sevmeyer/oxanium
+  - id: jetbrains-mono
+    name: JetBrains Mono
+    authors: The JetBrains Mono Project Authors
+    license: ofl-1.1
+    official_url: https://github.com/JetBrains/JetBrainsMono
   - id: google-fonts
     name: Google Fonts
     authors: Google

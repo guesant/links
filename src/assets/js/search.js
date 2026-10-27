@@ -1,3 +1,16 @@
+function lobbySelectList(items, limit = 0) {
+  limit = Number(limit);
+  if (!Number.isSafeInteger(limit) || limit < 0)
+    throw new RangeError("List limit must be a nonnegative integer");
+  const total = items.length;
+  const selected = limit ? items.slice(0, limit) : items;
+  return {
+    items: selected,
+    total,
+    shown: selected.length,
+    partial: selected.length < total,
+  };
+}
 function lobbySearchItems(index, query) {
   const normalize = (value) =>
     value
@@ -6,19 +19,17 @@ function lobbySearchItems(index, query) {
       .toLocaleLowerCase();
   const terms = normalize(query.trim()).split(/\s+/).filter(Boolean);
   if (!terms.length) return [];
-  return index
-    .filter((item) => {
-      const haystack = normalize(
-        [
-          item.title,
-          item.summary,
-          ...(item.tags || []),
-          ...Object.values(item.metadata || {}),
-        ].join(" "),
-      );
-      return terms.every((term) => haystack.includes(term));
-    })
-    .slice(0, 100);
+  return index.filter((item) => {
+    const haystack = normalize(
+      [
+        item.title,
+        item.summary,
+        ...(item.tags || []),
+        ...Object.values(item.metadata || {}),
+      ].join(" "),
+    );
+    return terms.every((term) => haystack.includes(term));
+  });
 }
 (() => {
   const dialog = document.querySelector("#search-dialog");
@@ -47,12 +58,19 @@ function lobbySearchItems(index, query) {
       status.textContent = dialog.dataset.searchStart;
       return;
     }
-    const matches = lobbySearchItems(index || [], query.value);
-    status.textContent = matches.length
-      ? String(matches.length)
-      : dialog.dataset.searchEmpty;
+    const selection = lobbySelectList(
+      lobbySearchItems(index || [], query.value),
+      dialog.dataset.searchLimit,
+    );
+    status.textContent = selection.partial
+      ? dialog.dataset.searchPartial
+          .replaceAll("{shown}", String(selection.shown))
+          .replaceAll("{total}", String(selection.total))
+      : selection.total
+        ? String(selection.total)
+        : dialog.dataset.searchEmpty;
     const groups = new Map();
-    for (const item of matches) {
+    for (const item of selection.items) {
       let list = groups.get(item.group);
       if (!list) {
         const heading = document.createElement("h3");
@@ -68,6 +86,13 @@ function lobbySearchItems(index, query) {
       const meta = document.createElement("small");
       meta.textContent = `${dialog.dataset.searchSource}: ${item.source} · ${dialog.dataset.searchLanguage}: ${item.language}`;
       row.append(link, meta);
+      if (item.details_url) {
+        const details = document.createElement("a");
+        details.href = item.details_url;
+        details.textContent = dialog.dataset.searchDetailsLabel;
+        details.className = "editorial-details";
+        row.append(details);
+      }
       list.append(row);
     }
   }

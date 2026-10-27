@@ -81,7 +81,10 @@ const checks = [];
       });
       assert.match(typography.body, /^"?Oxanium"?,/);
       assert.match(typography.control, /^"?Oxanium"?,/);
-      assert.match(typography.heading, /press start 2p/);
+      assert.match(
+        typography.heading,
+        route.id === "home" ? /press start 2p/ : /^"?Oxanium"?,/,
+      );
       assert(typography.loaded, `Oxanium failed to load on ${route.url}`);
       const expectedNavigation = pagesFor(config, route.language)
         .filter((entry) => ["home", "links-page"].includes(entry.type))
@@ -157,7 +160,9 @@ const checks = [];
         const expected = config.locales[route.language].presentation;
         assert.deepEqual(
           await page.$eval(".home-introduction", (panel) => ({
-            title: panel.querySelector("h2").textContent.trim(),
+            title: document
+              .getElementById(panel.getAttribute("aria-labelledby"))
+              .textContent.trim(),
             facts: [...panel.querySelectorAll(".about-fact")].map((fact) => ({
               icon: fact.querySelector("[data-platform]").dataset.platform,
               text: fact.textContent.trim(),
@@ -457,8 +462,12 @@ const checks = [];
                 const lower = chains[1].getBoundingClientRect();
                 const first = terminals[0].getBoundingClientRect();
                 const last = terminals[1].getBoundingClientRect();
+                const spliceAnchor = Math.min(
+                  1,
+                  document.querySelectorAll("[data-rail-anchor]").length - 1,
+                );
                 const lantern = rail
-                  .querySelector(".suspension-lantern-middle")
+                  .querySelector(`[data-rail-lantern="${spliceAnchor}"]`)
                   .getBoundingClientRect();
                 const profile = document.querySelector(".profile");
                 const footer = document.querySelector(".site-footer");
@@ -779,12 +788,14 @@ const checks = [];
                     (wide
                       ? Math.abs(dividers[index] - dividers[0]) < 1 &&
                         parseFloat(linkStyle.borderInlineStartWidth) === 1 &&
-                        Math.abs(
-                          summaryRect.top +
-                            summaryRect.height / 2 -
-                            listRect.top -
-                            listRect.height / 2,
-                        ) < 1
+                        (card.querySelector(".editorial-entry")
+                          ? Math.abs(summaryRect.top - listRect.top) < 1
+                          : Math.abs(
+                              summaryRect.top +
+                                summaryRect.height / 2 -
+                                listRect.top -
+                                listRect.height / 2,
+                            ) < 1)
                       : summaryRect.bottom <= listRect.top &&
                         parseFloat(linkStyle.borderInlineStartWidth) === 0)
                   );
@@ -846,7 +857,8 @@ const checks = [];
                     const rect = button.getBoundingClientRect();
                     return (
                       Math.abs(rect.width - rect.height) < 1 &&
-                      rect.width >= 44 &&
+                      rect.width >=
+                        parseFloat(getComputedStyle(button).minHeight) - 1 &&
                       Math.abs(
                         rect.width - buttons[0].getBoundingClientRect().width,
                       ) < 1
@@ -925,9 +937,8 @@ const checks = [];
                 return (
                   Math.abs(rect.left - grid.left) < 1 &&
                   Math.abs(rect.width - grid.width) < 1 &&
-                  card
-                    .querySelector(".category-main-link")
-                    ?.getAttribute("href") &&
+                  !card.querySelector(".category-main-link") &&
+                  !card.querySelector(".category-title a") &&
                   cards.every(
                     (other) =>
                       Math.abs(other.getBoundingClientRect().left - grid.left) <
@@ -938,13 +949,10 @@ const checks = [];
               galleryLinksAccessible: [
                 ...document.querySelectorAll(".category-preview-link"),
               ].every((link) => {
-                const mainLink = link
-                  .closest(".category-card")
-                  .querySelector(".category-main-link");
                 return (
                   getComputedStyle(link).position === "relative" &&
-                  Number(getComputedStyle(link).zIndex) >
-                    Number(getComputedStyle(mainLink, "::after").zIndex)
+                  link.parentElement.matches("li") &&
+                  link.parentElement.closest("a") === null
                 );
               }),
               footerAligned: rowAligned([
@@ -1026,7 +1034,6 @@ const checks = [];
         const categories = await page.$$eval("[data-category]", (cards) =>
           cards.map((card) => ({
             id: card.dataset.category,
-            href: card.querySelector(".category-main-link").href,
             previews: [...card.querySelectorAll("[data-preview-id]")].map(
               (link) => ({ id: link.dataset.previewId, href: link.href }),
             ),
@@ -1036,7 +1043,6 @@ const checks = [];
           .filter((entry) => entry.type === "links-page")
           .map((entry) => ({
             id: entry.id,
-            href: href(entry.url),
             previews:
               entry.type === "links-page"
                 ? entry.links.map((link) => ({
@@ -1089,25 +1095,22 @@ const checks = [];
             await card.evaluate((element) =>
               element.scrollIntoView({ block: "center", behavior: "instant" }),
             );
-            const expected = await card.$eval(
-              ".category-main-link",
-              (link) => link.href,
+            const previousClickCount = await page.evaluate(
+              () => window.linkClicks.length,
             );
             const rect = await card.boundingBox();
             await page.mouse.click(rect.x + 12, rect.y + 12);
             assert.equal(
-              await page.evaluate(() => window.linkClicks.at(-1)),
-              expected,
+              await page.evaluate(() => window.linkClicks.length),
+              previousClickCount,
             );
           }
-          await page.focus(".category-main-link");
-          await page.keyboard.press("Tab");
+          await page.focus(".category-preview-link");
           assert.equal(
-            await page.$eval(
-              ":focus",
-              (link) => getComputedStyle(link).outlineStyle,
+            await page.$eval(":focus", (link) =>
+              link.classList.contains("category-preview-link"),
             ),
-            "solid",
+            true,
           );
           const expected = await page.$eval(":focus", (link) => link.href);
           await page.keyboard.press("Enter");
@@ -1412,6 +1415,11 @@ const checks = [];
       reportDirectory,
     );
     await require("./check-compact-controls.cjs")(
+      browser,
+      base.href,
+      reportDirectory,
+    );
+    await require("./check-terminal-browser.cjs")(
       browser,
       base.href,
       reportDirectory,

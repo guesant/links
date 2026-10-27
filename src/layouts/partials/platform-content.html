@@ -1,0 +1,11 @@
+{{ $title := .title }}
+{{ $parsed := urls.Parse .url }}
+{{ $host := lower $parsed.Hostname }}
+{{ if and (eq $parsed.Scheme "https") (in (slice "github.com" "gitlab.com") $host) }}
+  {{ $platform := cond (eq $host "github.com") "GitHub" "GitLab" }}
+  {{ $path := strings.TrimPrefix "/" (strings.TrimSuffix "/" $parsed.Path) }}
+  {{ if $path }}{{ $title = printf "%s - %s" $platform (strings.TrimSuffix ".git" $path) }}{{ end }}
+{{ else if and (eq $parsed.Scheme "https") (in (slice "youtube.com" "www.youtube.com" "youtu.be") $host) }}
+  {{ $title = printf "YouTube - %s" .title }}
+{{ end }}
+{{ return $title }}

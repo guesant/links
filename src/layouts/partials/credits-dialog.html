@@ -1,0 +1,27 @@
+{{ $localized := index hugo.Data.links.locales (lower site.Language.Lang) }}
+{{ $credits := hugo.Data.credits }}
+<dialog class="app-dialog credits-dialog" id="credits-dialog" data-credits-dialog aria-labelledby="credits-dialog-title" aria-describedby="credits-dialog-description">
+  <div class="app-dialog-content credits-dialog-content">
+    <header class="app-dialog-header credits-dialog-header">
+      <div class="credits-dialog-heading">
+        <h2 id="credits-dialog-title">{{ $localized.ui.credits_dialog_title }}</h2>
+        <p id="credits-dialog-description">{{ $localized.ui.credits_dialog_description }}</p>
+      </div>
+      <form method="dialog"><button class="dialog-close" type="submit" data-dialog-close aria-label="{{ $localized.ui.credits_close }}">{{ partial "button-icon.html" "xmark" }}</button></form>
+    </header>
+    <div class="credits-list">
+      {{ range $credits.entries }}
+        {{ $license := index $credits.licenses .license }}
+        <section class="credit-entry" aria-labelledby="credit-{{ .id }}-title">
+          <h3 id="credit-{{ .id }}-title">{{ .name }}</h3>
+          <dl class="credit-entry-meta">
+            <div><dt>{{ $localized.ui.credits_authors }}</dt><dd>{{ .authors }}</dd></div>
+            <div><dt>{{ $localized.ui.credits_license }}</dt><dd><a class="credit-license-link" href="{{ $license.url }}" target="_blank" rel="noopener noreferrer">{{ $license.name }} <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span></a></dd></div>
+          </dl>
+          <details class="credit-license"><summary>{{ $localized.ui.credits_license_text }}</summary><pre>{{ $license.text }}</pre></details>
+          <a class="credit-official-link" href="{{ .official_url }}" target="_blank" rel="noopener noreferrer">{{ $localized.ui.credits_official_url }} <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span></a>
+        </section>
+      {{ end }}
+    </div>
+  </div>
+</dialog>

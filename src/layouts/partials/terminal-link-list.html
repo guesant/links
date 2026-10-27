@@ -1,0 +1,10 @@
+{{ $locale := .language }}
+{{ $selection := partial "list-selection.html" (dict "items" .items "limit" .limit) }}
+<ul class="terminal-link-list">
+  {{ range $selection.items }}
+    {{ $destination := partial "link-destination.html" . }}
+    {{ $href := partial "interface-url.html" (dict "url" $destination.href "locale" $locale "interface" "terminal") }}
+    <li><a data-link-id="{{ .id }}" href="{{ $href }}" target="{{ $destination.target }}"{{ with $destination.rel }} rel="{{ . }}"{{ end }}><span>{{ .title }}</span>{{ if $destination.third_party }}<span class="terminal-third-party-badge">{{ (index hugo.Data.links.locales $locale).ui.third_party }}</span>{{ end }}<span aria-hidden="true">{{ if $destination.external }}↗{{ else }}↳{{ end }}</span></a>{{ with .description }}<p>{{ . }}</p>{{ end }}</li>
+  {{ end }}
+</ul>
+{{ partial "list-status.html" (merge $selection (dict "language" $locale "url" .url)) }}

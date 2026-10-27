@@ -1,5 +1,6 @@
 {{ $locale := .language }}
 {{ $id := .section }}
+{{ $interface := .interface | default "minecraft" }}
 {{ $ui := index hugo.Data.editorial.ui $locale }}
 {{ $items := partial "editorial-items.html" (dict "language" $locale "section" $id) }}
 {{ $allItems := $items }}
@@ -7,26 +8,30 @@
 {{ $missing := slice }}
 {{ range $kinds }}{{ if not (where $allItems "type" .) }}{{ $missing = $missing | append . }}{{ end }}{{ end }}
 {{ $scope := cond (.preview | default false) "preview" "page" }}
-{{ if .preview }}{{ $items = first 3 $items }}{{ end }}
+{{ $selection := partial "list-selection.html" (dict "items" $allItems "limit" .limit) }}
+{{ $items = $selection.items }}
 {{ if $items }}
   <div class="editorial-list" data-editorial-section="{{ $id }}">
     {{ $lastKind := "" }}
     {{ range $items }}
+      {{ $entry := . }}
       {{ if and (not $.preview) (ne .type $lastKind) }}
         <h2 class="editorial-kind">{{ index $ui .type | default (index $ui $id) }}</h2>
         {{ $lastKind = .type }}
       {{ end }}
-      <article class="editorial-entry" id="{{ $scope }}-{{ $id }}-{{ .id }}" lang="{{ .language }}">
+      <article class="editorial-entry" data-editorial-id="{{ .id }}" id="{{ $scope }}-{{ $id }}-{{ .id }}" lang="{{ .language }}">
         <header class="editorial-entry-heading">
-          <h3>{{ if .url }}<a href="{{ if hasPrefix .url "/" }}{{ strings.TrimPrefix "/" .url | relURL }}{{ else }}{{ .url }}{{ end }}">{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</h3>
+          <h3>{{ if .url }}<a href="{{ if hasPrefix .url "/" }}{{ partial "interface-url.html" (dict "url" .url "locale" $locale "interface" $interface) }}{{ else }}{{ .url }}{{ end }}"{{ if .details_url }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</h3>
+          {{ if .details_url }}<span class="link-third-party-badge">{{ (index hugo.Data.links.locales $locale).ui.third_party }}</span>{{ end }}
           <span class="editorial-origin">{{ index $ui .type | default (index $ui $id) }} · {{ .source }}{{ if ne .language $locale }} · {{ $ui.language }}: {{ .language }}{{ end }}</span>
         </header>
+        {{ with .details_url }}<a class="editorial-details" href="{{ . }}">{{ $ui.curriculum_details }}</a>{{ end }}
         {{ with .summary }}<p class="editorial-description">{{ . }}</p>{{ end }}
         {{ with .tags }}<ul class="editorial-tags">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
         {{ with .metadata }}
           <dl class="editorial-metadata">
             {{ range $key, $value := . }}
-              {{ if $value }}<div><dt>{{ index $ui $key | default $key }}</dt><dd>{{ if reflect.IsSlice $value }}{{ delimit $value ", " }}{{ else }}{{ $value }}{{ end }}</dd></div>{{ end }}
+              {{ if and $value (ne $key "content_url") (not (and (eq $entry.type "experience") (eq $key "position"))) }}<div><dt>{{ index $ui $key | default $key }}</dt><dd>{{ if reflect.IsSlice $value }}{{ delimit $value ", " }}{{ else }}{{ $value }}{{ end }}</dd></div>{{ end }}
             {{ end }}
           </dl>
         {{ end }}
@@ -34,6 +39,8 @@
     {{ end }}
   </div>
 {{ end }}
+{{ $page := index (where (partial "site-pages.html" (dict "locale" $locale "interface" $interface)) "id" $id) 0 }}
+{{ partial "list-status.html" (merge $selection (dict "language" $locale "url" (strings.TrimPrefix "/" $page.url | relURL))) }}
 {{ if or $missing (and .empty (not $items)) }}
   <div class="editorial-empty-state" data-editorial-empty="{{ $id }}">
   {{ if $missing }}
@@ -42,18 +49,15 @@
     <p class="editorial-empty">{{ $ui.empty }}</p>
   {{ end }}
   {{ $related := index (dict "interests" "profiles" "uses" "code" "library" "reading" "curiosities" "profiles" "writing" "writing") $id | default "career" }}
-  {{ $relatedURL := printf "%s%s/" $locale $related | relURL }}
+  {{ $relatedURL := partial "interface-url.html" (dict "url" (printf "/%s/%s/" $locale $related) "locale" $locale "interface" $interface) }}
   {{ $relatedID := index (dict "career" "curriculum" "code" "github-repositories" "writing" "blog") $id | default "" }}
   {{ with $relatedID }}
     {{ with index (where (partial "public-links.html" (dict "language" $locale)) "id" .) 0 }}
       {{ $relatedURL = (partial "link-destination.html" .).href }}
     {{ else }}
-      {{ $relatedURL = printf "%s/" $locale | relURL }}
+      {{ $relatedURL = partial "interface-url.html" (dict "url" (printf "/%s/" $locale) "locale" $locale "interface" $interface) }}
     {{ end }}
   {{ end }}
   <a class="editorial-related" href="{{ $relatedURL }}">{{ $ui.related }}</a>
   </div>
-{{ end }}
-{{ if .preview }}
-  {{ if $items }}<a class="editorial-related" href="{{ printf "%s%s/" $locale $id | relURL }}">{{ (index (index (where hugo.Data.links.sections "id" $id) 0).labels $locale).title }}</a>{{ end }}
 {{ end }}

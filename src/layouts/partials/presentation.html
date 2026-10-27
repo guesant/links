@@ -1,6 +1,9 @@
 {{ $content := .content }}
+<div class="presentation-group">
+  <header class="section-toolbar">
+    <h2 class="section-toolbar-title" id="presentation-title">{{ $content.title }}</h2>
+  </header>
 <section class="presentation home-introduction" aria-labelledby="presentation-title" data-rail-anchor>
-  <h2 class="presentation-eyebrow" id="presentation-title">{{ $content.title }}</h2>
   <div class="about-context-grid">
     <ul class="about-facts">
       {{ range $content.facts }}
@@ -20,3 +23,4 @@
     </section>
   </div>
 </section>
+</div>

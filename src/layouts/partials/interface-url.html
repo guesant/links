@@ -1,0 +1,10 @@
+{{ $url := .url }}
+{{ if eq .interface "terminal" }}
+  {{ $prefix := printf "%s/" .locale }}
+  {{ $path := strings.TrimPrefix "/" $url }}
+  {{ if hasPrefix $path $prefix }}
+    {{ $suffix := strings.TrimPrefix $prefix $path }}
+    {{ if not (hasPrefix $suffix "terminal/") }}{{ $url = printf "%sterminal/%s" $prefix $suffix }}{{ end }}
+  {{ end }}
+{{ end }}
+{{ return (strings.TrimPrefix "/" $url | relURL) }}

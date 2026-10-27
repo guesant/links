@@ -37,6 +37,38 @@ test("federation keeps only public allowlisted fields", () => {
   assert.equal(result.items[0].metadata.date, "2026-01-01");
   assert.deepEqual(validateFeed(feed([]), source).items, []);
 });
+test("resume projects retain only safe declared public platform URLs", () => {
+  const resume = { id: "resume", origin: "https://curriculum.guesant.net" };
+  const project = {
+    ...entry,
+    type: "project",
+    url: "https://curriculum.guesant.net/en/#project-one",
+    metadata: { content_url: "https://github.com/guesant/ava-pro" },
+  };
+  const input = { version: 1, source: "resume", items: [project] };
+  const result = validateFeed(input, resume).items[0];
+  assert.equal(result.url, project.url);
+  assert.equal(result.metadata.content_url, project.metadata.content_url);
+  for (const url of [
+    "javascript:alert(1)",
+    "http://github.com/guesant/ava-pro",
+    "https://github.com.evil.test/guesant/ava-pro",
+    "https://user:secret@github.com/guesant/ava-pro",
+    "https://github.com:444/guesant/ava-pro",
+  ])
+    assert.throws(() =>
+      validateFeed(
+        { ...input, items: [{ ...project, metadata: { content_url: url } }] },
+        resume,
+      ),
+    );
+  assert.throws(() =>
+    validateFeed({ ...input, items: [{ ...project, type: "case" }] }, resume),
+  );
+  assert.throws(() =>
+    validateFeed(feed([{ ...entry, metadata: project.metadata }]), source),
+  );
+});
 for (const [name, modify] of [
   [
     "unknown version",

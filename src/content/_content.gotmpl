@@ -5,3 +5,10 @@
     {{ $.AddPage (dict "kind" "page" "path" .id "url" .url "title" .title "layout" .type "params" (dict "page_key" .id)) }}
   {{ end }}
 {{ end }}
+{{ range partial "site-pages.html" (dict "locale" $locale "interface" "terminal") }}
+  {{ if eq .id "home" }}
+    {{ $.AddPage (dict "kind" "page" "path" "terminal" "url" .url "title" .title "layout" "terminal-home" "params" (dict "page_key" "home" "interface" "terminal")) }}
+  {{ else if and (not .fallback) }}
+    {{ $.AddPage (dict "kind" "page" "path" (printf "terminal/%s" .id) "url" .url "title" .title "layout" (printf "terminal-%s" .type) "params" (dict "page_key" .id "interface" "terminal")) }}
+  {{ end }}
+{{ end }}

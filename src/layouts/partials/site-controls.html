@@ -3,6 +3,9 @@
 {{ $ui := .ui }}
 {{ $languages := .languages }}
 {{ $pageKey := .pageKey | default "home" }}
+{{ $interface := .interface | default "minecraft" }}
+{{ $standardPage := index (where (partial "site-pages.html" (dict "locale" $language)) "id" $pageKey) 0 }}
+{{ $terminalPage := index (where (partial "site-pages.html" (dict "locale" $language "interface" "terminal")) "id" $pageKey) 0 }}
 <dialog class="app-dialog settings-dialog" id="settings-dialog" aria-labelledby="settings-dialog-title">
   <div class="app-dialog-content settings-content">
     <header class="app-dialog-header">
@@ -21,9 +24,9 @@
     <div class="toggle-control interface-control">
       <span class="toggle-label" id="interface-label">{{ $editorial.interface }}</span>
       <div class="toggle-group" role="radiogroup" aria-labelledby="interface-label">
-        <input class="toggle-input" type="radio" name="interface" id="interface-minecraft" value="minecraft" data-interface-option checked>
+        <input class="toggle-input" type="radio" name="interface" id="interface-minecraft" value="minecraft" data-interface-option data-interface-url="{{ strings.TrimPrefix "/" $standardPage.url | relURL }}"{{ if ne $interface "terminal" }} checked{{ end }}>
         <label class="toggle-button" for="interface-minecraft">Minecraft</label>
-        <input class="toggle-input" type="radio" name="interface" id="interface-terminal" value="terminal" data-interface-option>
+        <input class="toggle-input" type="radio" name="interface" id="interface-terminal" value="terminal" data-interface-option data-interface-url="{{ strings.TrimPrefix "/" $terminalPage.url | relURL }}"{{ if eq $interface "terminal" }} checked{{ end }}>
         <label class="toggle-button" for="interface-terminal">Terminal</label>
       </div>
     </div>
@@ -32,8 +35,9 @@
       <div class="language-select-wrap">
         <select class="language-select" aria-labelledby="language-label" data-language-switcher>
         {{ range $languages }}
-          {{ $destination := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
-          {{ $languagePath := .path }}
+          {{ $languagePages := partial "site-pages.html" (dict "locale" .id "interface" $interface) }}
+          {{ $destination := index (where $languagePages "id" $pageKey) 0 }}
+          {{ $languagePath := (index (where $languagePages "id" "home") 0).url }}
           {{ if and $destination (not $destination.fallback) }}{{ $languagePath = $destination.url }}{{ end }}
           <option value="{{ strings.TrimPrefix "/" $languagePath | relURL }}" data-language="{{ .id }}"{{ if eq $language .id }} selected{{ end }}>{{ .label }}</option>
         {{ end }}

@@ -1,6 +1,6 @@
 {{ $locale := lower .Site.Language.Lang }}
 {{ $data := hugo.Data.links }}
-{{ range where (partial "site-pages.html" (dict "locale" $locale)) "id" "now" }}
+{{ range where (partial "site-pages.html" (dict "locale" $locale "interface" (.Params.interface | default "minecraft"))) "id" "now" }}
   {{ $destination := .url }}
   {{ $now := index $data.now $locale | default (index $data.now "en") }}
   {{ $links := slice }}

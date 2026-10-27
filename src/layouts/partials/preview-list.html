@@ -1,7 +1,9 @@
+{{ $selection := partial "list-selection.html" (dict "items" .items "limit" .limit) }}
 <ul class="category-preview">
-  {{ range . }}
+  {{ range $selection.items }}
     <li>
       {{ partial "link.html" (merge . (dict "preview" true)) }}
     </li>
   {{ end }}
 </ul>
+{{ partial "list-status.html" (merge $selection (dict "language" .language "url" .url)) }}

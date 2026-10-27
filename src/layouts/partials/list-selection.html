@@ -1,0 +1,6 @@
+{{ $items := .items | default slice }}
+{{ $total := len $items }}
+{{ $limit := .limit | default 0 }}
+{{ if not (findRE `^(0|[1-9][0-9]*)$` (printf "%v" $limit)) }}{{ errorf "List limit must be a nonnegative integer" }}{{ end }}
+{{ if gt (int $limit) 0 }}{{ $items = first (int $limit) $items }}{{ end }}
+{{ return (dict "items" $items "total" $total "shown" (len $items) "partial" (lt (len $items) $total)) }}

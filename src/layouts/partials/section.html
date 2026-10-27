@@ -1,19 +1,17 @@
 {{ $locale := .language }}
 {{ $section := .section }}
-{{ $labels := index $section.labels $locale }}
 {{ $links := partial "section-links.html" (dict "section" $section "language" $locale) }}
+{{ $selection := partial "list-selection.html" (dict "items" $links "limit" .limit) }}
 <section class="link-section" id="{{ $section.id }}">
-  <header class="section-heading">
-    <h1 id="page-title">{{ $labels.title }}</h1>
-    {{ with $labels.description }}<p>{{ . }}</p>{{ end }}
-  </header>
-  {{ partial "link-view.html" . }}
+  {{ partial "link-view.html" (dict "pageKey" $section.id) }}
   <div class="link-list">
     {{ if $links }}
-      {{ range $links }}
+      {{ range $selection.items }}
         <div class="link-row">{{ partial "link.html" . }}</div>
       {{ end }}
     {{ end }}
   </div>
+  {{ $page := index (where (partial "site-pages.html" (dict "locale" $locale)) "id" $section.id) 0 }}
+  {{ partial "list-status.html" (merge $selection (dict "language" $locale "url" (strings.TrimPrefix "/" $page.url | relURL))) }}
   {{ partial "editorial-list.html" (dict "section" $section.id "language" $locale "empty" (not $links)) }}
 </section>

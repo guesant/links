@@ -1,7 +1,8 @@
 {{ $config := hugo.Data.links }}
 {{ $localized := index $config.locales (lower site.Language.Lang) }}
 {{ $pageKey := .Params.page_key | default "home" }}
-{{ $page := index (where (partial "site-pages.html" (dict "locale" (lower site.Language.Lang))) "id" $pageKey) 0 }}
+{{ $interface := .Params.interface | default "minecraft" }}
+{{ $page := index (where (partial "site-pages.html" (dict "locale" (lower site.Language.Lang) "interface" $interface)) "id" $pageKey) 0 }}
 {{ $pageData := $localized }}
 {{ $pagePath := $page.url }}
 {{ if eq $pageKey "now" }}{{ $pageData = index $config.now (lower site.Language.Lang) }}{{ end }}
@@ -20,12 +21,16 @@
 {{ $fontLatinExt := resources.Get "fonts/press-start-2p-latin-ext.woff2" }}
 {{ $bodyFontLatin := resources.Get "fonts/oxanium-latin.woff2" | fingerprint }}
 {{ $bodyFontLatinExt := resources.Get "fonts/oxanium-latin-ext.woff2" | fingerprint }}
+{{ $terminalFontLatin := resources.Get "fonts/jetbrains-mono-latin.woff2" | fingerprint }}
+{{ $terminalFontLatinExt := resources.Get "fonts/jetbrains-mono-latin-ext.woff2" | fingerprint }}
 {{ $railAssets := partialCached "rail-assets.html" . }}
 {{ $styleData := dict
   "fontLatin" $fontLatin.RelPermalink
   "fontLatinExt" $fontLatinExt.RelPermalink
   "bodyFontLatin" $bodyFontLatin.RelPermalink
   "bodyFontLatinExt" $bodyFontLatinExt.RelPermalink
+  "terminalFontLatin" $terminalFontLatin.RelPermalink
+  "terminalFontLatinExt" $terminalFontLatinExt.RelPermalink
   "clouds" ((resources.Get "images/ui/clouds.png").RelPermalink)
   "stoneFrame" ((((resources.Get "images/ui/stone-frame.png").Crop "1140x1140 center").Resize "384x webp q82").RelPermalink)
   "oakFrame" ((((resources.Get "images/ui/oak-frame.png").Crop "1140x1140 center").Resize "512x webp q82").RelPermalink)
@@ -43,15 +48,23 @@
 }}
 {{ $mainCSS := resources.Get "css/main.css" | resources.ExecuteAsTemplate "css/main.css" $styleData }}
 {{ $editorialCSS := resources.Get "css/editorial.css" }}
-{{ $terminalCSS := resources.Get "css/terminal.css" }}
-{{ $styles := slice $resetCSS $mainCSS $editorialCSS $terminalCSS | resources.Concat "css/site.css" | minify | fingerprint }}
+{{ $terminalCSS := resources.Get "css/terminal.css" | resources.ExecuteAsTemplate "css/terminal.css" $styleData }}
+{{ $styles := slice $resetCSS $mainCSS $editorialCSS }}
+{{ if eq $interface "terminal" }}
+  {{ $styles = slice $resetCSS $terminalCSS }}
+{{ end }}
+{{ $styles = $styles | resources.Concat (printf "css/%s.css" $interface) | minify | fingerprint }}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="{{ $styles.RelPermalink }}">
-<link rel="preload" href="{{ $fontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="{{ $bodyFontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="{{ $styleData.oakFrame }}" as="image" type="image/webp" fetchpriority="high">
-<link rel="preload" href="{{ $styleData.profileLantern }}" as="image" type="image/webp" fetchpriority="high">
+{{ if eq $interface "terminal" }}
+  <link rel="preload" href="{{ $terminalFontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
+{{ else }}
+  <link rel="preload" href="{{ $fontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ $bodyFontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ $styleData.oakFrame }}" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="{{ $styleData.profileLantern }}" as="image" type="image/webp" fetchpriority="high">
+{{ end }}
 <meta name="description" content="{{ $seoDescription }}">
 <meta name="author" content="{{ $config.profile.name }}">
 <meta name="creator" content="{{ $config.profile.name }}">
@@ -69,27 +82,31 @@
 {{ $languageScript := resources.Get "js/language-switcher.js" | minify }}
 {{ $languageRoutes := slice }}
 {{ range $config.language_options }}
-  {{ $translation := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
+  {{ $translation := index (where (partial "site-pages.html" (dict "locale" .id "interface" $interface)) "id" $pageKey) 0 }}
   {{ $url := "" }}
   {{ if and $translation (not $translation.fallback) }}{{ $url = strings.TrimPrefix "/" $translation.url | relURL }}{{ end }}
-  {{ $languageRoutes = $languageRoutes | append (dict "id" .id "url" $url "home" (strings.TrimPrefix "/" .path | relURL)) }}
+  {{ $homePath := .path }}
+  {{ if eq $interface "terminal" }}{{ $homePath = printf "%sterminal/" .path }}{{ end }}
+  {{ $languageRoutes = $languageRoutes | append (dict "id" .id "url" $url "home" (strings.TrimPrefix "/" $homePath | relURL)) }}
 {{ end }}
 {{ $languagePreference := dict "default" $config.language_preference.default "current" $language.id "neutral" false "routes" $languageRoutes }}
 <script data-language-config="{{ $languagePreference | jsonify }}">{{ $languageScript.Content | safeJS }}</script>
 <link rel="canonical" href="{{ $canonical }}">
 <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
-{{ $manifest := dict "name" $localized.seo.title "short_name" $config.profile.name "description" $localized.seo.description "start_url" (strings.TrimPrefix "/" $language.path | relURL) "scope" ("" | relURL) "display" "standalone" "background_color" "#1b1b18" "theme_color" "#38651f" "lang" $localized.ui.html_lang "icons" (slice (dict "src" ("icon-192.png" | relURL) "sizes" "192x192" "type" "image/png" "purpose" "any") (dict "src" ("icon-512.png" | relURL) "sizes" "512x512" "type" "image/png" "purpose" "any maskable")) }}
-{{ $manifestFile := resources.FromString (printf "manifests/%s.webmanifest" (lower site.Language.Lang)) ($manifest | jsonify) }}
+{{ $manifestStart := $language.path }}
+{{ if eq $interface "terminal" }}{{ $manifestStart = printf "%sterminal/" $language.path }}{{ end }}
+{{ $manifest := dict "name" $localized.seo.title "short_name" $config.profile.name "description" $localized.seo.description "start_url" (strings.TrimPrefix "/" $manifestStart | relURL) "scope" ("" | relURL) "display" "standalone" "background_color" "#1b1b18" "theme_color" "#38651f" "lang" $localized.ui.html_lang "icons" (slice (dict "src" ("icon-192.png" | relURL) "sizes" "192x192" "type" "image/png" "purpose" "any") (dict "src" ("icon-512.png" | relURL) "sizes" "512x512" "type" "image/png" "purpose" "any maskable")) }}
+{{ $manifestFile := resources.FromString (printf "manifests/%s-%s.webmanifest" (lower site.Language.Lang) $interface) ($manifest | jsonify) }}
 <link rel="manifest" href="{{ $manifestFile.RelPermalink }}">
 {{ range $config.language_options }}
-  {{ $alternate := index (where (partial "site-pages.html" (dict "locale" .id)) "id" $pageKey) 0 }}
+  {{ $alternate := index (where (partial "site-pages.html" (dict "locale" .id "interface" $interface)) "id" $pageKey) 0 }}
   {{ if and $alternate (not $alternate.fallback) }}
     {{ $alternateURL := printf "%s%s" $canonicalBase $alternate.url }}
     <link rel="alternate" hreflang="{{ .hreflang }}" href="{{ $alternateURL }}">
   {{ end }}
 {{ end }}
-{{ $defaultPath := (index (where (partial "site-pages.html" (dict "locale" $config.language_preference.default)) "id" $pageKey) 0).url }}
+{{ $defaultPath := (index (where (partial "site-pages.html" (dict "locale" $config.language_preference.default "interface" $interface)) "id" $pageKey) 0).url }}
 <link rel="alternate" hreflang="x-default" href="{{ printf "%s%s" $canonicalBase $defaultPath }}">
 <title>{{ $seoTitle }}</title>
 <meta property="og:type" content="website">

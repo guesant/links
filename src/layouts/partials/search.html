@@ -1,5 +1,5 @@
 {{ $ui := index hugo.Data.editorial.ui (lower site.Language.Lang) }}
-<dialog class="app-dialog search-dialog" id="search-dialog" aria-labelledby="search-title" data-search-index="{{ partial "search-index.html" . }}" data-search-empty="{{ $ui.search_empty }}" data-search-start="{{ $ui.search_start }}" data-search-loading="{{ $ui.search_loading }}" data-search-source="{{ $ui.source }}" data-search-language="{{ $ui.language }}" data-search-unavailable="{{ $ui.search_unavailable }}">
+<dialog class="app-dialog search-dialog" id="search-dialog" aria-labelledby="search-title" data-search-index="{{ partial "search-index.html" . }}" data-search-empty="{{ $ui.search_empty }}" data-search-start="{{ $ui.search_start }}" data-search-loading="{{ $ui.search_loading }}" data-search-source="{{ $ui.source }}" data-search-language="{{ $ui.language }}" data-search-unavailable="{{ $ui.search_unavailable }}" data-search-partial="{{ $ui.list_partial }}" data-search-details-label="{{ $ui.curriculum_details }}">
   <div class="app-dialog-content">
     <header class="app-dialog-header">
       <h2 id="search-title">{{ $ui.search }}</h2>

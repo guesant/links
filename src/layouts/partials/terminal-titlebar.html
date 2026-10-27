@@ -1,0 +1,13 @@
+{{ $profile := .profile }}
+{{ $pageKey := .pageKey }}
+{{ $path := cond (eq $pageKey "home") "~" (printf "~/%s" $pageKey) }}
+<header class="terminal-titlebar" aria-label="{{ $profile.name }}">
+  <span class="terminal-window-controls" aria-hidden="true">
+    <span class="terminal-window-dot terminal-window-dot-close"></span>
+    <span class="terminal-window-dot terminal-window-dot-minimize"></span>
+    <span class="terminal-window-dot terminal-window-dot-maximize"></span>
+  </span>
+  <p class="terminal-window-label"><span>{{ $profile.username }}@guesant:</span> <span>{{ $path }}</span></p>
+  <button class="terminal-window-search" type="button" data-search-open aria-label="{{ .search }}" title="{{ .search }} · Ctrl/Cmd+K"><span aria-hidden="true">$</span> {{ .search }} <kbd>Ctrl K</kbd></button>
+  <button class="terminal-window-settings" type="button" data-settings-open data-dialog-open="settings-dialog" command="show-modal" commandfor="settings-dialog" aria-label="{{ .settings }}" title="{{ .settings }}"><span aria-hidden="true">$</span> {{ .settings }}</button>
+</header>

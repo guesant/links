@@ -11,7 +11,7 @@ import {
 } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import configuration from "./configuration.cjs";
 
@@ -33,6 +33,7 @@ async function fixture(
   environment = {},
   editorialFixture,
   federationFixture,
+  layoutFixture,
 ) {
   const directory = await mkdtemp(join(tmpdir(), "links-content-"));
   try {
@@ -54,6 +55,16 @@ async function fixture(
     }
     const configPath = join(directory, "hugo.toml");
     let federationMount = "";
+    let layoutMount = "";
+    if (layoutFixture) {
+      const layouts = join(directory, "layouts");
+      for (const [name, content] of Object.entries(layoutFixture)) {
+        const path = join(layouts, name);
+        await mkdir(dirname(path), { recursive: true });
+        await writeFile(path, content);
+      }
+      layoutMount = `\n[[module.mounts]]\nsource = ${JSON.stringify(layouts)}\ntarget = "layouts"\n[[module.mounts]]\nsource = ${JSON.stringify(resolve("src/layouts"))}\ntarget = "layouts"\n`;
+    }
     if (federationFixture) {
       const assets = join(directory, "assets");
       await mkdir(assets);
@@ -70,7 +81,8 @@ async function fixture(
         "",
       ) +
         `\n[[module.mounts]]\nsource = ${JSON.stringify(data)}\ntarget = "data"\n` +
-        federationMount,
+        federationMount +
+        layoutMount,
     );
     const result = spawnSync(
       "hugo",
@@ -462,6 +474,36 @@ test("Hugo publishes thematic pages without legacy routes or aliases", async () 
       assert.equal(result.status, 0, result.stderr);
       const xml = await collectHTML(output, ".xml");
       for (const language of source.language_options) {
+        const terminalHomePath = `${language.path}terminal/index.html`;
+        const terminalHome = await readFile(
+          join(output, terminalHomePath),
+          "utf8",
+        );
+        assert.match(terminalHome, /data-interface=terminal/);
+        assert.match(terminalHome, /class=terminal-app/);
+        assert.match(terminalHome, /\/css\/terminal\.min\./);
+        assert.doesNotMatch(terminalHome, /\/css\/minecraft\.min\./);
+        assert.doesNotMatch(
+          terminalHome,
+          /world-scene|suspended-content|suspension-rails/,
+        );
+        assert.match(
+          terminalHome,
+          new RegExp(`${language.path}terminal/career/`),
+        );
+        const home = await readFile(
+          join(output, language.path, "index.html"),
+          "utf8",
+        );
+        assert.match(home, /\/css\/minecraft\.min\./);
+        assert.match(home, /home-introduction/);
+        assert.doesNotMatch(home, /\/css\/terminal\.min\./);
+        assert.doesNotMatch(
+          home,
+          /terminal-command|terminal-navigation-command/,
+        );
+        assert.doesNotMatch(home, /class=category-main-link/);
+        assert.doesNotMatch(home, /class=category-title[^>]*>\s*<a/);
         for (const old of ["start-here", "networks", "personal"]) {
           const path = `${language.path}${old}/`;
           await assert.rejects(readFile(join(output, path, "index.html")), {
@@ -475,14 +517,41 @@ test("Hugo publishes thematic pages without legacy routes or aliases", async () 
           assert(html.includes(path));
           assert(xml.includes(path));
           assert.doesNotMatch(html, /http-equiv=["']?refresh/i);
+          assert.match(html, /page-introduction/);
+          assert.doesNotMatch(html, /home-introduction|about-context-grid/);
+          const terminalPath = `${language.path}terminal/${id}/index.html`;
+          const terminalHTML = await readFile(
+            join(output, terminalPath),
+            "utf8",
+          );
+          assert.match(terminalHTML, /data-interface=terminal/);
+          assert.match(terminalHTML, /\/css\/terminal\.min\./);
+          assert.doesNotMatch(terminalHTML, /\/css\/minecraft\.min\./);
+          assert.match(terminalHTML, new RegExp(`cd ~/${id}/`));
+          assert.doesNotMatch(
+            terminalHTML,
+            /world-scene|suspended-content|suspension-rails/,
+          );
+          assert.match(
+            terminalHTML,
+            new RegExp(`${language.path}terminal/${id}/`),
+          );
+        }
+        if (language.id === "en" || language.id === "pt-br") {
+          const terminalNow = await readFile(
+            join(output, `${language.path}terminal/now/index.html`),
+            "utf8",
+          );
+          assert.match(terminalNow, /data-interface=terminal/);
+          assert.match(terminalNow, /now-current-focus/);
         }
       }
-      for (const path of ["en/now/index.html", "pt-br/agora/index.html"])
-        assert(
-          (await readFile(join(output, path), "utf8")).includes(
-            "now-current-focus",
-          ),
-        );
+      for (const path of ["en/now/index.html", "pt-br/agora/index.html"]) {
+        const html = await readFile(join(output, path), "utf8");
+        assert(html.includes("now-current-focus"));
+        assert.match(html, /page-introduction/);
+        assert.doesNotMatch(html, /home-introduction|about-context-grid/);
+      }
     },
   );
 });
@@ -526,7 +595,7 @@ test("Hugo rejects unsafe enabled URLs", async () => {
     },
   );
 });
-test("Now preview links resolve an installation prefix only once", async () => {
+test("Now child links resolve an installation prefix only once", async () => {
   await fixture(
     () => {},
     async (result, output) => {
@@ -549,7 +618,6 @@ test("Now preview links resolve an installation prefix only once", async () => {
         const sections = (source.now[language.id] || source.now.en).sections;
         const prefix = `/prefix${nowPage.url}`;
         assert.deepEqual(actual, [
-          prefix,
           ...sections.map((section) => `${prefix}#now-${section.id}`),
         ]);
       }
@@ -844,6 +912,397 @@ test("a populated case list does not hide the empty post state", async () => {
     {},
     undefined,
     feed,
+  );
+});
+test("platform project labels preserve public destinations and curriculum details", async () => {
+  const editorial = parse(await readFile("src/data/editorial.yaml", "utf8"));
+  const examples = [
+    [
+      "github",
+      "ava-pro",
+      "https://github.com/guesant/ava-pro",
+      "GitHub - guesant/ava-pro",
+    ],
+    [
+      "gitlab",
+      "Project",
+      "https://gitlab.com/guesant/project",
+      "GitLab - guesant/project",
+    ],
+    [
+      "youtube",
+      "Project Demonstration",
+      "https://www.youtube.com/watch?v=public-video",
+      "YouTube - Project Demonstration",
+    ],
+    ["unqualified", "Published Project", "", "Published Project"],
+  ];
+  const feed = {
+    version: 1,
+    items: examples.map(([id, title, url]) => ({
+      id: `project-${id}`,
+      source: "resume",
+      language: "en",
+      type: "project",
+      title,
+      summary: "Public project description",
+      url: `https://curriculum.guesant.net/en/#project-${id}`,
+      tags: [],
+      metadata: url ? { content_url: url } : {},
+    })),
+  };
+  await fixture(
+    () => {},
+    async (result, output) => {
+      assert.equal(result.status, 0, result.stderr);
+      const indices = await readdir(join(output, "search"));
+      for (const language of source.language_options) {
+        for (const name of ["minecraft", "terminal"]) {
+          const prefix = name === "terminal" ? "terminal/" : "";
+          for (const page of ["index.html", "code/index.html"]) {
+            const html = await readFile(
+              join(output, language.path, prefix, page),
+              "utf8",
+            );
+            for (const [id, , url, title] of examples) {
+              const article = html.match(
+                new RegExp(
+                  `<article\\b[^>]*\\bdata-editorial-id=["']?project-${id}["' >][\\s\\S]*?<\\/article>`,
+                ),
+              );
+              assert(article, `${language.id}/${name}/${id}`);
+              assert(article[0].includes(title));
+              if (url) {
+                assert(
+                  article[0].includes(`href=${url}`) ||
+                    article[0].includes(`href="${url}"`),
+                );
+                assert(article[0].includes("editorial-details"));
+                assert(
+                  article[0].includes(
+                    editorial.ui[language.id].curriculum_details,
+                  ),
+                );
+                assert(
+                  article[0].includes(
+                    `https://curriculum.guesant.net/en/#project-${id}`,
+                  ),
+                );
+                assert(article[0].includes("link-third-party-badge"));
+              } else {
+                assert(!article[0].includes("editorial-details"));
+              }
+              assert(!article[0].includes("content_url"));
+            }
+            assert(html.includes("YouTube - JipaCoding"));
+          }
+          const indexFile = indices.find((file) =>
+            file.startsWith(`${language.id}-${name}.`),
+          );
+          const entries = JSON.parse(
+            await readFile(join(output, "search", indexFile), "utf8"),
+          );
+          for (const [id, , url, title] of examples) {
+            const entry = entries.find(
+              (item) => item.id === `code-resume-project-${id}`,
+            );
+            assert.equal(entry.title, title);
+            assert.equal(
+              entry.url,
+              url || `https://curriculum.guesant.net/en/#project-${id}`,
+            );
+            assert.equal(
+              entry.details_url,
+              url ? `https://curriculum.guesant.net/en/#project-${id}` : "",
+            );
+          }
+        }
+      }
+    },
+    {},
+    undefined,
+    feed,
+  );
+});
+test("experience titles retain the published engagement in previews, pages and search", async () => {
+  const editorial = parse(await readFile("src/data/editorial.yaml", "utf8"));
+  const positions = {
+    "pt-br": "Desenvolvedor Contratado (Terceirizado)",
+    en: "Contracted (Outsourced) Developer",
+  };
+  const feed = {
+    version: 1,
+    items: [
+      ...Object.entries(positions).map(([language, position]) => ({
+        id: "experience-contract",
+        source: "resume",
+        language,
+        type: "experience",
+        title: "Employer Fixture",
+        summary: "Published experience summary",
+        url: `https://curriculum.guesant.net/${language}/#experience-contract`,
+        tags: [],
+        metadata: { position },
+      })),
+      {
+        id: "experience-unspecified",
+        source: "resume",
+        language: "en",
+        type: "experience",
+        title: "Other Employer Fixture",
+        summary: "Published experience without engagement metadata",
+        url: "https://curriculum.guesant.net/en/#experience-unspecified",
+        tags: [],
+        metadata: {},
+      },
+    ],
+  };
+  await fixture(
+    () => {},
+    async (result, output) => {
+      assert.equal(result.status, 0, result.stderr);
+      const indices = await readdir(join(output, "search"));
+      for (const language of source.language_options) {
+        const position = positions[language.id] || positions.en;
+        const title = `Employer Fixture · ${position}`;
+        for (const name of ["minecraft", "terminal"]) {
+          const prefix = name === "terminal" ? "terminal/" : "";
+          for (const page of ["index.html", "career/index.html"]) {
+            const html = await readFile(
+              join(output, language.path, prefix, page),
+              "utf8",
+            );
+            const headings = [...html.matchAll(/<h3\b[^>]*>[\s\S]*?<\/h3>/g)];
+            assert(headings.some(([heading]) => heading.includes(title)));
+            if (language.id !== "pt-br")
+              assert(
+                headings.some(([heading]) =>
+                  heading.includes(
+                    `Other Employer Fixture · ${editorial.ui[language.id].affiliation_unspecified}`,
+                  ),
+                ),
+              );
+          }
+          const indexFile = indices.find((file) =>
+            file.startsWith(`${language.id}-${name}.`),
+          );
+          const items = JSON.parse(
+            await readFile(join(output, "search", indexFile), "utf8"),
+          );
+          const experience = items.find(
+            (item) => item.id === "career-resume-experience-contract",
+          );
+          assert.equal(experience.title, title);
+          assert.equal(experience.metadata.position, position);
+        }
+      }
+    },
+    {},
+    undefined,
+    feed,
+  );
+});
+test("all Home sections preserve the complete page lists in both interfaces", async () => {
+  const editorial = parse(await readFile("src/data/editorial.yaml", "utf8"));
+  for (const section of ["interests", "uses", "library", "curiosities"]) {
+    editorial.entries[section] = [
+      ...Array.from({ length: 6 }, (_, index) => ({
+        id: `${section}-${index}`,
+        labels: { en: { title: `Published ${section} ${index}` } },
+      })),
+      ...[
+        { private: true },
+        { public: false },
+        { enabled: false },
+        { draft: true },
+      ].map((flag, index) => ({
+        id: `hidden-${section}-${index}`,
+        ...flag,
+        labels: { en: { title: "Excluded list fixture" } },
+      })),
+    ];
+  }
+  const feed = {
+    version: 1,
+    items: [
+      "skill",
+      "experience",
+      "education",
+      "project",
+      "case",
+      "post",
+    ].flatMap((type) =>
+      Array.from({ length: 6 }, (_, index) => ({
+        id: `${type}-${index}`,
+        source: type === "post" ? "blog" : "resume",
+        language: "en",
+        type,
+        title: `Published ${type} ${index}`,
+        summary: `Published summary ${index}`,
+        url: `https://curriculum.guesant.net/en/#${type}-${index}`,
+        tags: [],
+        metadata:
+          type === "experience" ? { position: "Contracted Developer" } : {},
+      })),
+    ),
+  };
+  const ids = (html, attribute) =>
+    [...html.matchAll(new RegExp(`\\b${attribute}=["']?([^"' >]+)`, "g"))].map(
+      (match) => match[1],
+    );
+  await fixture(
+    () => {},
+    async (result, output) => {
+      assert.equal(result.status, 0, result.stderr);
+      for (const language of source.language_options) {
+        for (const name of ["minecraft", "terminal"]) {
+          const prefix = name === "terminal" ? "terminal/" : "";
+          const home = await readFile(
+            join(output, language.path, prefix, "index.html"),
+            "utf8",
+          );
+          assert.doesNotMatch(
+            home,
+            /Excluded list fixture|class=["']?list-status/,
+          );
+          for (const section of source.navigation.sections) {
+            const marker = new RegExp(
+              `\\bdata-category=["']?${section}["' >]`,
+            ).exec(home);
+            assert(marker, `${name}/${language.id}/${section}`);
+            const tail = home.slice(marker.index + marker[0].length);
+            const end = tail.search(
+              /\bdata-(?:category|home-update)=|<footer\b/,
+            );
+            const card = end < 0 ? tail : tail.slice(0, end);
+            const page = await readFile(
+              join(output, language.path, prefix, section, "index.html"),
+              "utf8",
+            );
+            assert.deepEqual(
+              ids(card, "data-link-id"),
+              ids(page, "data-link-id"),
+              `${name}/${language.id}/${section}/links`,
+            );
+            assert.deepEqual(
+              ids(card, "data-editorial-id"),
+              ids(page, "data-editorial-id"),
+              `${name}/${language.id}/${section}/editorial`,
+            );
+            if (
+              [
+                "career",
+                "code",
+                "writing",
+                "interests",
+                "uses",
+                "library",
+                "curiosities",
+              ].includes(section)
+            )
+              assert(ids(card, "data-editorial-id").length >= 6);
+          }
+        }
+      }
+    },
+    {},
+    editorial,
+    feed,
+  );
+});
+test("explicit list limits show localized counts and full destinations without private items", async () => {
+  const editorial = parse(await readFile("src/data/editorial.yaml", "utf8"));
+  editorial.entries.interests = [
+    ...Array.from({ length: 6 }, (_, index) => ({
+      id: `interest-${index}`,
+      labels: { en: { title: `Published interest ${index}` } },
+    })),
+    ...[
+      { private: true },
+      { public: false },
+      { enabled: false },
+      { draft: true },
+    ].map((flag, index) => ({
+      id: `hidden-interest-${index}`,
+      ...flag,
+      labels: { en: { title: "Excluded list fixture" } },
+    })),
+  ];
+  const gallery = `{{ $locale := lower site.Language.Lang }}
+{{ range slice "career" "interests" "reading" }}
+  {{ $page := index (where (partial "site-pages.html" (dict "locale" $locale)) "id" .) 0 }}
+  {{ $links := partial "section-links.html" (dict "section" $page.section "language" $locale) }}
+  {{ partial "section-card.html" (dict "page" $page "links" $links "index" 0 "linkLimit" 2 "editorialLimit" 2) }}
+{{ end }}`;
+  const terminal = `{{ define "main" }}
+{{ $locale := lower site.Language.Lang }}
+{{ range slice "career" "interests" "reading" }}
+  {{ $page := index (where (partial "site-pages.html" (dict "locale" $locale "interface" "terminal")) "id" .) 0 }}
+  {{ $links := partial "section-links.html" (dict "section" $page.section "language" $locale) }}
+  {{ partial "terminal-link-list.html" (dict "items" $links "language" $locale "url" (strings.TrimPrefix "/" $page.url | relURL) "limit" 2) }}
+  {{ partial "editorial-list.html" (dict "section" $page.id "language" $locale "interface" "terminal" "preview" true "limit" 2) }}
+{{ end }}{{ end }}`;
+  await fixture(
+    (config) => {
+      const career = config.sections.find((section) => section.id === "career");
+      for (const [index, flags] of [
+        { public: false },
+        { enabled: false },
+      ].entries())
+        career.links.push({
+          ...structuredClone(career.links[0]),
+          id: `hidden-link-${index}`,
+          ...flags,
+        });
+    },
+    async (result, output) => {
+      assert.equal(result.status, 0, result.stderr);
+      for (const language of source.language_options) {
+        for (const name of ["minecraft", "terminal"]) {
+          const prefix = name === "terminal" ? "terminal/" : "";
+          const html = await readFile(
+            join(output, language.path, prefix, "index.html"),
+            "utf8",
+          );
+          const statuses = [
+            ...html.matchAll(
+              /<p\b[^>]*\bclass=["']?list-status\b[^>]*>[\s\S]*?<\/p>/g,
+            ),
+          ].map(([value]) => value);
+          assert.equal(statuses.length, 2);
+          for (const [index, total, section] of [
+            [0, 4, "career"],
+            [1, 6, "interests"],
+          ]) {
+            const text = editorial.ui[language.id].list_partial
+              .replace("{shown}", "2")
+              .replace("{total}", String(total));
+            assert(statuses[index].includes(text));
+            assert(
+              statuses[index].includes(`${language.path}${prefix}${section}/`),
+            );
+            assert(
+              statuses[index].includes(editorial.ui[language.id].list_view_all),
+            );
+            assert.match(statuses[index], /data-list-shown=["']?2/);
+            assert.match(
+              statuses[index],
+              new RegExp(`data-list-total=["']?${total}`),
+            );
+          }
+          assert.doesNotMatch(html, /hidden-link-|Excluded list fixture/);
+          assert.match(html, /Published interest 1/);
+          assert.doesNotMatch(html, /Published interest 2/);
+        }
+      }
+    },
+    {},
+    editorial,
+    undefined,
+    {
+      "partials/category-gallery.html": gallery,
+      "terminal-home.html": terminal,
+    },
   );
 });
 test("editorial visibility, untranslated records and search share public data", async () => {

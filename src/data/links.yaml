@@ -451,27 +451,27 @@ sections:
         audiences: [developers, recruiters, collaborators, open-source]
         labels:
           en:
-            title: GitHub Repositories
+            title: GitHub - guesant (Repositories)
             description: Explore my public software projects and their source code.
             badge: Open Source
           pt-br:
-            title: Repositórios no GitHub
+            title: GitHub - guesant (Repositórios)
             description: Explore meus projetos públicos de software e seu código-fonte.
             badge: Open Source
           fr:
-            title: Dépôts GitHub
+            title: GitHub - guesant (Dépôts)
             description: Explorez mes projets logiciels publics et leur code source.
             badge: Open Source
           es:
-            title: Repositorios de GitHub
+            title: GitHub - guesant (Repositorios)
             description: Explora mis proyectos públicos de software y su código fuente.
             badge: Open Source
           it:
-            title: Repository GitHub
+            title: GitHub - guesant (Repository)
             description: Esplora i miei progetti software pubblici e il loro codice sorgente.
             badge: Open Source
           zh:
-            title: GitHub 仓库
+            title: GitHub - guesant（仓库）
             description: 查看我的公开软件项目及其源代码。
             badge: 开源
       - id: github-stats
@@ -484,22 +484,22 @@ sections:
         audiences: [developers, recruiters, collaborators, open-source]
         labels:
           en:
-            title: GitHub Activity
+            title: GitHub - guesant (Activity)
             description: See a periodically refreshed summary of my public GitHub activity.
           pt-br:
-            title: Atividade no GitHub
+            title: GitHub - guesant (Atividade)
             description: Veja um resumo periodicamente atualizado da minha atividade pública no GitHub.
           fr:
-            title: Activité GitHub
+            title: GitHub - guesant (Activité)
             description: Consultez un résumé régulièrement mis à jour de mon activité publique sur GitHub.
           es:
-            title: Actividad en GitHub
+            title: GitHub - guesant (Actividad)
             description: Consulta un resumen actualizado periódicamente de mi actividad pública en GitHub.
           it:
-            title: Attività GitHub
+            title: GitHub - guesant (Attività)
             description: Consulta un riepilogo aggiornato periodicamente della mia attività pubblica su GitHub.
           zh:
-            title: GitHub 活动
+            title: GitHub - guesant（动态）
             description: 查看定期更新的 GitHub 公开活动摘要。
       - id: gitlab
         url: https://gitlab.com/guesant
@@ -508,22 +508,22 @@ sections:
         audiences: [developers, collaborators, open-source]
         labels:
           en:
-            title: GitLab
+            title: GitLab - guesant
             description: Browse additional code and experiments hosted on GitLab.
           pt-br:
-            title: GitLab
+            title: GitLab - guesant
             description: Consulte outros códigos e experimentos hospedados no GitLab.
           fr:
-            title: GitLab
+            title: GitLab - guesant
             description: Parcourez d’autres codes et expériences hébergés sur GitLab.
           es:
-            title: GitLab
+            title: GitLab - guesant
             description: Explora más código y experimentos alojados en GitLab.
           it:
-            title: GitLab
+            title: GitLab - guesant
             description: Consulta altri codici ed esperimenti ospitati su GitLab.
           zh:
-            title: GitLab
+            title: GitLab - guesant
             description: 浏览托管在 GitLab 上的其他代码和实验项目。
       - id: youtube
         url: https://www.youtube.com/channel/UClhOZhND0Rr0BHWDhXo1KrA
@@ -532,27 +532,27 @@ sections:
         audiences: [developers, academics, collaborators, open-source]
         labels:
           en:
-            title: YouTube
+            title: YouTube - JipaCoding
             description: Watch demonstrations of projects, infrastructure work, algorithms, and programming experiments.
             badge: Video
           pt-br:
-            title: YouTube
+            title: YouTube - JipaCoding
             description: Assista a demonstrações de projetos, registros de infraestrutura, algoritmos e experimentos de programação.
             badge: Vídeos
           fr:
-            title: YouTube
+            title: YouTube - JipaCoding
             description: Regardez des démonstrations de projets, des travaux d’infrastructure, des algorithmes et des expériences de programmation.
             badge: Vidéos
           es:
-            title: YouTube
+            title: YouTube - JipaCoding
             description: Mira demostraciones de proyectos, trabajos de infraestructura, algoritmos y experimentos de programación.
             badge: Vídeos
           it:
-            title: YouTube
+            title: YouTube - JipaCoding
             description: Guarda dimostrazioni di progetti, lavori sull’infrastruttura, algoritmi ed esperimenti di programmazione.
             badge: Video
           zh:
-            title: YouTube
+            title: YouTube - JipaCoding
             description: 观看项目演示、基础设施工作、算法和编程实验。
             badge: 视频
   - id: writing
@@ -1338,6 +1338,7 @@ locales:
       skip_link: Skip to content
       language_aria_label: Change language
       quick_contacts_label: Main contact links
+      quick_access_title: Quick Access
       theme_aria_label: Theme
       theme_label: Theme
       theme_system: System
@@ -1403,6 +1404,7 @@ locales:
       skip_link: Ir para o conteúdo
       language_aria_label: Alterar idioma
       quick_contacts_label: Principais formas de contato
+      quick_access_title: Acesso Rápido
       theme_aria_label: Tema
       theme_label: Tema
       theme_system: Sistema
@@ -1468,6 +1470,7 @@ locales:
       skip_link: Aller au contenu
       language_aria_label: Changer de langue
       quick_contacts_label: Principaux moyens de contact
+      quick_access_title: Accès Rapide
       theme_aria_label: Thème
       theme_label: Thème
       theme_system: Système
@@ -1534,6 +1537,7 @@ locales:
       skip_link: Ir al contenido
       language_aria_label: Cambiar idioma
       quick_contacts_label: Principales formas de contacto
+      quick_access_title: Acceso Rápido
       theme_aria_label: Tema
       theme_label: Tema
       theme_system: Sistema
@@ -1600,6 +1604,7 @@ locales:
       skip_link: Vai al contenuto
       language_aria_label: Cambia lingua
       quick_contacts_label: Principali modi per contattarmi
+      quick_access_title: Accesso Rapido
       theme_aria_label: Tema
       theme_label: Tema
       theme_system: Sistema
@@ -1666,6 +1671,7 @@ locales:
       skip_link: 跳转到内容
       language_aria_label: 切换语言
       quick_contacts_label: 主要联系方式
+      quick_access_title: 快速访问
       theme_aria_label: 主题
       theme_label: 主题
       theme_system: 跟随系统

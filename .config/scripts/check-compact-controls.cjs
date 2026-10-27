@@ -44,6 +44,9 @@ module.exports = async function checkCompactControls(
               const options = document
                 .querySelector(".link-view-options")
                 .getBoundingClientRect();
+              const toolbarStyle = getComputedStyle(
+                document.querySelector(".link-view-toolbar"),
+              );
               const controls = [...document.querySelectorAll(".icon-control")];
               const size =
                 parseFloat(
@@ -61,7 +64,16 @@ module.exports = async function checkCompactControls(
                       group.left -
                       group.width / 2,
                   ) < 1,
-                rightAligned: Math.abs(options.right - toolbar.right) < 1,
+                rightAligned:
+                  Math.abs(
+                    options.right -
+                      toolbar.right +
+                      parseFloat(toolbarStyle.paddingRight) +
+                      parseFloat(toolbarStyle.borderRightWidth),
+                  ) < 1,
+                symmetricPadding:
+                  parseFloat(toolbarStyle.paddingLeft) > 0 &&
+                  toolbarStyle.paddingLeft === toolbarStyle.paddingRight,
                 intrinsicGroup: group.width < footer.width,
                 squareTargets: controls.every(
                   (control) =>

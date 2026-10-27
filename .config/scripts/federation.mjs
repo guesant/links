@@ -19,6 +19,7 @@ const metadataKeys = new Set([
   "area",
   "start_date",
   "end_date",
+  "content_url",
 ]);
 const text = (value, max = 12000) => {
   if (typeof value !== "string" || value.length > max)
@@ -74,6 +75,26 @@ export function validateFeed(feed, source) {
         key === "categories"
           ? value.map((item) => text(item, 200))
           : text(value, 2048);
+      if (key === "content_url") {
+        const destination = new URL(metadata[key]);
+        if (
+          source.id !== "resume" ||
+          entry.type !== "project" ||
+          destination.protocol !== "https:" ||
+          destination.username ||
+          destination.password ||
+          destination.port ||
+          ![
+            "github.com",
+            "gitlab.com",
+            "www.youtube.com",
+            "youtube.com",
+            "youtu.be",
+          ].includes(destination.hostname)
+        )
+          throw new Error("Invalid public content URL");
+        metadata[key] = destination.href;
+      }
     }
     return {
       id: entry.id,

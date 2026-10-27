@@ -1,20 +1,26 @@
 {{ $ui := (index hugo.Data.links.locales (lower site.Language.Lang)).ui }}
+{{ $pageKey := .pageKey | default "sections" }}
 <fieldset class="link-view-control">
   <legend class="visually-hidden">{{ $ui.link_view_label }}</legend>
   <div class="link-view-toolbar">
     <span class="link-view-caption" aria-hidden="true">{{ $ui.link_view_label }}</span>
+    {{ if eq .interface "terminal" }}<span class="terminal-command" aria-hidden="true">$ ls ~/{{ $pageKey }}/</span>{{ end }}
     <div class="link-view-options">
       <input class="toggle-input" type="radio" name="link-view" id="link-view-compact" value="compact" data-link-view-control checked>
       <label class="toggle-button icon-control" for="link-view-compact" data-tooltip>
+        {{ if eq .interface "terminal" }}<span>{{ $ui.link_view_compact }}</span>{{ else }}
         {{ partial "button-icon.html" "view-compact" }}
         <span class="visually-hidden">{{ $ui.link_view_compact }}</span>
         <span class="control-tooltip" aria-hidden="true">{{ $ui.link_view_compact }}</span>
+        {{ end }}
       </label>
       <input class="toggle-input" type="radio" name="link-view" id="link-view-detailed" value="detailed" data-link-view-control>
       <label class="toggle-button icon-control" for="link-view-detailed" data-tooltip>
+        {{ if eq .interface "terminal" }}<span>{{ $ui.link_view_detailed }}</span>{{ else }}
         {{ partial "button-icon.html" "view-detailed" }}
         <span class="visually-hidden">{{ $ui.link_view_detailed }}</span>
         <span class="control-tooltip" aria-hidden="true">{{ $ui.link_view_detailed }}</span>
+        {{ end }}
       </label>
     </div>
   </div>

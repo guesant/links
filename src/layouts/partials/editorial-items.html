@@ -43,4 +43,20 @@
   {{ range . }}{{ $ordered = $ordered | append (where $items "type" .) }}{{ end }}
   {{ $items = $ordered }}
 {{ end }}
-{{ return $items }}
+{{ $displayItems := slice }}
+{{ range $items }}
+  {{ $entry := . }}
+  {{ if eq .type "experience" }}
+    {{ $position := .metadata.position | default "" | strings.TrimSpace }}
+    {{ if not $position }}{{ $position = (index hugo.Data.editorial.ui $locale).affiliation_unspecified }}{{ end }}
+    {{ $entry = merge . (dict "title" (printf "%s · %s" .title $position)) }}
+  {{ end }}
+  {{ if and (eq .type "project") (eq .source "resume") }}
+    {{ with .metadata.content_url }}
+      {{ $title := partial "platform-content.html" (dict "url" . "title" $entry.title) }}
+      {{ $entry = merge $entry (dict "title" $title "url" . "details_url" $entry.url) }}
+    {{ end }}
+  {{ end }}
+  {{ $displayItems = $displayItems | append $entry }}
+{{ end }}
+{{ return $displayItems }}

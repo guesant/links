@@ -1,10 +1,8 @@
 {{ define "main" }}
   {{ $locale := lower .Site.Language.Lang }}
   {{ $now := index hugo.Data.links.now $locale }}
-  {{ $ui := (index hugo.Data.links.locales $locale).ui }}
+  {{ partial "page-introduction.html" (dict "id" "now-title" "title" $now.title "description" $now.intro) }}
   <article class="presentation" aria-labelledby="now-title">
-    <h1 class="presentation-title" id="now-title">{{ $now.title }}</h1>
-    <p class="presentation-intro">{{ $now.intro }}</p>
     <div class="presentation-focus">
       {{ range $now.sections }}
         <section class="presentation-focus-item" aria-labelledby="now-{{ .id }}">

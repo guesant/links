@@ -156,15 +156,8 @@ module.exports = async function checkLinkViewBrowser(
                   ...document.querySelectorAll(".category-preview-link"),
                 ].every(
                   (link) =>
-                    Number(getComputedStyle(link).zIndex) >
-                    Number(
-                      getComputedStyle(
-                        link
-                          .closest(".category-card")
-                          .querySelector(".category-main-link"),
-                        "::after",
-                      ).zIndex,
-                    ),
+                    link.parentElement.matches("li") &&
+                    link.parentElement.closest("a") === null,
                 ),
                 numericFit: [...document.querySelectorAll(".statistic dd")]
                   .filter(visible)
