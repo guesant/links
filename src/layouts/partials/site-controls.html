@@ -17,6 +17,16 @@
       </form>
     </header>
     <div class="site-controls">
+    {{ $editorial := index hugo.Data.editorial.ui $language }}
+    <div class="toggle-control interface-control">
+      <span class="toggle-label" id="interface-label">{{ $editorial.interface }}</span>
+      <div class="toggle-group" role="radiogroup" aria-labelledby="interface-label">
+        <input class="toggle-input" type="radio" name="interface" id="interface-minecraft" value="minecraft" data-interface-option checked>
+        <label class="toggle-button" for="interface-minecraft">Minecraft</label>
+        <input class="toggle-input" type="radio" name="interface" id="interface-terminal" value="terminal" data-interface-option>
+        <label class="toggle-button" for="interface-terminal">Terminal</label>
+      </div>
+    </div>
     <div class="toggle-control language-control">
       <span class="toggle-label" id="language-label">{{ partial "button-icon.html" "language" }}<span>{{ $ui.language_aria_label }}</span></span>
       <div class="language-select-wrap">

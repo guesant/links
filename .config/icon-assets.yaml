@@ -65,3 +65,5 @@ icons:
   user: { source: original, key: person-silhouette }
   gamepad: { source: original, key: game-controller }
   target: { source: original, key: compass-reticle }
+  view-compact: { source: original, key: compact-list }
+  view-detailed: { source: original, key: detailed-cards }

@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { setTimeout } from "node:timers/promises";
 import configuration from "./configuration.cjs";
 import accessibilityViewports from "./accessibility-viewports.mjs";
+import { syncFederation } from "./federation.mjs";
 
 const { parse } = createRequire(import.meta.url)("yaml");
 const config = parse(await readFile("src/data/links.yaml", "utf8"));
@@ -28,8 +29,9 @@ const routes = config.language_options.flatMap((language) =>
     .filter((page) => !page.fallback)
     .map((page) => page.url),
 );
-const build = (destination = ".local/build/site", baseURL) =>
-  command(
+const build = async (destination = ".local/build/site", baseURL) => {
+  await syncFederation();
+  return command(
     "hugo",
     [
       "--source",
@@ -56,6 +58,7 @@ const build = (destination = ".local/build/site", baseURL) =>
         new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC",
     },
   );
+};
 async function withServer(task) {
   const server = spawn(
     "serve",
@@ -85,6 +88,10 @@ async function tests() {
     ".config/scripts/check-raster.mjs",
     ".config/scripts/check-pointer-sound.mjs",
     ".config/scripts/check-language-preference.mjs",
+    ".config/scripts/check-link-view.mjs",
+    ".config/scripts/check-federation.mjs",
+    ".config/scripts/check-interface.mjs",
+    ".config/scripts/check-search.mjs",
   ]);
 }
 async function check() {
@@ -119,7 +126,35 @@ async function check() {
       ],
     })),
   );
+  const pageAudits = pa11y.urls.length;
   pa11y.urls.push(
+    ...config.language_options.flatMap((language) =>
+      [language.path, `${language.path}code/`].flatMap((path) =>
+        ["dark", "light"].map((theme) => ({
+          url: `http://127.0.0.1:4173${path}`,
+          actions: [
+            'click element label[for="link-view-detailed"]',
+            "click element [data-settings-open]",
+            `click element label[for="theme-${theme}"]`,
+            "click element #settings-dialog [data-dialog-close]",
+          ],
+        })),
+      ),
+    ),
+  );
+  pa11y.urls.push(
+    ...config.language_options.flatMap((language) =>
+      ["dark", "light"].map((theme) => ({
+        url: `http://127.0.0.1:4173${language.path}career/`,
+        rootElement: ".page-navigation",
+        actions: [
+          "click element [data-settings-open]",
+          `click element label[for="theme-${theme}"]`,
+          "click element #settings-dialog [data-dialog-close]",
+          "click element .section-switcher-trigger",
+        ],
+      })),
+    ),
     ...config.language_options.flatMap((language) =>
       ["dark", "light"].flatMap((theme) =>
         ["settings", "credits"].map((dialog) => ({
@@ -140,7 +175,7 @@ async function check() {
   );
   await withServer(async () => {
     await accessibilityViewports(
-      pa11y.urls.slice(0, routes.length * 2),
+      pa11y.urls.slice(0, pageAudits + config.language_options.length * 6),
       pa11y.defaults,
     );
     await writeFile(".local/reports/pa11y.json", JSON.stringify(pa11y));
@@ -172,6 +207,7 @@ const task = process.argv[2];
 try {
   switch (task) {
     case "dev":
+      await syncFederation();
       await command("hugo", [
         "server",
         "--source",

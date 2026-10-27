@@ -16,13 +16,13 @@
 {{ $resetCSS := resources.Get "css/reset.css" }}
 {{ $night := resources.Get "images/scenery/night-canyon.png" }}
 {{ $day := resources.Get "images/scenery/day.png" }}
-{{ $fontLatin := resources.Get "fonts/press-start-2p-latin.woff2" }}
+{{ $fontLatin := resources.Get "fonts/press-start-2p-latin.woff2" | fingerprint }}
 {{ $fontLatinExt := resources.Get "fonts/press-start-2p-latin-ext.woff2" }}
 {{ $bodyFontLatin := resources.Get "fonts/oxanium-latin.woff2" | fingerprint }}
 {{ $bodyFontLatinExt := resources.Get "fonts/oxanium-latin-ext.woff2" | fingerprint }}
 {{ $railAssets := partialCached "rail-assets.html" . }}
 {{ $styleData := dict
-  "fontLatin" (printf "data:font/woff2;base64,%s" ($fontLatin.Content | encoding.Base64Encode))
+  "fontLatin" $fontLatin.RelPermalink
   "fontLatinExt" $fontLatinExt.RelPermalink
   "bodyFontLatin" $bodyFontLatin.RelPermalink
   "bodyFontLatinExt" $bodyFontLatinExt.RelPermalink
@@ -42,13 +42,16 @@
   "dayMobile" (($day.Fill "384x576 center webp q60").RelPermalink)
 }}
 {{ $mainCSS := resources.Get "css/main.css" | resources.ExecuteAsTemplate "css/main.css" $styleData }}
-{{ $styles := slice $resetCSS $mainCSS | resources.Concat "css/site.css" | minify | fingerprint }}
+{{ $editorialCSS := resources.Get "css/editorial.css" }}
+{{ $terminalCSS := resources.Get "css/terminal.css" }}
+{{ $styles := slice $resetCSS $mainCSS $editorialCSS $terminalCSS | resources.Concat "css/site.css" | minify | fingerprint }}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ $styles.RelPermalink }}">
+<link rel="preload" href="{{ $fontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{ $bodyFontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{ $styleData.oakFrame }}" as="image" type="image/webp" fetchpriority="high">
 <link rel="preload" href="{{ $styleData.profileLantern }}" as="image" type="image/webp" fetchpriority="high">
-<link rel="stylesheet" href="{{ $styles.RelPermalink }}">
 <meta name="description" content="{{ $seoDescription }}">
 <meta name="author" content="{{ $config.profile.name }}">
 <meta name="creator" content="{{ $config.profile.name }}">
@@ -59,6 +62,10 @@
 <meta name="theme-color" content="#111111">
 {{ $themeScript := resources.Get "js/theme-switcher.js" | minify }}
 <script>{{ $themeScript.Content | safeJS }}</script>
+{{ $interfaceScript := resources.Get "js/interface.js" | minify }}
+<script>{{ $interfaceScript.Content | safeJS }}</script>
+{{ $linkViewScript := resources.Get "js/link-view.js" | minify }}
+<script>{{ $linkViewScript.Content | safeJS }}</script>
 {{ $languageScript := resources.Get "js/language-switcher.js" | minify }}
 {{ $languageRoutes := slice }}
 {{ range $config.language_options }}
@@ -67,7 +74,7 @@
   {{ if and $translation (not $translation.fallback) }}{{ $url = strings.TrimPrefix "/" $translation.url | relURL }}{{ end }}
   {{ $languageRoutes = $languageRoutes | append (dict "id" .id "url" $url "home" (strings.TrimPrefix "/" .path | relURL)) }}
 {{ end }}
-{{ $languagePreference := dict "default" $config.language_preference.default "current" $language.id "neutral" (eq $language.path "/") "routes" $languageRoutes }}
+{{ $languagePreference := dict "default" $config.language_preference.default "current" $language.id "neutral" false "routes" $languageRoutes }}
 <script data-language-config="{{ $languagePreference | jsonify }}">{{ $languageScript.Content | safeJS }}</script>
 <link rel="canonical" href="{{ $canonical }}">
 <link rel="icon" href="{{ "favicon.png" | relURL }}" type="image/png" sizes="64x64">
@@ -82,7 +89,7 @@
     <link rel="alternate" hreflang="{{ .hreflang }}" href="{{ $alternateURL }}">
   {{ end }}
 {{ end }}
-{{ $defaultPath := (index (where (partial "site-pages.html" (dict "locale" "en")) "id" $pageKey) 0).url }}
+{{ $defaultPath := (index (where (partial "site-pages.html" (dict "locale" $config.language_preference.default)) "id" $pageKey) 0).url }}
 <link rel="alternate" hreflang="x-default" href="{{ printf "%s%s" $canonicalBase $defaultPath }}">
 <title>{{ $seoTitle }}</title>
 <meta property="og:type" content="website">

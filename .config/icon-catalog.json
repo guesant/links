@@ -47,5 +47,7 @@
   "chevron-right": false,
   "user": false,
   "gamepad": false,
-  "target": false
+  "target": false,
+  "view-compact": false,
+  "view-detailed": false
 }

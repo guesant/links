@@ -1,0 +1,46 @@
+{{ $locale := .language }}
+{{ $section := .section }}
+{{ $items := slice }}
+{{ $kinds := dict "career" (slice "skill" "experience" "education") "code" (slice "project" "case") "writing" (slice "post" "case") }}
+{{ with resources.Get "federation.json" }}
+  {{ $feed := . | transform.Unmarshal }}
+  {{ $sourceItems := $feed.items }}
+  {{ $resume := where $sourceItems "source" "resume" }}
+  {{ $native := where $resume "language" $locale }}
+  {{ if not $native }}{{ $native = where $resume "language" "en" }}{{ end }}
+  {{ $sourceItems = where $sourceItems "source" "blog" | append $native }}
+  {{ $seen := slice }}
+  {{ range $sourceItems }}
+    {{ $entry := . }}
+    {{ if and (in (index $kinds $section | default slice) .type) (not (in $seen (printf "%s-%s" .source .id))) }}
+      {{ $translations := where (where $sourceItems "source" .source) "id" .id }}
+      {{ $preferred := where $translations "language" $locale }}
+      {{ if not $preferred }}{{ $preferred = where $translations "language" "en" }}{{ end }}
+      {{ if $preferred }}{{ $entry = index $preferred 0 }}{{ end }}
+      {{ $seen = $seen | append (printf "%s-%s" .source .id) }}
+      {{ $items = $items | append $entry }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $localIDs := slice }}
+{{ range index hugo.Data.editorial.entries $section }}
+  {{ if and (ne .public false) (ne .enabled false) (not .draft) (not .private) }}
+    {{ $entry := . }}
+    {{ $language := $locale }}
+    {{ $labels := index .labels $locale }}
+    {{ if not $labels }}{{ $labels = index .labels "pt-br" }}{{ $language = "pt-br" }}{{ end }}
+    {{ if not $labels }}{{ $labels = index .labels "en" }}{{ $language = "en" }}{{ end }}
+    {{ if not (and .id $labels.title) }}{{ errorf "editorial.yaml: public entries need id and translated title" }}{{ end }}
+    {{ if not (findRE `^[a-z0-9][a-z0-9_-]*$` .id) }}{{ errorf "editorial.yaml: invalid public identifier" }}{{ end }}
+    {{ if in $localIDs .id }}{{ errorf "editorial.yaml: duplicate public identifier %q" .id }}{{ end }}
+    {{ $localIDs = $localIDs | append .id }}
+    {{ with .url }}{{ if not (or (hasPrefix . "https://") (and (hasPrefix . "/") (not (hasPrefix . "//")))) }}{{ errorf "editorial.yaml: unsafe URL" }}{{ end }}{{ end }}
+    {{ $items = $items | append (dict "id" .id "title" $labels.title "summary" ($labels.description | default "") "url" (.url | default "") "type" $section "source" "lobby" "language" $language "tags" (.tags | default slice) "metadata" (dict "group" (.group | default "") "status" (.status | default "") "updated" (.updated | default ""))) }}
+  {{ end }}
+{{ end }}
+{{ with index $kinds $section }}
+  {{ $ordered := slice }}
+  {{ range . }}{{ $ordered = $ordered | append (where $items "type" .) }}{{ end }}
+  {{ $items = $ordered }}
+{{ end }}
+{{ return $items }}

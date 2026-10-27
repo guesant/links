@@ -1,23 +1,41 @@
 {{ $locale := lower .Site.Language.Lang }}
+{{ $localized := index hugo.Data.links.locales $locale }}
 {{ $current := .Params.page_key | default "home" }}
+{{ $pages := partial "site-pages.html" (dict "locale" $locale) }}
+{{ $home := index (where $pages "id" "home") 0 }}
 <nav class="page-navigation" aria-label="{{ index hugo.Data.links.navigation.labels $locale }}">
-  <ul class="page-tabs">
-    {{ range partial "site-pages.html" (dict "locale" $locale) }}
-      {{ if in (slice "home" "links-page") .type }}
-      <li>
-        <a class="page-tab" href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
-          {{ partial "button-icon.html" .icon }}
-          <span>{{ .title }}</span>
-        </a>
-      </li>
+  <a class="navigation-home" href="{{ strings.TrimPrefix "/" $home.url | relURL }}"{{ if eq $current "home" }} aria-current="page"{{ end }}>{{ partial "button-icon.html" $home.icon }}<span>{{ $home.title }}</span></a>
+  <span class="quick-navigation-divider quick-navigation-divider-start" aria-hidden="true"></span>
+  {{ partial "quick-contacts.html" (dict "contactIDs" hugo.Data.links.quick_contacts "language" $locale "label" $localized.ui.quick_contacts_label) }}
+  <span class="quick-navigation-divider quick-navigation-divider-end" aria-hidden="true"></span>
+  <details class="section-switcher" data-section-switcher>
+    <summary class="section-switcher-trigger" aria-controls="section-menu">
+      {{ partial "button-icon.html" "map" }}
+      <span>{{ $localized.ui.navigation_sections }}</span>
+      <span class="navigation-chevron">{{ partial "button-icon.html" "chevron-right" }}</span>
+    </summary>
+    <nav class="section-menu" id="section-menu" aria-label="{{ $localized.ui.navigation_sections }}">
+      <ul class="section-menu-list">
+        {{ range $pages }}
+          {{ if in (slice "home" "links-page") .type }}
+            <li>
+              <a class="section-menu-link" data-navigation-page="{{ .id }}" href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
+                {{ partial "button-icon.html" .icon }}
+                <span>{{ .title }}</span>
+                {{ if eq .id $current }}<span class="navigation-check">{{ partial "button-icon.html" "check" }}</span>{{ end }}
+              </a>
+            </li>
+          {{ end }}
+        {{ end }}
+      </ul>
+      {{ range where $pages "id" "now" }}
+        <div class="section-menu-updates">
+          <a class="section-menu-link" data-now-shortcut href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
+            {{ partial "button-icon.html" .icon }}<span>{{ .title }}</span>
+            {{ if eq .id $current }}<span class="navigation-check">{{ partial "button-icon.html" "check" }}</span>{{ end }}
+          </a>
+        </div>
       {{ end }}
-    {{ end }}
-  </ul>
+    </nav>
+  </details>
 </nav>
-{{ range where (partial "site-pages.html" (dict "locale" $locale)) "id" "now" }}
-  <nav class="page-updates" aria-label="{{ .title }}">
-    <a class="ui-button" data-now-shortcut href="{{ strings.TrimPrefix "/" .url | relURL }}"{{ if eq .id $current }} aria-current="page"{{ end }}>
-      {{ partial "button-icon.html" .icon }}<span>{{ .title }}</span>
-    </a>
-  </nav>
-{{ end }}

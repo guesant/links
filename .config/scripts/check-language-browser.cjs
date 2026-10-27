@@ -7,12 +7,15 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
   let passed = 0;
   for (const scenario of [
     { from: "/", to: "/pt-br/", languages: ["pt-PT", "en-US"] },
+    { from: "/", to: "/en/", languages: ["en-US"] },
+    { from: "/", to: "/fr/", languages: ["en-US"], saved: "fr" },
     {
-      from: "/code/?source=link#details",
-      to: "/pt-br/code/?source=link#details",
+      from: "/?source=link#details",
+      to: "/pt-br/?source=link#details",
       languages: ["de-DE"],
     },
-    { from: "/code/", to: "/es/code/", languages: ["de-DE", "es-MX"] },
+    { from: "/", to: "/es/", languages: ["de-DE", "es-MX"] },
+    { from: "/en/code/", to: "/en/code/", languages: ["pt-BR"] },
     { from: "/fr/code/", to: "/fr/code/", languages: ["pt-BR"] },
     {
       from: "/fr/code/",
@@ -20,7 +23,7 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
       languages: ["en-US"],
       saved: "pt-br",
     },
-    { from: "/now/", to: "/now/", languages: ["fr"], saved: "fr" },
+    { from: "/en/now/", to: "/en/now/", languages: ["fr"], saved: "fr" },
   ]) {
     const context = await browser.createBrowserContext();
     try {
@@ -64,7 +67,7 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, "languages", { get: () => ["en-US"] });
     });
-    await page.goto(href("/code/?source=link#details"), {
+    await page.goto(href("/en/code/?source=link#details"), {
       waitUntil: "networkidle0",
     });
     await page.click("[data-settings-open]");
@@ -80,7 +83,7 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
       await page.evaluate((key) => localStorage.getItem(key), key),
       "pt-br",
     );
-    await page.goto(href("/writing/"), { waitUntil: "networkidle0" });
+    await page.goto(href("/en/writing/"), { waitUntil: "networkidle0" });
     assert.equal(page.url(), href("/pt-br/writing/"));
     await page.reload({ waitUntil: "networkidle0" });
     assert.equal(page.url(), href("/pt-br/writing/"));

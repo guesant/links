@@ -20,6 +20,8 @@ theme:
 site:
   repository: guesant/lobby
   repository_label: GitHub
+  first_party_domains:
+    - guesant.net
 
 language_preference:
   default: pt-br
@@ -46,7 +48,7 @@ language_options:
     label: Italiano (IT)
     hreflang: it-IT
   - id: en
-    path: /
+    path: /en/
     label: English (EN)
     hreflang: en
 
@@ -79,6 +81,10 @@ navigation:
     - games
     - profiles
     - contact
+    - interests
+    - uses
+    - library
+    - curiosities
 
 home:
   illustration_enabled: true
@@ -88,7 +94,7 @@ statistics:
     en: Updated
     pt-br: Atualizado
     zh: 更新于
-    fr: Mis à jour
+    fr: Mis à Jour
     es: Actualizado
     it: Aggiornato
   unavailable:
@@ -140,12 +146,12 @@ statistics:
       icon: trophy
       labels:
         {
-          en: Global ranking,
-          pt-br: Ranking global,
+          en: Global Ranking,
+          pt-br: Ranking Global,
           zh: 全球排名,
-          fr: Classement mondial,
-          es: Clasificación global,
-          it: Classifica globale,
+          fr: Classement Mondial,
+          es: Clasificación Global,
+          it: Classifica Globale,
         }
     solved:
       icon: check
@@ -197,16 +203,16 @@ now:
     intro: A current view of the interests I cultivate, the work I do and the things I still want to build.
     sections:
       - id: personal-context
-        title: Personal context
+        title: Personal Context
         description: Music, games and personal ambitions are part of the context behind these links.
       - id: current-focus
-        title: Current focus
+        title: Current Focus
         description: Studying Go and infrastructure in a personal lab while continuing to work on applications and open-source projects.
       - id: work-in-progress
-        title: Work in progress
+        title: Work in Progress
         description: Building and maintaining public software, documenting what I learn and connecting practical projects with open-source work.
       - id: next
-        title: What comes next
+        title: What Comes Next
         description: Keep improving the lab, learn through practical projects and make room for the things I still want to build.
   pt-br:
     seo:
@@ -216,16 +222,16 @@ now:
     intro: Um retrato atual dos interesses que cultivo, do trabalho que faço e das coisas que ainda quero construir.
     sections:
       - id: personal-context
-        title: Contexto pessoal
+        title: Contexto Pessoal
         description: Música, jogos e ambições pessoais também fazem parte do contexto por trás destes links.
       - id: current-focus
-        title: Foco atual
+        title: Foco Atual
         description: Estudo Go e infraestrutura em um laboratório pessoal enquanto continuo trabalhando com aplicações e projetos open source.
       - id: work-in-progress
-        title: Trabalho em andamento
+        title: Trabalho em Andamento
         description: Construo e mantenho software público, documento o que aprendo e conecto projetos práticos ao trabalho open source.
       - id: next
-        title: O que vem pela frente
+        title: O Que Vem pela Frente
         description: Continuar aprimorando o laboratório, aprender com projetos práticos e abrir espaço para as coisas que ainda quero construir.
 
 audiences:
@@ -255,19 +261,19 @@ audiences:
       zh: 合作者
   - id: academics
     labels:
-      en: Academics and research
-      pt-br: Academia e pesquisa
-      fr: Universitaires et recherche
-      es: Academia e investigación
-      it: Accademia e ricerca
+      en: Academics and Research
+      pt-br: Academia e Pesquisa
+      fr: Universitaires et Recherche
+      es: Academia e Investigación
+      it: Accademia e Ricerca
       zh: 学术与研究
   - id: open-source
     labels:
-      en: Open source
-      pt-br: Open source
-      fr: Open source
-      es: Open source
-      it: Open source
+      en: Open Source
+      pt-br: Open Source
+      fr: Open Source
+      es: Open Source
+      it: Open Source
       zh: 开源
   - id: friends
     labels:
@@ -420,19 +426,19 @@ sections:
     public: true
     labels:
       en:
-        title: Code and projects
+        title: Code and Projects
         description: Source code, public activity and technical project videos.
       pt-br:
-        title: Código e projetos
+        title: Código e Projetos
         description: Código-fonte, atividade pública e vídeos de projetos técnicos.
       fr:
-        title: Code et projets
+        title: Code et Projets
         description: Code source, activité publique et vidéos de projets techniques.
       es:
-        title: Código y proyectos
+        title: Código y Proyectos
         description: Código fuente, actividad pública y vídeos de proyectos técnicos.
       it:
-        title: Codice e progetti
+        title: Codice e Progetti
         description: Codice sorgente, attività pubblica e video di progetti tecnici.
       zh:
         title: 代码与项目
@@ -445,7 +451,7 @@ sections:
         audiences: [developers, recruiters, collaborators, open-source]
         labels:
           en:
-            title: GitHub repositories
+            title: GitHub Repositories
             description: Explore my public software projects and their source code.
             badge: Open Source
           pt-br:
@@ -455,15 +461,15 @@ sections:
           fr:
             title: Dépôts GitHub
             description: Explorez mes projets logiciels publics et leur code source.
-            badge: Open source
+            badge: Open Source
           es:
             title: Repositorios de GitHub
             description: Explora mis proyectos públicos de software y su código fuente.
-            badge: Open source
+            badge: Open Source
           it:
             title: Repository GitHub
             description: Esplora i miei progetti software pubblici e il loro codice sorgente.
-            badge: Open source
+            badge: Open Source
           zh:
             title: GitHub 仓库
             description: 查看我的公开软件项目及其源代码。
@@ -478,7 +484,7 @@ sections:
         audiences: [developers, recruiters, collaborators, open-source]
         labels:
           en:
-            title: GitHub activity
+            title: GitHub Activity
             description: See a periodically refreshed summary of my public GitHub activity.
           pt-br:
             title: Atividade no GitHub
@@ -659,23 +665,23 @@ sections:
     public: true
     labels:
       en:
-        title: Learning and references
+        title: Learning and References
         description: Collected references, programming practice and learning progress.
       pt-br:
-        title: Estudos e referências
+        title: Estudos e Referências
         description: Referências reunidas, prática de programação e progresso nos estudos.
       fr:
-        title: Études et références
+        title: Études et Références
         description:
           Références recueillies, exercices de programmation et progression
           des études.
       es:
-        title: Estudios y referencias
+        title: Estudios y Referencias
         description:
           Referencias recopiladas, práctica de programación y progreso de
           aprendizaje.
       it:
-        title: Studio e riferimenti
+        title: Studio e Riferimenti
         description: Riferimenti raccolti, pratica di programmazione e progressi nello studio.
       zh:
         title: 学习与参考
@@ -1033,19 +1039,19 @@ sections:
     public: true
     labels:
       en:
-        title: Personal profiles
+        title: Personal Profiles
         description: Personal social profiles and videos outside technical work.
       pt-br:
-        title: Perfis pessoais
+        title: Perfis Pessoais
         description: Perfis sociais e vídeos pessoais fora do trabalho técnico.
       fr:
-        title: Profils personnels
+        title: Profils Personnels
         description: Profils sociaux et vidéos personnels en dehors du travail technique.
       es:
-        title: Perfiles personales
+        title: Perfiles Personales
         description: Perfiles sociales y vídeos personales fuera del trabajo técnico.
       it:
-        title: Profili personali
+        title: Profili Personali
         description: Profili social e video personali al di fuori del lavoro tecnico.
       zh:
         title: 个人社交
@@ -1085,16 +1091,16 @@ sections:
             title: Personal YouTube
             description: My personal channel, separate from the programming and infrastructure videos on JipaCoding.
           pt-br:
-            title: YouTube pessoal
+            title: YouTube Pessoal
             description: Meu canal pessoal, separado dos vídeos de programação e infraestrutura da JipaCoding.
           fr:
-            title: YouTube personnel
+            title: YouTube Personnel
             description: Ma chaîne personnelle, distincte des vidéos de programmation et d’infrastructure de JipaCoding.
           es:
-            title: YouTube personal
+            title: YouTube Personal
             description: Mi canal personal, separado de los vídeos de programación e infraestructura de JipaCoding.
           it:
-            title: YouTube personale
+            title: YouTube Personale
             description: Il mio canale personale, separato dai video di programmazione e infrastruttura di JipaCoding.
           zh:
             title: 个人 YouTube
@@ -1139,7 +1145,7 @@ sections:
             title: E-mail
             description: Utilisez cette adresse pour me contacter au sujet de logiciels, projets techniques, open source ou opportunités professionnelles.
           es:
-            title: Correo electrónico
+            title: Correo Electrónico
             description: Usa esta dirección para contactarme sobre software, proyectos técnicos, open source u oportunidades profesionales.
           it:
             title: E-mail
@@ -1154,19 +1160,19 @@ sections:
     public: true
     labels:
       en:
-        title: Personal pages
+        title: Personal Pages
         description: A closer view of what I am doing now.
       pt-br:
-        title: Páginas pessoais
+        title: Páginas Pessoais
         description: Um olhar mais próximo sobre o que estou fazendo agora.
       fr:
-        title: Pages personnelles
+        title: Pages Personnelles
         description: Un regard plus proche sur ce que je fais actuellement.
       es:
-        title: Páginas personales
+        title: Páginas Personales
         description: Una mirada más cercana a lo que estoy haciendo ahora.
       it:
-        title: Pagine personali
+        title: Pagine Personali
         description: Uno sguardo più vicino a ciò che sto facendo ora.
       zh:
         title: 个人页面
@@ -1174,8 +1180,8 @@ sections:
     links:
       - id: now
         localized_urls:
-          en: /now/
-          pt-br: /agora/
+          en: /en/now/
+          pt-br: /pt-br/agora/
         icon: clock
         featured: true
         enabled: true
@@ -1209,6 +1215,110 @@ sections:
             title: 现在
             description: 了解我目前感兴趣的事情、正在做的工作以及接下来想要构建的内容。
 
+  - id: interests
+    icon: star
+    editorial: true
+    enabled: true
+    public: true
+    labels:
+      pt-br:
+        title: "Interesses"
+        description: "Assuntos que acompanho e exploro."
+      en:
+        title: "Interests"
+        description: "Subjects I follow and explore."
+      fr:
+        title: "Centres d’Intérêt"
+        description: "Les sujets que je suis et explore."
+      es:
+        title: "Intereses"
+        description: "Temas que sigo y exploro."
+      it:
+        title: "Interessi"
+        description: "Argomenti che seguo ed esploro."
+      zh:
+        title: "兴趣"
+        description: "我关注和探索的话题。"
+    links: []
+
+  - id: uses
+    icon: desktop
+    editorial: true
+    enabled: true
+    public: true
+    labels:
+      pt-br:
+        title: "Uses"
+        description: "Ferramentas, equipamentos e configurações que uso."
+      en:
+        title: "Uses"
+        description: "Tools, equipment and configurations I use."
+      fr:
+        title: "Outils"
+        description: "Outils, matériel et configurations que j’utilise."
+      es:
+        title: "Herramientas"
+        description: "Herramientas, equipos y configuraciones que uso."
+      it:
+        title: "Strumenti"
+        description: "Strumenti, attrezzature e configurazioni che uso."
+      zh:
+        title: "工具"
+        description: "我使用的工具、设备和配置。"
+    links: []
+
+  - id: library
+    icon: book
+    editorial: true
+    enabled: true
+    public: true
+    labels:
+      pt-br:
+        title: "Biblioteca"
+        description: "Leituras e referências do meu acervo pessoal."
+      en:
+        title: "Library"
+        description: "Reading and references from my personal collection."
+      fr:
+        title: "Bibliothèque"
+        description: "Lectures et références de ma collection personnelle."
+      es:
+        title: "Biblioteca"
+        description: "Lecturas y referencias de mi colección personal."
+      it:
+        title: "Biblioteca"
+        description: "Letture e riferimenti della mia raccolta personale."
+      zh:
+        title: "书库"
+        description: "我的个人阅读与参考收藏。"
+    links: []
+
+  - id: curiosities
+    icon: users
+    editorial: true
+    enabled: true
+    public: true
+    labels:
+      pt-br:
+        title: "Curiosidades e Coleções"
+        description: "Fatos pessoais e coisas que coleciono."
+      en:
+        title: "Curiosities and Collections"
+        description: "Personal facts and things I collect."
+      fr:
+        title: "Curiosités et Collections"
+        description: "Faits personnels et objets que je collectionne."
+      es:
+        title: "Curiosidades y Colecciones"
+        description: "Datos personales y cosas que colecciono."
+      it:
+        title: "Curiosità e Collezioni"
+        description: "Curiosità personali e oggetti che colleziono."
+      zh:
+        title: "趣事与收藏"
+        description: "个人趣事与收藏。"
+    links: []
+
 locales:
   en:
     seo:
@@ -1220,7 +1330,7 @@ locales:
       html_lang: en
       og_locale: en_US
       uptime_label: Uptime
-      animations_label: Ambient animations
+      animations_label: Ambient Animations
       animations_enabled: On
       animations_disabled: Paused
       brand_disclaimer: This is an independent project with an interface inspired by the visual language of voxel games. It is not an official Minecraft product, nor is it approved by, associated with or endorsed by Mojang or Microsoft. Minecraft and its related trademarks belong to their respective owners.
@@ -1237,19 +1347,28 @@ locales:
       footer_repository: View the source repository on GitHub
       footer_commit: View commit
       footer_build: View build
-      local_build: Local build
-      local_commit: local
+      footer_version: Commit
+      third_party: Third-Party
+      footer_workflow: Workflow
+      local_build: Local Build
+      local_commit: Local
       credits: Credits
-      credits_dialog_title: Credits and licenses
+      credits_dialog_title: Credits and Licenses
       credits_dialog_description: Dependencies, tools, references and their licensing information.
       credits_close: Close credits
       settings_label: Settings
       settings_close: Close settings
-      home_sections_label: Explore the sections
+      home_sections_label: Explore the Sections
+      navigation_label: Navigation
+      navigation_sections: Sections
+      navigation_personal_update: Personal Update
+      link_view_label: Link Display
+      link_view_compact: Compact
+      link_view_detailed: Detailed
       credits_authors: Authors
       credits_license: License
-      credits_license_text: Read license text
-      credits_official_url: Official website
+      credits_license_text: Read License Text
+      credits_official_url: Official Website
     presentation:
       title: About / Context
       facts:
@@ -1259,13 +1378,13 @@ locales:
           text: Software, infrastructure and open source
         - icon: gamepad
           text: Games, music and long-term projects
-      site_title: This site
+      site_title: This Site
       topics:
-        - Projects and code
-        - Notes and writing
-        - Learning and references
-        - Personal interests
-        - Ways to connect
+        - Projects and Code
+        - Notes and Writing
+        - Learning and References
+        - Personal Interests
+        - Ways to Connect
   pt-br:
     seo:
       title: Gabriel R. Antunes | Links
@@ -1276,7 +1395,7 @@ locales:
       html_lang: pt-BR
       og_locale: pt_BR
       uptime_label: Uptime
-      animations_label: Animações do ambiente
+      animations_label: Animações do Ambiente
       animations_enabled: Ativas
       animations_disabled: Pausadas
       brand_disclaimer: Este é um projeto independente, com interface inspirada em linguagens visuais de jogos voxel. Não é um produto oficial do Minecraft, nem é aprovado, associado ou endossado pela Mojang ou pela Microsoft. Minecraft e suas marcas relacionadas pertencem aos seus respectivos proprietários.
@@ -1293,19 +1412,28 @@ locales:
       footer_repository: Ver o repositório fonte no GitHub
       footer_commit: Ver commit
       footer_build: Ver build
-      local_build: Build local
-      local_commit: local
+      footer_version: Commit
+      third_party: Terceiros
+      footer_workflow: Workflow
+      local_build: Build Local
+      local_commit: Local
       credits: Créditos
-      credits_dialog_title: Créditos e licenças
+      credits_dialog_title: Créditos e Licenças
       credits_dialog_description: Dependências, ferramentas, referências e suas informações de licenciamento.
       credits_close: Fechar créditos
       settings_label: Configurações
       settings_close: Fechar configurações
-      home_sections_label: Explore as seções
+      home_sections_label: Explore as Seções
+      navigation_label: Navegação
+      navigation_sections: Seções
+      navigation_personal_update: Atualização Pessoal
+      link_view_label: Visualização dos Links
+      link_view_compact: Compacto
+      link_view_detailed: Detalhado
       credits_authors: Autores
       credits_license: Licença
-      credits_license_text: Ler o texto da licença
-      credits_official_url: Site oficial
+      credits_license_text: Ler o Texto da Licença
+      credits_official_url: Site Oficial
     presentation:
       title: Sobre / Contexto
       facts:
@@ -1315,13 +1443,13 @@ locales:
           text: Software, infraestrutura e open source
         - icon: gamepad
           text: Jogos, música e projetos de longo prazo
-      site_title: Este site
+      site_title: Este Site
       topics:
-        - Projetos e código
-        - Notas e escrita
-        - Estudos e referências
-        - Interesses pessoais
-        - Formas de contato
+        - Projetos e Código
+        - Notas e Escrita
+        - Estudos e Referências
+        - Interesses Pessoais
+        - Formas de Contato
   fr:
     seo:
       title: Gabriel R. Antunes | Liens
@@ -1332,11 +1460,11 @@ locales:
       html_lang: fr
       og_locale: fr_FR
       uptime_label: Uptime
-      animations_label: Animations du décor
+      animations_label: Animations du Décor
       animations_enabled: Activées
-      animations_disabled: En pause
+      animations_disabled: En Pause
       brand_disclaimer: Ce projet indépendant présente une interface inspirée des univers visuels des jeux voxel. Ce n’est pas un produit officiel Minecraft et il n’est ni approuvé, ni associé, ni soutenu par Mojang ou Microsoft. Minecraft et les marques associées appartiennent à leurs propriétaires respectifs.
-      now_updated: Mis à jour
+      now_updated: Mis à Jour
       skip_link: Aller au contenu
       language_aria_label: Changer de langue
       quick_contacts_label: Principaux moyens de contact
@@ -1350,21 +1478,30 @@ locales:
       footer_repository: Voir le dépôt source sur GitHub
       footer_commit: Voir le commit
       footer_build: Voir le build
-      local_build: Build local
-      local_commit: local
+      footer_version: Version
+      third_party: Tiers
+      footer_workflow: Workflow
+      local_build: Build Local
+      local_commit: Local
       credits: Crédits
-      credits_dialog_title: Crédits et licences
+      credits_dialog_title: Crédits et Licences
       credits_dialog_description: Dépendances, outils, références et leurs informations de licence.
       credits_close: Fermer les crédits
       settings_label: Réglages
       settings_close: Fermer les réglages
-      home_sections_label: Explorer les rubriques
+      home_sections_label: Explorer les Rubriques
+      navigation_label: Navigation
+      navigation_sections: Rubriques
+      navigation_personal_update: Actualité Personnelle
+      link_view_label: Affichage des Liens
+      link_view_compact: Compact
+      link_view_detailed: Détaillé
       credits_authors: Auteurs
       credits_license: Licence
-      credits_license_text: Lire le texte de la licence
-      credits_official_url: Site officiel
+      credits_license_text: Lire le Texte de la Licence
+      credits_official_url: Site Officiel
     presentation:
-      title: À propos / Contexte
+      title: À Propos / Contexte
       facts:
         - icon: user
           text: Basé au Brésil
@@ -1372,13 +1509,13 @@ locales:
           text: Logiciels, infrastructure et open source
         - icon: gamepad
           text: Jeux, musique et projets à long terme
-      site_title: Ce site
+      site_title: Ce Site
       topics:
-        - Projets et code
-        - Notes et écriture
-        - Études et références
-        - Intérêts personnels
-        - Moyens de contact
+        - Projets et Code
+        - Notes et Écriture
+        - Études et Références
+        - Intérêts Personnels
+        - Moyens de Contact
   es:
     seo:
       title: Gabriel R. Antunes | Enlaces
@@ -1389,9 +1526,9 @@ locales:
       html_lang: es
       og_locale: es_ES
       uptime_label: Uptime
-      animations_label: Animaciones del entorno
+      animations_label: Animaciones del Entorno
       animations_enabled: Activas
-      animations_disabled: En pausa
+      animations_disabled: En Pausa
       brand_disclaimer: Este es un proyecto independiente con una interfaz inspirada en el lenguaje visual de los juegos voxel. No es un producto oficial de Minecraft ni está aprobado, asociado o respaldado por Mojang o Microsoft. Minecraft y sus marcas relacionadas pertenecen a sus respectivos propietarios.
       now_updated: Actualizado
       skip_link: Ir al contenido
@@ -1407,21 +1544,30 @@ locales:
       footer_repository: Ver el repositorio fuente en GitHub
       footer_commit: Ver commit
       footer_build: Ver build
-      local_build: Build local
-      local_commit: local
+      footer_version: Versión
+      third_party: Terceros
+      footer_workflow: Workflow
+      local_build: Build Local
+      local_commit: Local
       credits: Créditos
-      credits_dialog_title: Créditos y licencias
+      credits_dialog_title: Créditos y Licencias
       credits_dialog_description: Dependencias, herramientas, referencias y su información de licencia.
       credits_close: Cerrar créditos
       settings_label: Ajustes
       settings_close: Cerrar ajustes
-      home_sections_label: Explora las secciones
+      home_sections_label: Explora las Secciones
+      navigation_label: Navegación
+      navigation_sections: Secciones
+      navigation_personal_update: Actualización Personal
+      link_view_label: Visualización de Enlaces
+      link_view_compact: Compacto
+      link_view_detailed: Detallado
       credits_authors: Autores
       credits_license: Licencia
-      credits_license_text: Leer el texto de la licencia
-      credits_official_url: Sitio oficial
+      credits_license_text: Leer el Texto de la Licencia
+      credits_official_url: Sitio Oficial
     presentation:
-      title: Sobre mí / Contexto
+      title: Sobre Mí / Contexto
       facts:
         - icon: user
           text: Vivo en Brasil
@@ -1429,13 +1575,13 @@ locales:
           text: Software, infraestructura y código abierto
         - icon: gamepad
           text: Juegos, música y proyectos a largo plazo
-      site_title: Este sitio
+      site_title: Este Sitio
       topics:
-        - Proyectos y código
-        - Notas y escritura
-        - Estudios y referencias
-        - Intereses personales
-        - Formas de contacto
+        - Proyectos y Código
+        - Notas y Escritura
+        - Estudios y Referencias
+        - Intereses Personales
+        - Formas de Contacto
   it:
     seo:
       title: Gabriel R. Antunes | Link
@@ -1446,9 +1592,9 @@ locales:
       html_lang: it
       og_locale: it_IT
       uptime_label: Uptime
-      animations_label: Animazioni ambientali
+      animations_label: Animazioni Ambientali
       animations_enabled: Attive
-      animations_disabled: In pausa
+      animations_disabled: In Pausa
       brand_disclaimer: Questo progetto indipendente presenta un’interfaccia ispirata al linguaggio visivo dei giochi voxel. Non è un prodotto ufficiale Minecraft e non è approvato, associato o sostenuto da Mojang o Microsoft. Minecraft e i marchi correlati appartengono ai rispettivi proprietari.
       now_updated: Aggiornato
       skip_link: Vai al contenuto
@@ -1464,21 +1610,30 @@ locales:
       footer_repository: Vedi il repository sorgente su GitHub
       footer_commit: Vedi commit
       footer_build: Vedi build
-      local_build: Build locale
-      local_commit: locale
+      footer_version: Versione
+      third_party: Terze Parti
+      footer_workflow: Workflow
+      local_build: Build Locale
+      local_commit: Locale
       credits: Crediti
-      credits_dialog_title: Crediti e licenze
+      credits_dialog_title: Crediti e Licenze
       credits_dialog_description: Dipendenze, strumenti, riferimenti e relative informazioni sulle licenze.
       credits_close: Chiudi i crediti
       settings_label: Impostazioni
       settings_close: Chiudi le impostazioni
-      home_sections_label: Esplora le sezioni
+      home_sections_label: Esplora le Sezioni
+      navigation_label: Navigazione
+      navigation_sections: Sezioni
+      navigation_personal_update: Aggiornamento Personale
+      link_view_label: Visualizzazione dei Link
+      link_view_compact: Compatto
+      link_view_detailed: Dettagliato
       credits_authors: Autori
       credits_license: Licenza
-      credits_license_text: Leggi il testo della licenza
-      credits_official_url: Sito ufficiale
+      credits_license_text: Leggi il Testo della Licenza
+      credits_official_url: Sito Ufficiale
     presentation:
-      title: Chi sono / Contesto
+      title: Chi Sono / Contesto
       facts:
         - icon: user
           text: Vivo in Brasile
@@ -1486,13 +1641,13 @@ locales:
           text: Software, infrastruttura e open source
         - icon: gamepad
           text: Giochi, musica e progetti a lungo termine
-      site_title: Questo sito
+      site_title: Questo Sito
       topics:
-        - Progetti e codice
-        - Note e scrittura
-        - Studio e riferimenti
-        - Interessi personali
-        - Modi per contattarmi
+        - Progetti e Codice
+        - Note e Scrittura
+        - Studio e Riferimenti
+        - Interessi Personali
+        - Modi per Contattarmi
   zh:
     seo:
       title: Gabriel R. Antunes | 链接
@@ -1521,6 +1676,9 @@ locales:
       footer_repository: 在 GitHub 上查看源代码仓库
       footer_commit: 查看提交
       footer_build: 查看构建
+      footer_version: 版本
+      third_party: 第三方
+      footer_workflow: 构建
       local_build: 本地构建
       local_commit: 本地
       credits: 致谢
@@ -1530,6 +1688,12 @@ locales:
       settings_label: 设置
       settings_close: 关闭设置
       home_sections_label: 浏览各个栏目
+      navigation_label: 导航
+      navigation_sections: 栏目
+      navigation_personal_update: 个人近况
+      link_view_label: 链接显示
+      link_view_compact: 紧凑
+      link_view_detailed: 详细
       credits_authors: 作者
       credits_license: 许可证
       credits_license_text: 阅读许可证文本

@@ -7,6 +7,7 @@
     <h1 id="page-title">{{ $labels.title }}</h1>
     {{ with $labels.description }}<p>{{ . }}</p>{{ end }}
   </header>
+  {{ partial "link-view.html" . }}
   <div class="link-list">
     {{ if $links }}
       {{ range $links }}
@@ -14,4 +15,5 @@
       {{ end }}
     {{ end }}
   </div>
+  {{ partial "editorial-list.html" (dict "section" $section.id "language" $locale "empty" (not $links)) }}
 </section>

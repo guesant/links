@@ -1,0 +1,26 @@
+{{ $config := hugo.Data.links }}
+{{ $default := index (where $config.language_options "id" $config.language_preference.default) 0 }}
+{{ $localized := index $config.locales $default.id }}
+{{ $target := strings.TrimPrefix "/" $default.path | relURL }}
+{{ $routes := slice }}
+{{ range $config.language_options }}
+  {{ $home := strings.TrimPrefix "/" .path | relURL }}
+  {{ $routes = $routes | append (dict "id" .id "url" $home "home" $home) }}
+{{ end }}
+{{ $preference := dict "default" $default.id "current" "" "neutral" true "routes" $routes }}
+{{ $script := resources.Get "js/language-switcher.js" | minify }}
+<!doctype html>
+<html lang="{{ $localized.ui.html_lang }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="{{ $target | absURL }}">
+    <title>{{ $localized.seo.title }}</title>
+    <script data-language-config="{{ $preference | jsonify }}">{{ $script.Content | safeJS }}</script>
+    <noscript><meta http-equiv="refresh" content="0; url={{ $target }}"></noscript>
+  </head>
+  <body>
+    <a href="{{ $target }}">{{ index $config.navigation.home.labels $default.id }}</a>
+  </body>
+</html>

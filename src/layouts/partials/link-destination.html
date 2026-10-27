@@ -6,4 +6,15 @@
 {{ if and $external (not .target) }}{{ $target = "_blank" }}{{ end }}
 {{ $rel := "" }}
 {{ if eq $target "_blank" }}{{ $rel = "noopener noreferrer" }}{{ end }}
-{{ return (dict "href" $href "external" $external "target" $target "rel" $rel "display" (replaceRE `(?i)^mailto:` "" $url)) }}
+{{ $parsed := urls.Parse $url }}
+{{ $thirdParty := false }}
+{{ if in (slice "http" "https") (lower $parsed.Scheme) }}
+  {{ $host := strings.TrimSuffix "." (lower $parsed.Hostname) }}
+  {{ $owned := false }}
+  {{ range hugo.Data.links.site.first_party_domains }}
+    {{ $domain := lower . }}
+    {{ if or (eq $host $domain) (hasSuffix $host (printf ".%s" $domain)) }}{{ $owned = true }}{{ end }}
+  {{ end }}
+  {{ $thirdParty = not $owned }}
+{{ end }}
+{{ return (dict "href" $href "external" $external "third_party" $thirdParty "target" $target "rel" $rel "display" (replaceRE `(?i)^mailto:` "" $url)) }}

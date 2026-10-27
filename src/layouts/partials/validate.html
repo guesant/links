@@ -44,11 +44,20 @@
 {{ end }}
 {{ $audienceIDs := slice }}
 {{ $languageIDs := slice }}
+{{ if not hugo.Data.links.site.first_party_domains }}{{ errorf "links.yaml: site.first_party_domains is required" }}{{ end }}
+{{ range hugo.Data.links.site.first_party_domains }}
+  {{ if not (findRE `^[a-z0-9]+([.-][a-z0-9]+)*$` .) }}{{ errorf "links.yaml: first-party domains must use lowercase hostnames without a scheme or path" }}{{ end }}
+{{ end }}
 {{ range .languages }}
+  {{ $ui := (index hugo.Data.links.locales .id).ui }}
+  {{ range slice "navigation_label" "navigation_sections" "navigation_personal_update" "third_party" }}
+    {{ if not (index $ui .) }}{{ errorf "links.yaml: navigation UI needs %s in every language" . }}{{ end }}
+  {{ end }}
   {{ if not .id }}{{ errorf "links.yaml: every language needs an id" }}{{ end }}
   {{ if in $languageIDs .id }}{{ errorf "links.yaml: language %q is duplicated" .id }}{{ end }}
   {{ $languageIDs = $languageIDs | append .id }}
   {{ if not .path }}{{ errorf "links.yaml: language %q needs a path" .id }}{{ end }}
+  {{ if ne .path (printf "/%s/" .id) }}{{ errorf "links.yaml: every language path must include its language id" }}{{ end }}
   {{ if not .label }}{{ errorf "links.yaml: language %q needs a label" .id }}{{ end }}
 {{ end }}
 {{ $quickContactIDs := slice }}
@@ -95,7 +104,7 @@
     {{ $sectionLabels := index .labels $.language }}
     {{ if not $sectionLabels }}{{ errorf "links.yaml: section %q needs labels for %s" .id $.language }}{{ end }}
     {{ if not $sectionLabels.title }}{{ errorf "links.yaml: section %q needs a title for %s" .id $.language }}{{ end }}
-    {{ if not (or .links .link_refs) }}{{ errorf "links.yaml: section %q needs links" $sectionLabels.title }}{{ end }}
+    {{ if not (or .links .link_refs .editorial) }}{{ errorf "links.yaml: section %q needs links" $sectionLabels.title }}{{ end }}
     {{ range .links }}
       {{ $linkEnabled := true }}
       {{ if isset . "enabled" }}{{ $linkEnabled = .enabled }}{{ end }}

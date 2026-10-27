@@ -1,5 +1,5 @@
 {{ $links := partialCached "public-links.html" (dict "language" .language) .language }}
-<nav class="quick-contacts" aria-label="{{ .label }}">
+<div class="quick-contacts" role="group" aria-label="{{ .label }}">
   {{ range .contactIDs }}
     {{ range where $links "id" . }}
       {{ $destination := partial "link-destination.html" . }}
@@ -8,4 +8,4 @@
       </a>
     {{ end }}
   {{ end }}
-</nav>
+</div>

@@ -9,8 +9,12 @@ services:
     working_dir: /workspace
     volumes:
       - ..:/workspace
+      - ../../blog/public:/sources/blog:ro
+      - ../../resume/site:/sources/resume:ro
     ports:
       - "127.0.0.1:4173:4173"
     environment:
       GITHUB_STATS_TOKEN: ${GITHUB_STATS_TOKEN:-}
+      LOBBY_BLOG_FEED: ${LOBBY_BLOG_FEED:-}
+      LOBBY_RESUME_FEED: ${LOBBY_RESUME_FEED:-}
     init: true

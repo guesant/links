@@ -18,48 +18,41 @@
 {{ $buildDateLabel := getenv "HUGO_BUILD_DATE_LABEL" | default $localized.ui.local_build }}
 {{ $credits := hugo.Data.credits }}
 <footer class="site-footer">
+  {{ $editorial := index hugo.Data.editorial.ui (lower site.Language.Lang) }}
   <span class="frame-ornament frame-ornament-start" aria-hidden="true"></span>
   <span class="frame-ornament frame-ornament-end" aria-hidden="true"></span>
+  {{ partial "footer-navigation.html" . }}
   <nav class="site-footer-content" aria-label="{{ $localized.ui.footer_aria_label }}">
-    <a class="site-footer-repository" href="{{ $repositoryURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_repository }}">
+    <button class="site-footer-button icon-control" type="button" data-search-open data-tooltip aria-label="{{ $editorial.search }}" hidden>
+      {{ partial "button-icon.html" "target" }}
+      <span class="control-tooltip" aria-hidden="true">{{ $editorial.search }} · Ctrl/Cmd+K</span>
+    </button>
+    <a class="site-footer-repository icon-control" href="{{ $repositoryURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_repository }}" data-tooltip>
       {{ partial "button-icon.html" "github" }}
-      <span>{{ $data.site.repository_label }}</span>
-      <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
+      <span class="control-tooltip" aria-hidden="true">{{ $data.site.repository_label }}</span>
     </a>
-    {{ if $commit }}
-      <a class="site-footer-link" href="{{ $commitURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">
-        {{ partial "button-icon.html" "code-commit" }}
-        <span>{{ $commitLabel }}</span>
-        <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
-      </a>
-    {{ else }}
-      <span class="site-footer-link">
-        {{ partial "button-icon.html" "code-commit" }}
-        <span>{{ $commitLabel }}</span>
-      </span>
-    {{ end }}
-    <a class="site-footer-link" href="{{ $buildURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">
-      {{ partial "button-icon.html" "githubactions" }}
-      <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>
-      <span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>
-    </a>
-    <button class="site-footer-link site-footer-button" type="button" data-credits-open data-dialog-open="credits-dialog" command="show-modal" commandfor="credits-dialog">
+    <button class="site-footer-link site-footer-button icon-control" type="button" aria-label="{{ $localized.ui.credits }}" data-tooltip data-credits-open data-dialog-open="credits-dialog" command="show-modal" commandfor="credits-dialog">
       {{ partial "button-icon.html" "scale-balanced" }}
-      <span>{{ $localized.ui.credits }}</span>
+      <span class="control-tooltip" aria-hidden="true">{{ $localized.ui.credits }}</span>
     </button>
-    <button class="site-footer-link site-footer-button" type="button" data-settings-open data-dialog-open="settings-dialog" command="show-modal" commandfor="settings-dialog">
-      {{ partial "button-icon.html" "gear" }}<span>{{ $localized.ui.settings_label }}</span>
+    <button class="site-footer-link site-footer-button icon-control" type="button" aria-label="{{ $localized.ui.settings_label }}" data-tooltip data-settings-open data-dialog-open="settings-dialog" command="show-modal" commandfor="settings-dialog">
+      {{ partial "button-icon.html" "gear" }}
+      <span class="control-tooltip" aria-hidden="true">{{ $localized.ui.settings_label }}</span>
     </button>
+    <a class="site-footer-link icon-control" data-reboot data-tooltip href="{{ .RelPermalink }}?lobby-boot=1" aria-label="{{ $editorial.reboot }}">
+      {{ partial "button-icon.html" "desktop" }}
+      <span class="control-tooltip" aria-hidden="true">{{ $editorial.reboot }}</span>
+    </a>
   </nav>
-  {{ if .IsHome }}
-    <details class="context-navigation">
-      <summary>{{ partial "button-icon.html" "map" }}<span>{{ $localized.ui.home_sections_label }}</span>{{ partial "button-icon.html" "chevron-right" }}</summary>
-      <div class="context-navigation-content">
-        {{ partial "page-navigation.html" . }}
-        {{ if $data.home.illustration_enabled }}<div class="presentation-art" aria-hidden="true"></div>{{ end }}
-      </div>
-    </details>
-  {{ end }}
+  <p class="site-footer-meta">
+    {{ if $commit }}
+      <a class="site-footer-commit" href="{{ $commitURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">{{ $localized.ui.footer_version }} {{ $commitLabel }}</a>
+    {{ else }}
+      <span class="site-footer-commit">{{ $localized.ui.footer_version }} {{ $commitLabel }}</span>
+    {{ end }}
+    <span class="footer-meta-separator" aria-hidden="true">·</span>
+    <a class="site-footer-build" href="{{ $buildURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">{{ if $buildDate }}{{ $localized.ui.footer_workflow }} <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>{{ else }}{{ $buildDateLabel }}{{ end }}</a>
+  </p>
   {{ with $localized.ui.translation_disclaimer }}<p class="translation-disclaimer">{{ . }}</p>{{ end }}
   <p class="brand-disclaimer">{{ $localized.ui.brand_disclaimer }}</p>
 </footer>
@@ -108,10 +101,17 @@
 {{ $uptimeScript := resources.Get "js/uptime.js" | minify | fingerprint }}
 {{ $motionScript := resources.Get "js/ambient-motion.js" | minify | fingerprint }}
 {{ $railScript := resources.Get "js/rail-layout.js" | minify | fingerprint }}
-{{ $pointerSound := resources.Get "audio/mouse-click.mp3" | fingerprint }}
+{{ $pointerPress := resources.Get "audio/mouse-press.wav" | fingerprint }}
+{{ $pointerRelease := resources.Get "audio/mouse-release.wav" | fingerprint }}
 {{ $pointerSoundScript := resources.Get "js/pointer-sound.js" | minify | fingerprint }}
+{{ $navigationScript := resources.Get "js/page-navigation.js" | minify | fingerprint }}
+{{ $tooltipScript := resources.Get "js/tooltips.js" | minify }}
+<script>{{ $tooltipScript.Content | safeJS }}</script>
+{{ $searchScript := resources.Get "js/search.js" | minify | fingerprint }}
+<script src="{{ $searchScript.RelPermalink }}" defer></script>
+<script src="{{ $navigationScript.RelPermalink }}" defer></script>
 <script src="{{ $dialogsScript.RelPermalink }}" defer></script>
 <script src="{{ $uptimeScript.RelPermalink }}" defer></script>
 <script src="{{ $motionScript.RelPermalink }}" defer></script>
 <script src="{{ $railScript.RelPermalink }}" defer></script>
-<script src="{{ $pointerSoundScript.RelPermalink }}" data-pointer-sound="{{ $pointerSound.RelPermalink }}" defer></script>
+<script src="{{ $pointerSoundScript.RelPermalink }}" data-pointer-press="{{ $pointerPress.RelPermalink }}" data-pointer-release="{{ $pointerRelease.RelPermalink }}" defer></script>

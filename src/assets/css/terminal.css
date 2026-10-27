@@ -1,0 +1,224 @@
+:root {
+  --terminal-font:
+    ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --terminal-shell-width: 64rem;
+  --terminal-boot-width: 100vw;
+  --terminal-boot-height: 100dvh;
+  --terminal-radius: 0.375rem;
+  --terminal-name-size: clamp(1.125rem, 2.2vw, 1.75rem);
+  --terminal-background: light-dark(#f6f8fa, #0d1117);
+  --terminal-panel: light-dark(#ffffff, #161b22);
+  --terminal-foreground: light-dark(#1f2328, #e6edf3);
+  --terminal-muted: light-dark(#545d68, #a3adb8);
+  --terminal-border: light-dark(#818b98, #57616e);
+  --terminal-accent: light-dark(#075d25, #65d382);
+  --terminal-link: light-dark(#075ab9, #80bdff);
+  --terminal-boot-background: #080c10;
+  --terminal-boot-text: #bce4bc;
+}
+:root[data-interface="terminal"] {
+  --font-body: var(--terminal-font);
+  --font-pixel: var(--terminal-font);
+  --shell-max: var(--terminal-shell-width);
+  --color-text: var(--terminal-foreground);
+  --color-text-muted: var(--terminal-muted);
+  --color-accent-strong: var(--terminal-accent);
+  --color-background-deep: var(--terminal-background);
+  --color-panel: var(--terminal-panel);
+  --color-surface-link: var(--terminal-panel);
+  --color-surface-hover: light-dark(#e8edf2, #222d39);
+  --color-border-control: var(--terminal-border);
+  --color-focus: var(--terminal-link);
+  --color-wood-copy: var(--terminal-panel);
+  --color-wood-text: var(--terminal-foreground);
+  --color-wood-muted: var(--terminal-muted);
+  --color-icon-on-slot: var(--terminal-foreground);
+  --color-icon-slot: var(--terminal-panel);
+  --color-about-icon: var(--terminal-foreground);
+  --color-about-check: var(--terminal-accent);
+  --color-selected: light-dark(#dbf0df, #173d29);
+  --color-selected-text: var(--terminal-foreground);
+  --color-selected-hover: light-dark(#cce8d3, #215238);
+}
+:root[data-interface="terminal"] * {
+  cursor: auto;
+}
+:root[data-interface="terminal"] :is(a, button, summary, label[for]) {
+  cursor: pointer;
+}
+:root[data-interface="terminal"] body {
+  background: var(--terminal-background);
+  font-family: var(--terminal-font);
+}
+:root[data-interface="terminal"]
+  :is(
+    .world-scene,
+    .suspension-rail,
+    .frame-ornament,
+    .profile-lantern,
+    .lantern,
+    .frame-rivet,
+    .quick-navigation-divider
+  ) {
+  display: none;
+}
+:root[data-interface="terminal"]
+  :is(
+    h1,
+    h2,
+    h3,
+    .profile-name,
+    .profile-username,
+    .presentation-eyebrow,
+    .category-title,
+    .uptime-label
+  ) {
+  font-family: var(--terminal-font);
+  letter-spacing: normal;
+}
+:root[data-interface="terminal"]
+  :is(
+    .profile,
+    .category-card,
+    .presentation,
+    .link-sections,
+    .site-footer,
+    .app-dialog,
+    .section-menu
+  ) {
+  border: var(--divider-width) solid var(--terminal-border);
+  border-image: none;
+  border-radius: var(--terminal-radius);
+  background: var(--terminal-panel);
+  box-shadow: none;
+}
+:root[data-interface="terminal"] .site-shell {
+  gap: var(--space-4);
+}
+:root[data-interface="terminal"] .suspended-content {
+  padding-inline: var(--space-0);
+}
+:root[data-interface="terminal"] .page-content {
+  gap: var(--space-4);
+}
+:root[data-interface="terminal"] .profile {
+  text-align: left;
+  color: var(--terminal-foreground);
+}
+:root[data-interface="terminal"] .profile-copy {
+  justify-items: start;
+}
+:root[data-interface="terminal"] .profile-name {
+  font-size: var(--terminal-name-size);
+}
+:root[data-interface="terminal"] .profile-name::before {
+  content: "$ whoami · ";
+  color: var(--terminal-accent);
+}
+:root[data-interface="terminal"]
+  :is(.section-heading h1, .category-main-link)::before {
+  content: "~/";
+  color: var(--terminal-accent);
+}
+:root[data-interface="terminal"] .presentation-eyebrow {
+  border: none;
+  background: none;
+  box-shadow: none;
+  color: var(--terminal-accent);
+}
+:root[data-interface="terminal"]
+  :is(
+    .category-icon,
+    .link-icon,
+    .quick-contact-link,
+    .quick-contact-icon,
+    .profile-avatar,
+    .icon-control,
+    .toggle-button,
+    .dialog-close,
+    .navigation-home,
+    .section-switcher-trigger
+  ) {
+  border: var(--divider-width) solid var(--terminal-border);
+  border-image: none;
+  border-radius: var(--terminal-radius);
+  box-shadow: none;
+}
+:root[data-interface="terminal"] .page-navigation {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas: "home sections" "contacts contacts";
+}
+:root[data-interface="terminal"] .quick-contacts {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+:root[data-interface="terminal"] .navigation-home {
+  justify-self: start;
+}
+:root[data-interface="terminal"] .section-switcher {
+  justify-self: end;
+}
+:root[data-interface="terminal"]
+  .page-content
+  > .link-view-control
+  .link-view-caption {
+  color: var(--terminal-foreground);
+  text-shadow: none;
+}
+:root[data-interface="terminal"] a {
+  color: var(--terminal-link);
+}
+:root[data-interface="terminal"]
+  .page-content
+  > .link-view-control
+  .link-view-toolbar {
+  background: var(--color-transparent);
+}
+:root[data-interface="terminal"] .site-footer {
+  color: var(--terminal-foreground);
+}
+:root[data-interface="terminal"] .site-footer-meta {
+  font-family: var(--terminal-font);
+}
+.bios-dialog {
+  position: fixed;
+  inset: var(--space-0);
+  width: var(--terminal-boot-width);
+  max-width: var(--size-full);
+  height: var(--terminal-boot-height);
+  max-height: var(--terminal-boot-height);
+  margin: var(--space-0);
+  padding: var(--space-5);
+  border: none;
+  background: var(--terminal-boot-background);
+  color: var(--terminal-boot-text);
+  font-family: var(--terminal-font);
+}
+.bios-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+.bios-dialog h2 {
+  font-family: var(--terminal-font);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+.bios-dialog progress {
+  width: var(--size-full);
+  accent-color: var(--terminal-boot-text);
+}
+.bios-dialog button {
+  margin-block-start: auto;
+  min-height: var(--control-min-height);
+  padding: var(--space-2) var(--space-4);
+  border: var(--divider-width) solid currentColor;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+}
+@container shell (max-width: 28rem) {
+  :root[data-interface="terminal"] .quick-contacts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

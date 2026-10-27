@@ -1,7 +1,7 @@
 <!doctype html>
 {{ $data := hugo.Data.links }}
 {{ $localized := index $data.locales (lower .Site.Language.Lang) }}
-<html lang="{{ $localized.ui.html_lang }}" data-theme="{{ $data.theme.appearance | default "system" }}" data-motion="{{ if ne $data.theme.animations_enabled false }}on{{ else }}off{{ end }}">
+<html lang="{{ $localized.ui.html_lang }}" data-link-view="compact" data-theme="{{ $data.theme.appearance | default "system" }}" data-motion="{{ if ne $data.theme.animations_enabled false }}on{{ else }}off{{ end }}">
   <head>
     {{ partial "head.html" . }}
   </head>
@@ -16,8 +16,7 @@
         {{ partial "profile.html" (dict "profile" $profile "locale" $locale "uptimeLabel" $localized.ui.uptime_label "home" .IsHome) }}
         <div class="suspended-content">
           {{ partial "suspension-rails.html" . }}
-          {{ partial "quick-contacts.html" (dict "sections" $data.sections "contactIDs" $data.quick_contacts "language" $locale "label" $localized.ui.quick_contacts_label) }}
-          {{ if not .IsHome }}{{ partial "page-navigation.html" . }}{{ end }}
+          {{ partial "page-navigation.html" . }}
           <main class="page-content" id="main-content">
             {{ block "main" . }}{{ end }}
           </main>
@@ -26,5 +25,7 @@
       </div>
     </div>
     {{ partial "site-controls.html" (dict "language" $locale "theme" $data.theme "ui" $localized.ui "languages" $data.language_options "pageKey" (.Params.page_key | default "home")) }}
+    {{ partial "search.html" . }}
+    {{ partial "bios.html" . }}
   </body>
 </html>

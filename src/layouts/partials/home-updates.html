@@ -9,5 +9,6 @@
   {{ end }}
   <section class="home-updates" aria-label="{{ .title }}">
     {{ partial "section-card.html" (dict "page" . "links" $links "index" 9 "update" true) }}
+    {{ partial "now-activity.html" (dict "language" $locale) }}
   </section>
 {{ end }}

@@ -1,16 +1,18 @@
 {{ $destination := partial "link-destination.html" . }}
 {{ $sitePath := replaceRE "/$" "" site.Home.RelPermalink }}
 {{ $currentLanguage := lower site.Language.Lang }}
-{{ if ne $currentLanguage "en" }}
-  {{ $languageSuffix := printf "(?i)/%s$" $currentLanguage }}
-  {{ $sitePath = replaceRE $languageSuffix "" $sitePath }}
-{{ end }}
-<a class="link-button" href="{{ $destination.href }}" target="{{ $destination.target }}"{{ with $destination.rel }} rel="{{ . }}"{{ end }}>
+{{ $languageSuffix := printf "(?i)/%s$" $currentLanguage }}
+{{ $sitePath = replaceRE $languageSuffix "" $sitePath }}
+{{ $ui := (index hugo.Data.links.locales (.language | default $currentLanguage)).ui }}
+<a class="link-button{{ if .preview }} category-preview-link{{ end }}" data-link-id="{{ .id }}"{{ if .preview }} data-preview-id="{{ .id }}"{{ end }} href="{{ $destination.href }}" target="{{ $destination.target }}"{{ with $destination.rel }} rel="{{ . }}"{{ end }}>
   {{ partial "frame-rivets.html" . }}
   <div class="link-summary">
   <span class="link-icon">{{ partial "icon.html" (.icon | default "link") }}</span>
   <div class="link-copy">
-    <span class="link-title">{{ .title }}</span>
+    <span class="link-heading">
+      <span class="link-title">{{ .title }}</span>
+      {{ if $destination.third_party }}<span class="link-third-party-badge">{{ $ui.third_party }}</span>{{ end }}
+    </span>
     <span class="link-url">
       <span class="link-url-icon">{{ partial "icon.html" "link" }}</span>
       <span class="link-url-text">{{ $destination.display }}</span>

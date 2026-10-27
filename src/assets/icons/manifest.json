@@ -1,5 +1,5 @@
 {
-  "count": 49,
+  "count": 51,
   "tileSize": 96,
   "compactTileSize": 48,
   "icons": {
@@ -9,193 +9,201 @@
     },
     "document": {
       "colored": true,
-      "position": 2.083333333333333
+      "position": 2
     },
     "map": {
       "colored": true,
-      "position": 4.166666666666666
+      "position": 4
     },
     "email": {
       "colored": false,
-      "position": 6.25
+      "position": 6
     },
     "github": {
       "colored": false,
-      "position": 8.333333333333332
+      "position": 8
     },
     "gitlab": {
       "colored": true,
-      "position": 10.416666666666668
+      "position": 10
     },
     "youtube": {
       "colored": true,
-      "position": 12.5
+      "position": 12
     },
     "linkedin": {
       "colored": true,
-      "position": 14.583333333333334
+      "position": 14.000000000000002
     },
     "instagram": {
       "colored": true,
-      "position": 16.666666666666664
+      "position": 16
     },
     "spotify": {
       "colored": true,
-      "position": 18.75
+      "position": 18
     },
     "lastfm": {
       "colored": true,
-      "position": 20.833333333333336
+      "position": 20
     },
     "playstation": {
       "colored": false,
-      "position": 22.916666666666664
+      "position": 22
     },
     "steam": {
       "colored": false,
-      "position": 25
+      "position": 24
     },
     "xbox": {
       "colored": true,
-      "position": 27.083333333333332
+      "position": 26
     },
     "minecraft": {
       "colored": true,
-      "position": 29.166666666666668
+      "position": 28.000000000000004
     },
     "academic": {
       "colored": true,
-      "position": 31.25
+      "position": 30
     },
     "orcid": {
       "colored": true,
-      "position": 33.33333333333333
+      "position": 32
     },
     "leetcode": {
       "colored": true,
-      "position": 35.41666666666667
+      "position": 34
     },
     "hyperskill": {
       "colored": true,
-      "position": 37.5
+      "position": 36
     },
     "devto": {
       "colored": false,
-      "position": 39.58333333333333
+      "position": 38
     },
     "medium": {
       "colored": false,
-      "position": 41.66666666666667
+      "position": 40
     },
     "house": {
       "colored": false,
-      "position": 43.75
+      "position": 42
     },
     "clock": {
       "colored": false,
-      "position": 45.83333333333333
+      "position": 44
     },
     "link": {
       "colored": false,
-      "position": 47.91666666666667
+      "position": 46
     },
     "external-link": {
       "colored": false,
-      "position": 50
+      "position": 48
     },
     "code": {
       "colored": false,
-      "position": 52.083333333333336
+      "position": 50
     },
     "code-commit": {
       "colored": false,
-      "position": 54.166666666666664
+      "position": 52
     },
     "git-alt": {
       "colored": true,
-      "position": 56.25
+      "position": 54
     },
     "githubactions": {
       "colored": false,
-      "position": 58.333333333333336
+      "position": 56.00000000000001
     },
     "scale-balanced": {
       "colored": false,
-      "position": 60.416666666666664
+      "position": 57.99999999999999
     },
     "users": {
       "colored": false,
-      "position": 62.5
+      "position": 60
     },
     "star": {
       "colored": false,
-      "position": 64.58333333333334
+      "position": 62
     },
     "fork": {
       "colored": false,
-      "position": 66.66666666666666
+      "position": 64
     },
     "trophy": {
       "colored": true,
-      "position": 68.75
+      "position": 66
     },
     "check": {
       "colored": false,
-      "position": 70.83333333333334
+      "position": 68
     },
     "language": {
       "colored": false,
-      "position": 72.91666666666666
+      "position": 70
     },
     "desktop": {
       "colored": false,
-      "position": 75
+      "position": 72
     },
     "moon": {
       "colored": false,
-      "position": 77.08333333333334
+      "position": 74
     },
     "sun": {
       "colored": true,
-      "position": 79.16666666666666
+      "position": 76
     },
     "play": {
       "colored": false,
-      "position": 81.25
+      "position": 78
     },
     "pause": {
       "colored": false,
-      "position": 83.33333333333334
+      "position": 80
     },
     "xmark": {
       "colored": false,
-      "position": 85.41666666666666
+      "position": 82
     },
     "website": {
       "colored": false,
-      "position": 87.5
+      "position": 84
     },
     "education": {
       "colored": true,
-      "position": 89.58333333333334
+      "position": 86
     },
     "gear": {
       "colored": false,
-      "position": 91.66666666666666
+      "position": 88
     },
     "chevron-right": {
       "colored": false,
-      "position": 93.75
+      "position": 90
     },
     "user": {
       "colored": false,
-      "position": 95.83333333333334
+      "position": 92
     },
     "gamepad": {
       "colored": false,
-      "position": 97.91666666666666
+      "position": 94
     },
     "target": {
+      "colored": false,
+      "position": 96
+    },
+    "view-compact": {
+      "colored": false,
+      "position": 98
+    },
+    "view-detailed": {
       "colored": false,
       "position": 100
     }

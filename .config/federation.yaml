@@ -1,0 +1,7 @@
+sources:
+  - id: blog
+    url: https://blog.guesant.net/lobby.json
+    origin: https://blog.guesant.net
+  - id: resume
+    url: https://curriculum.guesant.net/lobby.json
+    origin: https://curriculum.guesant.net

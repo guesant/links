@@ -1,0 +1,59 @@
+{{ $locale := .language }}
+{{ $id := .section }}
+{{ $ui := index hugo.Data.editorial.ui $locale }}
+{{ $items := partial "editorial-items.html" (dict "language" $locale "section" $id) }}
+{{ $allItems := $items }}
+{{ $kinds := index (dict "career" (slice "skill" "experience" "education") "code" (slice "project" "case") "writing" (slice "post" "case") "interests" (slice "interests") "uses" (slice "uses") "library" (slice "library") "curiosities" (slice "curiosities")) $id | default slice }}
+{{ $missing := slice }}
+{{ range $kinds }}{{ if not (where $allItems "type" .) }}{{ $missing = $missing | append . }}{{ end }}{{ end }}
+{{ $scope := cond (.preview | default false) "preview" "page" }}
+{{ if .preview }}{{ $items = first 3 $items }}{{ end }}
+{{ if $items }}
+  <div class="editorial-list" data-editorial-section="{{ $id }}">
+    {{ $lastKind := "" }}
+    {{ range $items }}
+      {{ if and (not $.preview) (ne .type $lastKind) }}
+        <h2 class="editorial-kind">{{ index $ui .type | default (index $ui $id) }}</h2>
+        {{ $lastKind = .type }}
+      {{ end }}
+      <article class="editorial-entry" id="{{ $scope }}-{{ $id }}-{{ .id }}" lang="{{ .language }}">
+        <header class="editorial-entry-heading">
+          <h3>{{ if .url }}<a href="{{ if hasPrefix .url "/" }}{{ strings.TrimPrefix "/" .url | relURL }}{{ else }}{{ .url }}{{ end }}">{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</h3>
+          <span class="editorial-origin">{{ index $ui .type | default (index $ui $id) }} · {{ .source }}{{ if ne .language $locale }} · {{ $ui.language }}: {{ .language }}{{ end }}</span>
+        </header>
+        {{ with .summary }}<p class="editorial-description">{{ . }}</p>{{ end }}
+        {{ with .tags }}<ul class="editorial-tags">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
+        {{ with .metadata }}
+          <dl class="editorial-metadata">
+            {{ range $key, $value := . }}
+              {{ if $value }}<div><dt>{{ index $ui $key | default $key }}</dt><dd>{{ if reflect.IsSlice $value }}{{ delimit $value ", " }}{{ else }}{{ $value }}{{ end }}</dd></div>{{ end }}
+            {{ end }}
+          </dl>
+        {{ end }}
+      </article>
+    {{ end }}
+  </div>
+{{ end }}
+{{ if or $missing (and .empty (not $items)) }}
+  <div class="editorial-empty-state" data-editorial-empty="{{ $id }}">
+  {{ if $missing }}
+    {{ range $missing }}<p class="editorial-empty" data-empty-kind="{{ . }}">{{ index $ui (printf "empty_%s" .) | default $ui.empty }}</p>{{ end }}
+  {{ else }}
+    <p class="editorial-empty">{{ $ui.empty }}</p>
+  {{ end }}
+  {{ $related := index (dict "interests" "profiles" "uses" "code" "library" "reading" "curiosities" "profiles" "writing" "writing") $id | default "career" }}
+  {{ $relatedURL := printf "%s%s/" $locale $related | relURL }}
+  {{ $relatedID := index (dict "career" "curriculum" "code" "github-repositories" "writing" "blog") $id | default "" }}
+  {{ with $relatedID }}
+    {{ with index (where (partial "public-links.html" (dict "language" $locale)) "id" .) 0 }}
+      {{ $relatedURL = (partial "link-destination.html" .).href }}
+    {{ else }}
+      {{ $relatedURL = printf "%s/" $locale | relURL }}
+    {{ end }}
+  {{ end }}
+  <a class="editorial-related" href="{{ $relatedURL }}">{{ $ui.related }}</a>
+  </div>
+{{ end }}
+{{ if .preview }}
+  {{ if $items }}<a class="editorial-related" href="{{ printf "%s%s/" $locale $id | relURL }}">{{ (index (index (where hugo.Data.links.sections "id" $id) 0).labels $locale).title }}</a>{{ end }}
+{{ end }}

@@ -1,0 +1,14 @@
+{{ $ui := index hugo.Data.editorial.ui (lower site.Language.Lang) }}
+<dialog class="app-dialog search-dialog" id="search-dialog" aria-labelledby="search-title" data-search-index="{{ partial "search-index.html" . }}" data-search-empty="{{ $ui.search_empty }}" data-search-start="{{ $ui.search_start }}" data-search-loading="{{ $ui.search_loading }}" data-search-source="{{ $ui.source }}" data-search-language="{{ $ui.language }}" data-search-unavailable="{{ $ui.search_unavailable }}">
+  <div class="app-dialog-content">
+    <header class="app-dialog-header">
+      <h2 id="search-title">{{ $ui.search }}</h2>
+      <form method="dialog"><button type="submit" class="dialog-close" aria-label="{{ (index hugo.Data.links.locales (lower site.Language.Lang)).ui.settings_close }}">{{ partial "button-icon.html" "xmark" }}</button></form>
+    </header>
+    <label for="search-query" class="visually-hidden">{{ $ui.search }}</label>
+    <input id="search-query" type="search" placeholder="{{ $ui.search_placeholder }}" autocomplete="off">
+    <p id="search-status" role="status" aria-live="polite">{{ $ui.search_start }}</p>
+    <button type="button" class="ui-button search-retry" data-search-retry hidden>{{ $ui.search_retry }}</button>
+    <div id="search-results"></div>
+  </div>
+</dialog>

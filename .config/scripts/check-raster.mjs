@@ -375,12 +375,13 @@ test("rail slices join matching stems and preserve a complete terminal", async (
           }
           return columns;
         };
-        const { chain, terminal } = geometry.slices;
+        const { chain, terminal, coupling } = geometry.slices;
         return {
           first: stem(chain.top),
           last: stem(chain.top + chain.height - 1),
           terminal: stem(terminal.top),
           base: stem(terminal.top + terminal.height - 1),
+          coupling: stem(coupling.top + coupling.height - 1),
         };
       },
       { png: source.toString("base64"), geometry },
@@ -388,6 +389,7 @@ test("rail slices join matching stems and preserve a complete terminal", async (
     assert(edges.first.length > 0);
     assert.deepEqual(edges.first, edges.last);
     assert.deepEqual(edges.first, edges.terminal);
+    assert.deepEqual(edges.first, edges.coupling);
     assert.deepEqual(edges.base, []);
   });
 });

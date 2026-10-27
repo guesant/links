@@ -68,8 +68,9 @@ const checks = [];
         );
         return {
           body: getComputedStyle(document.body).fontFamily,
-          control: getComputedStyle(document.querySelector(".page-tab"))
-            .fontFamily,
+          control: getComputedStyle(
+            document.querySelector(".section-switcher-trigger"),
+          ).fontFamily,
           heading: getComputedStyle(document.querySelector("h1")).fontFamily,
           loaded: loaded.every(
             (faces) =>
@@ -96,7 +97,7 @@ const checks = [];
       for (const entry of route.links || []) represented.add(entry.id);
       if (config.navigation.links.includes(route.id)) represented.add(route.id);
       assert.deepEqual(
-        await page.$$eval(".page-tab", (tabs) =>
+        await page.$$eval(".section-menu-list a", (tabs) =>
           tabs.map((tab) => ({
             title: tab.textContent.trim(),
             url: tab.href,
@@ -116,7 +117,10 @@ const checks = [];
             current: link.getAttribute("aria-current") === "page",
           })),
         ),
-        [{ href: href(nowPage.url), current: route.id === "now" }],
+        Array.from({ length: 2 }, () => ({
+          href: href(nowPage.url),
+          current: route.id === "now",
+        })),
       );
       assert.equal(
         await page.$$eval(
@@ -143,7 +147,7 @@ const checks = [];
         }),
       );
       assert.deepEqual(
-        await page.$$eval(".link-button", (links) =>
+        await page.$$eval(".link-section .link-button", (links) =>
           links.map((link) => link.href).sort(),
         ),
         expectedLinks,
@@ -287,7 +291,6 @@ const checks = [];
           );
           const layout = await page.evaluate(() => {
             const cards = [...document.querySelectorAll(".link-button")];
-            const tabs = [...document.querySelectorAll(".page-tab")];
             const rowAligned = (elements) =>
               elements.every((element) => {
                 const rect = element.getBoundingClientRect();
@@ -320,10 +323,6 @@ const checks = [];
                 const quickContacts = document
                   .querySelector(".quick-contacts")
                   .getBoundingClientRect();
-                const updates = document
-                  .querySelector(".page-updates")
-                  .getBoundingClientRect();
-                const context = document.querySelector(".context-navigation");
                 const suspended = document.querySelector(".suspended-content");
                 const suspendedStyle = getComputedStyle(suspended);
                 const insetStart = parseFloat(suspendedStyle.paddingLeft);
@@ -336,21 +335,20 @@ const checks = [];
                 );
                 const aligned =
                   outerAligned &&
-                  [quickContacts, content].every(
+                  [navigation, content].every(
                     (rect) =>
                       Math.abs(rect.left - shell.left - insetStart) < 1 &&
                       Math.abs(shell.right - rect.right - insetEnd) < 1,
                   );
-                if (context) return aligned && !context.open;
                 return (
                   aligned &&
-                  Math.abs(updates.width - content.width) < 1 &&
-                  Math.abs(updates.left - content.left) < 1 &&
-                  updates.top >= navigation.bottom &&
-                  updates.bottom <= content.top &&
+                  navigation.top <= quickContacts.top &&
+                  navigation.bottom >= quickContacts.bottom &&
+                  navigation.bottom <= content.top &&
                   Math.abs(navigation.width - content.width) < 1 &&
                   Math.abs(footer.width - profile.width) < 1 &&
-                  Math.abs(quickContacts.width - content.width) < 1 &&
+                  quickContacts.left >= navigation.left &&
+                  quickContacts.right <= navigation.right &&
                   Math.abs(
                     navigation.left +
                       navigation.width / 2 -
@@ -359,11 +357,6 @@ const checks = [];
                   Math.abs(
                     footer.left +
                       footer.width / 2 -
-                      (content.left + content.width / 2),
-                  ) < 1 &&
-                  Math.abs(
-                    quickContacts.left +
-                      quickContacts.width / 2 -
                       (content.left + content.width / 2),
                   ) < 1 &&
                   Math.abs(
@@ -414,10 +407,14 @@ const checks = [];
                   )
                 );
               }),
-              tabsAligned: rowAligned(tabs),
+              navigationCompact:
+                document
+                  .querySelector(".page-navigation")
+                  .getBoundingClientRect().height < 220 &&
+                !document.querySelector(".section-switcher").open,
               controlsFit: [
                 ...document.querySelectorAll(
-                  ".page-tab,.ui-button,.site-footer-content > *",
+                  ".navigation-home,.section-switcher-trigger,.ui-button,.site-footer-content > *",
                 ),
               ]
                 .filter((element) => element.getClientRects().length)
@@ -430,14 +427,11 @@ const checks = [];
                 (list) =>
                   getComputedStyle(list).gridTemplateColumns.split(" ").length,
               ),
-              tabsColumns: getComputedStyle(
-                document.querySelector(".page-tabs"),
-              ).gridTemplateColumns.split(" ").length,
               languageControls:
                 document.querySelectorAll(".language-select").length,
               noControlMotion: [
                 ...document.querySelectorAll(
-                  ".link-button,.quick-contact-link,.page-tab,.toggle-button,.language-select,.site-footer-content > *",
+                  ".link-button,.quick-contact-link,.navigation-home,.section-switcher-trigger,.toggle-button,.language-select,.site-footer-content > *",
                 ),
               ].every(
                 (element) =>
@@ -473,6 +467,15 @@ const checks = [];
                 const headerBorder = parseFloat(
                   getComputedStyle(profile).borderBottomWidth,
                 );
+                const couplingSeat =
+                  parseFloat(
+                    getComputedStyle(rail).getPropertyValue(
+                      "--rail-coupling-seat",
+                    ),
+                  ) *
+                  parseFloat(
+                    getComputedStyle(document.documentElement).fontSize,
+                  );
                 const footerBorder = parseFloat(
                   getComputedStyle(footer).borderTopWidth,
                 );
@@ -487,10 +490,16 @@ const checks = [];
                   ? footerRect.left + footerBorder / 2
                   : footerRect.right - footerBorder / 2;
                 return (
-                  Math.abs(frame.top - (headerRect.bottom - headerBorder / 2)) <
-                    1 &&
-                  Math.abs(frame.bottom - (footerRect.top + footerBorder / 2)) <
-                    1 &&
+                  Math.abs(
+                    frame.top +
+                      couplingSeat -
+                      (headerRect.bottom - headerBorder / 2),
+                  ) < 1 &&
+                  Math.abs(
+                    frame.bottom -
+                      couplingSeat -
+                      (footerRect.top + footerBorder / 2),
+                  ) < 1 &&
                   Math.abs(center - headerJoint) < 1 &&
                   Math.abs(center - footerJoint) < 1 &&
                   headerJoint >= first.left &&
@@ -499,9 +508,9 @@ const checks = [];
                   footerJoint <= last.right &&
                   terminals.length === 2 &&
                   terminals[0].src === terminals[1].src &&
-                  getComputedStyle(terminals[0]).transform ===
+                  getComputedStyle(terminals[0]).transform === "none" &&
+                  getComputedStyle(terminals[1]).transform ===
                     "matrix(1, 0, 0, -1, 0, 0)" &&
-                  getComputedStyle(terminals[1]).transform === "none" &&
                   Math.abs(first.top - frame.top) < 1 &&
                   Math.abs(first.bottom - body.top) < 1 &&
                   Math.abs(body.bottom - last.top) < 1 &&
@@ -706,13 +715,13 @@ const checks = [];
               ),
               statisticsImages:
                 document.querySelectorAll(".statistics img").length,
-              numericValuesFit: [
-                ...document.querySelectorAll(".statistic dd"),
-              ].every((value) => {
-                const range = document.createRange();
-                range.selectNodeContents(value.firstChild);
-                return range.getClientRects().length === 1;
-              }),
+              numericValuesFit: [...document.querySelectorAll(".statistic dd")]
+                .filter((value) => value.getClientRects().length)
+                .every((value) => {
+                  const range = document.createRange();
+                  range.selectNodeContents(value.firstChild);
+                  return range.getClientRects().length === 1;
+                }),
               brokenImages: [...document.images].filter(
                 (image) =>
                   image.src.startsWith(location.origin) &&
@@ -805,10 +814,12 @@ const checks = [];
                           448 && !matchMedia("(pointer: coarse)").matches
                           ? 32
                           : 44) &&
-                      rowStyle.gridTemplateColumns.split(" ").length === 3 &&
+                      getComputedStyle(
+                        link.querySelector(".link-summary"),
+                      ).gridTemplateColumns.split(" ").length === 3 &&
                       rowStyle.borderRadius === "0px" &&
                       parseFloat(rowStyle.paddingTop) > 0 &&
-                      parseFloat(rowStyle.paddingLeft) > 0 &&
+                      parseFloat(rowStyle.paddingLeft) === 0 &&
                       parseFloat(itemStyle.borderTopWidth) ===
                         (index ? 1 : 0) &&
                       (!index ||
@@ -828,7 +839,7 @@ const checks = [];
                 return (
                   buttons.length === 8 &&
                   columns ===
-                    (document.querySelector(".site-shell").clientWidth >= 448
+                    (document.querySelector(".site-shell").clientWidth >= 576
                       ? 8
                       : 4) &&
                   buttons.every((button) => {
@@ -871,9 +882,7 @@ const checks = [];
                 const wide =
                   document.querySelector(".site-shell").clientWidth >= 448;
                 const rect = introduction.getBoundingClientRect();
-                const navigation = document.querySelector(
-                  ".context-navigation",
-                );
+                const navigation = document.querySelector(".footer-navigation");
                 return (
                   introduction.querySelectorAll(".about-fact").length === 3 &&
                   introduction.querySelectorAll(".about-topics > li").length ===
@@ -902,7 +911,8 @@ const checks = [];
                     document
                       .querySelector(".home-updates")
                       .getBoundingClientRect().bottom &&
-                  !navigation.open
+                  navigation.querySelectorAll(".footer-navigation-links a")
+                    .length === 15
                 );
               })(),
               galleryAligned: [
@@ -957,7 +967,7 @@ const checks = [];
             "mainContentGeometry",
             "statisticsAligned",
             "numericValuesFit",
-            "tabsAligned",
+            "navigationCompact",
             "controlsFit",
             "noControlMotion",
             "iconBoxes",
@@ -990,7 +1000,6 @@ const checks = [];
               `${route.url} ${key} at ${width}/${theme}`,
             );
           assert(layout.columns.every((columns) => columns === 1));
-          assert.equal(layout.tabsColumns, 2);
           assert.equal(layout.languageControls, 1);
           if (route.id === "home") {
             assert.equal(layout.galleryColumns, 1);
@@ -1142,7 +1151,7 @@ const checks = [];
           [
             ".category-title a",
             ".category-description",
-            ".category-preview-link > span:not(.button-icon)",
+            ".category-preview-link .link-title",
             ".link-title",
             ".link-url-text",
           ].flatMap((selector) => {
@@ -1210,8 +1219,7 @@ const checks = [];
       }
       const control =
         (await page.$(".link-button")) ||
-        (await page.$(".context-navigation > summary")) ||
-        (await page.$(".page-tab:not([aria-current])"));
+        (await page.$(".section-switcher-trigger"));
       await control.evaluate((element) =>
         element.scrollIntoView({ block: "center", behavior: "instant" }),
       );
@@ -1311,27 +1319,25 @@ const checks = [];
     await page.setJavaScriptEnabled(false);
     for (const route of routes) {
       await page.goto(href(route.url), { waitUntil: "networkidle2" });
-      if (route.id === "home") {
-        await page.focus(".context-navigation > summary");
-        await page.keyboard.press("Enter");
-        assert.equal(
-          await page.$eval(".context-navigation", (details) => details.open),
-          true,
-        );
-        assert.equal(
-          await page.$eval(
-            ".page-tab",
-            (tab) => tab.getBoundingClientRect().height >= 44,
-          ),
-          true,
-        );
-      }
+      await page.focus(".section-switcher-trigger");
+      await page.keyboard.press("Enter");
+      assert.equal(
+        await page.$eval(".section-switcher", (details) => details.open),
+        true,
+      );
+      assert.equal(
+        await page.$eval(
+          ".section-menu-link",
+          (tab) => tab.getBoundingClientRect().height >= 44,
+        ),
+        true,
+      );
       const destination = pagesFor(config, route.language).find(
         (entry) =>
           entry.id !== route.id && ["home", "links-page"].includes(entry.type),
       );
       await page.focus(
-        `.page-tab[href="${new URL(href(destination.url)).pathname}"]`,
+        `.section-menu-link[href="${new URL(href(destination.url)).pathname}"]`,
       );
       assert.equal(
         await page.$eval(
@@ -1394,7 +1400,22 @@ const checks = [];
       "light",
     );
     assert.deepEqual(errors, []);
+    await require("./check-navigation-browser.cjs")(
+      browser,
+      base.href,
+      reportDirectory,
+    );
     await require("./check-language-browser.cjs")(browser, base.href);
+    await require("./check-link-view-browser.cjs")(
+      browser,
+      base.href,
+      reportDirectory,
+    );
+    await require("./check-compact-controls.cjs")(
+      browser,
+      base.href,
+      reportDirectory,
+    );
     fs.writeFileSync(
       `${reportDirectory}/layout-checks.json`,
       JSON.stringify(

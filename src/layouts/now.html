@@ -16,8 +16,6 @@
         </section>
       {{ end }}
     </div>
-    {{ with getenv "HUGO_BUILD_DATE" }}
-      <p class="now-updated"><span>{{ $ui.now_updated }}</span><time datetime="{{ . }}">{{ time.Format "2006-01-02" . }}</time></p>
-    {{ end }}
+    {{ partial "now-activity.html" (dict "language" $locale) }}
   </article>
 {{ end }}

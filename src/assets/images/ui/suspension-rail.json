@@ -1,6 +1,7 @@
 {
   "width": 192,
   "slices": {
+    "coupling": { "top": 0, "height": 392 },
     "chain": { "top": 392, "height": 92 },
     "terminal": { "top": 1600, "height": 174 },
     "lantern": { "top": 720, "height": 340 },

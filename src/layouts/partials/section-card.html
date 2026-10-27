@@ -12,5 +12,8 @@
       {{ with $page.description }}<p class="category-description">{{ . }}</p>{{ end }}
     </div>
   </div>
-  <div class="category-links">{{ partial "preview-list.html" .links }}</div>
+  <div class="category-links">
+    {{ if .links }}{{ partial "preview-list.html" .links }}{{ end }}
+    {{ if not .update }}{{ partial "editorial-list.html" (dict "section" $page.id "language" (lower site.Language.Lang) "preview" true "empty" (not .links)) }}{{ end }}
+  </div>
 </article>
