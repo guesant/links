@@ -40,7 +40,7 @@
   "stoneFootEnd" ((((resources.Get "images/ui/stone-frame.png").Crop "384x256 BottomRight").Resize "160x webp q85").RelPermalink)
   "profileLantern" (((index $railAssets "profile-lantern").Resize "96x webp q82").RelPermalink)
   "railChain" $railAssets.chain.RelPermalink
-  "agedOakSurface" (printf "data:image/webp;base64,%s" ((((resources.Get "images/ui/charcoal-planks.png").Resize "160x webp q80").Content) | encoding.Base64Encode))
+  "agedOakSurface" (((resources.Get "images/ui/charcoal-planks.png").Resize "160x webp q80").RelPermalink)
   "nightDesktop" (($night.Resize "1536x webp q78").RelPermalink)
   "nightMobile" (($night.Fill "384x576 center webp q60").RelPermalink)
   "dayDesktop" (($day.Resize "1536x webp q78").RelPermalink)
@@ -62,6 +62,7 @@
 {{ else }}
   <link rel="preload" href="{{ $fontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ $bodyFontLatin.RelPermalink }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ $styleData.agedOakSurface }}" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="{{ $styleData.oakFrame }}" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="{{ $styleData.profileLantern }}" as="image" type="image/webp" fetchpriority="high">
 {{ end }}
