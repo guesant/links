@@ -46,12 +46,12 @@
   </nav>
   <p class="site-footer-meta">
     {{ if $commit }}
-      <a class="site-footer-commit" href="{{ $commitURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_commit }} {{ $commitLabel }}">{{ $localized.ui.footer_version }} {{ $commitLabel }}</a>
+      <a class="site-footer-commit" href="{{ $commitURL }}" target="_blank" rel="noopener noreferrer">{{ $localized.ui.footer_version }} {{ $commitLabel }}</a>
     {{ else }}
       <span class="site-footer-commit">{{ $localized.ui.footer_version }} {{ $commitLabel }}</span>
     {{ end }}
     <span class="footer-meta-separator" aria-hidden="true">·</span>
-    <a class="site-footer-build" href="{{ $buildURL }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $localized.ui.footer_build }} {{ $buildDateLabel }}">{{ if $buildDate }}{{ $localized.ui.footer_workflow }} <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>{{ else }}{{ $buildDateLabel }}{{ end }}</a>
+    <a class="site-footer-build" href="{{ $buildURL }}" target="_blank" rel="noopener noreferrer">{{ if $buildDate }}{{ $localized.ui.footer_workflow }} <time datetime="{{ $buildDate }}">{{ $buildDateLabel }}</time>{{ else }}{{ $buildDateLabel }}{{ end }}</a>
   </p>
   {{ with $localized.ui.translation_disclaimer }}<p class="translation-disclaimer">{{ . }}</p>{{ end }}
   <p class="brand-disclaimer">{{ $localized.ui.brand_disclaimer }}</p>
