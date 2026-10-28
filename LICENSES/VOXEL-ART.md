@@ -1,6 +1,6 @@
 # Origem da arte voxel
 
-As paisagens night.png e day.png em src/assets/images/scenery foram produzidas para este projeto com a ferramenta integrada de geração de imagens da OpenAI. A versão diurna foi gerada a partir da noturna para preservar a composição. Os originais são mantidos no repositório; o Hugo gera as versões WebP durante o build.
+As paisagens night.png e day.png em src/assets/images/scenery foram produzidas para este projeto com a ferramenta integrada de geração de imagens da OpenAI. A versão diurna foi gerada a partir da noturna para preservar a composição. Os originais são mantidos no repositório; o script de build do SvelteKit gera as versões WebP.
 
 As molduras de pedra e madeira, as correntes, as lanternas e a paisagem night-canyon.png foram produzidas com a mesma ferramenta. Os prompts e caminhos estão em [.config/design-assets.yaml](../.config/design-assets.yaml). Os seis cursores foram produzidos a partir da referência fornecida pelo usuário, com prompts e arquivos em [.config/cursor-assets.yaml](../.config/cursor-assets.yaml). Os ícones, cursores e nuvens são mantidos em PNG. Os logos das plataformas continuam seguindo as atribuições individuais do catálogo de créditos.
 

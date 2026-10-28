@@ -1,9 +1,9 @@
-import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { runInNewContext } from "node:vm";
-import test from "node:test";
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { runInNewContext } from 'node:vm';
+import test from 'node:test';
 
-const script = await readFile("src/assets/js/link-view.js", "utf8");
+const script = await readFile('src/assets/js/link-view.js', 'utf8');
 function harness({ saved, blocked = false } = {}) {
   const root = { dataset: {} };
   const listeners = new Map();
@@ -17,8 +17,8 @@ function harness({ saved, blocked = false } = {}) {
     }
   }
   const controls = [
-    new HTMLInputElement("compact"),
-    new HTMLInputElement("detailed"),
+    new HTMLInputElement('compact'),
+    new HTMLInputElement('detailed'),
   ];
   runInNewContext(script, {
     HTMLInputElement,
@@ -30,11 +30,11 @@ function harness({ saved, blocked = false } = {}) {
     window: {
       localStorage: {
         getItem() {
-          if (blocked) throw new Error("Storage blocked");
+          if (blocked) throw new Error('Storage blocked');
           return saved;
         },
         setItem(key, value) {
-          if (blocked) throw new Error("Storage blocked");
+          if (blocked) throw new Error('Storage blocked');
           writes.push({ key, value });
         },
       },
@@ -45,7 +45,7 @@ function harness({ saved, blocked = false } = {}) {
     controls,
     writes,
     select(value, options = {}) {
-      listeners.get("change")({
+      listeners.get('change')({
         target: new HTMLInputElement(
           value,
           options.checked ?? true,
@@ -53,14 +53,14 @@ function harness({ saved, blocked = false } = {}) {
         ),
       });
     },
-    ready: () => listeners.get("DOMContentLoaded")(),
+    ready: () => listeners.get('DOMContentLoaded')(),
   };
 }
-test("link display defaults to compact and ignores invalid saved values", () => {
-  for (const saved of [undefined, "", "unknown", "<script>"]) {
+test('link display defaults to compact and ignores invalid saved values', () => {
+  for (const saved of [undefined, '', 'unknown', '<script>']) {
     const { root, controls, writes } = harness({ saved });
-    assert.equal(root.dataset.linkView, "compact");
-    assert.equal(root.dataset.linkViewReady, "true");
+    assert.equal(root.dataset.linkView, 'compact');
+    assert.equal(root.dataset.linkViewReady, 'true');
     assert.deepEqual(
       controls.map((entry) => entry.checked),
       [true, false],
@@ -68,9 +68,9 @@ test("link display defaults to compact and ignores invalid saved values", () => 
     assert.deepEqual(writes, []);
   }
 });
-test("saved detailed mode is applied before DOM readiness", () => {
-  const { root, controls, ready } = harness({ saved: "detailed" });
-  assert.equal(root.dataset.linkView, "detailed");
+test('saved detailed mode is applied before DOM readiness', () => {
+  const { root, controls, ready } = harness({ saved: 'detailed' });
+  assert.equal(root.dataset.linkView, 'detailed');
   controls[1].checked = false;
   ready();
   assert.deepEqual(
@@ -78,32 +78,32 @@ test("saved detailed mode is applied before DOM readiness", () => {
     [false, true],
   );
 });
-test("switching link display persists one global preference", () => {
+test('switching link display persists one global preference', () => {
   const { root, controls, select, writes } = harness();
-  select("detailed");
-  assert.equal(root.dataset.linkView, "detailed");
+  select('detailed');
+  assert.equal(root.dataset.linkView, 'detailed');
   assert.deepEqual(
     controls.map((entry) => entry.checked),
     [false, true],
   );
-  select("compact");
-  assert.equal(root.dataset.linkView, "compact");
+  select('compact');
+  assert.equal(root.dataset.linkView, 'compact');
   assert.deepEqual(writes, [
-    { key: "guesant-links-view", value: "detailed" },
-    { key: "guesant-links-view", value: "compact" },
+    { key: 'guesant-links-view', value: 'detailed' },
+    { key: 'guesant-links-view', value: 'compact' },
   ]);
 });
-test("blocked storage does not prevent changing link display", () => {
+test('blocked storage does not prevent changing link display', () => {
   const { root, select } = harness({ blocked: true });
-  assert.equal(root.dataset.linkView, "compact");
-  select("detailed");
-  assert.equal(root.dataset.linkView, "detailed");
+  assert.equal(root.dataset.linkView, 'compact');
+  select('detailed');
+  assert.equal(root.dataset.linkView, 'detailed');
 });
-test("unrelated controls, unchecked inputs and invalid modes are ignored", () => {
+test('unrelated controls, unchecked inputs and invalid modes are ignored', () => {
   const { root, select, writes } = harness();
-  select("unexpected");
-  select("detailed", { checked: false });
-  select("detailed", { matching: false });
-  assert.equal(root.dataset.linkView, "compact");
+  select('unexpected');
+  select('detailed', { checked: false });
+  select('detailed', { matching: false });
+  assert.equal(root.dataset.linkView, 'compact');
   assert.deepEqual(writes, []);
 });

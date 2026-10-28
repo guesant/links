@@ -1,15 +1,18 @@
 (() => {
-  document.querySelectorAll("[data-dialog-open]").forEach((button) => {
-    const dialog = document.getElementById(button.dataset.dialogOpen);
-    if (!(dialog instanceof HTMLDialogElement)) return;
-
-    button.addEventListener("click", (event) => {
+  document.addEventListener('click', (event) => {
+    const opener = event.target.closest?.('[data-dialog-open]');
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.dialogOpen);
+      if (!(dialog instanceof HTMLDialogElement)) return;
       event.preventDefault();
       if (!dialog.open) dialog.showModal();
-    });
-
-    dialog.addEventListener("click", (event) => {
-      if (event.target === dialog) dialog.close();
-    });
+      return;
+    }
+    if (
+      event.target instanceof HTMLDialogElement &&
+      event.target.open &&
+      event.target.matches('.app-dialog')
+    )
+      event.target.close();
   });
 })();

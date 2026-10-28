@@ -1,7 +1,0 @@
-{{ if .partial }}
-  {{ $ui := index hugo.Data.editorial.ui .language }}
-  <p class="list-status" data-list-shown="{{ .shown }}" data-list-total="{{ .total }}">
-    <span>{{ replace (replace $ui.list_partial "{shown}" (string .shown)) "{total}" (string .total) }}</span>
-    {{ with .url }}<a href="{{ . }}">{{ $ui.list_view_all }}</a>{{ end }}
-  </p>
-{{ end }}

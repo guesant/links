@@ -1,11 +1,11 @@
-import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
-import { createRequire } from "node:module";
-import { join } from "node:path";
-import test from "node:test";
-import { loadPNG, withRasterPage } from "./raster-assets.mjs";
+import assert from 'node:assert/strict';
+import { readFile, readdir } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+import test from 'node:test';
+import { loadPNG, withRasterPage } from './raster-assets.mjs';
 
-const { parse } = createRequire(import.meta.url)("yaml");
+const { parse } = createRequire(import.meta.url)('yaml');
 
 async function filesIn(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -19,12 +19,12 @@ async function filesIn(directory) {
   ).flat();
 }
 
-test("site sources contain no vector assets or vector image references", async () => {
-  for (const path of await filesIn("src")) {
-    assert(!path.toLowerCase().endsWith(".svg"), path);
+test('site sources contain no vector assets or vector image references', async () => {
+  for (const path of await filesIn('src')) {
+    assert(!path.toLowerCase().endsWith('.svg'), path);
     if (/\.(html|css|js|json)$/.test(path)) {
       assert.doesNotMatch(
-        await readFile(path, "utf8"),
+        await readFile(path, 'utf8'),
         /<svg\b|\.svg\b|image\/svg/i,
         path,
       );
@@ -32,15 +32,15 @@ test("site sources contain no vector assets or vector image references", async (
   }
 });
 
-test("PNG icon sources and atlas match their catalog", async () => {
+test('PNG icon sources and atlas match their catalog', async () => {
   const catalog = JSON.parse(
-    await readFile(".config/icon-catalog.json", "utf8"),
+    await readFile('.config/icon-catalog.json', 'utf8'),
   );
   const manifest = JSON.parse(
-    await readFile("src/assets/icons/manifest.json", "utf8"),
+    await readFile('src/assets/icons/manifest.json', 'utf8'),
   );
   const names = Object.keys(catalog);
-  const geometry = parse(await readFile(".config/icon-assets.yaml", "utf8"));
+  const geometry = parse(await readFile('.config/icon-assets.yaml', 'utf8'));
   assert.equal(manifest.tileSize, geometry.tile_size);
   assert.equal(manifest.compactTileSize, geometry.compact_tile_size);
   assert.deepEqual(Object.keys(geometry.icons), names);
@@ -50,7 +50,7 @@ test("PNG icon sources and atlas match their catalog", async () => {
   assert.equal(manifest.count, names.length);
   assert.deepEqual(Object.keys(manifest.icons), names);
   assert.equal(
-    (await readdir("src/assets/icons/source")).length,
+    (await readdir('src/assets/icons/source')).length,
     names.length * 2,
   );
   for (const [column, name] of names.entries()) {
@@ -71,26 +71,26 @@ test("PNG icon sources and atlas match their catalog", async () => {
     );
   }
   await loadPNG(
-    "src/assets/icons/pixel.png",
+    'src/assets/icons/pixel.png',
     names.length * manifest.tileSize,
     manifest.tileSize * 2,
   );
   await loadPNG(
-    "src/assets/icons/pixel-compact.png",
+    'src/assets/icons/pixel-compact.png',
     names.length * manifest.compactTileSize,
     manifest.compactTileSize * 2,
   );
 });
 
-test("PNG atlas renders each icon without shifting or leaking adjacent tiles", async () => {
+test('PNG atlas renders each icon without shifting or leaking adjacent tiles', async () => {
   const manifest = JSON.parse(
-    await readFile("src/assets/icons/manifest.json", "utf8"),
+    await readFile('src/assets/icons/manifest.json', 'utf8'),
   );
-  const geometry = parse(await readFile(".config/icon-assets.yaml", "utf8"));
+  const geometry = parse(await readFile('.config/icon-assets.yaml', 'utf8'));
   const atlases = await Promise.all(
     [
-      ["pixel", manifest.tileSize],
-      ["pixel-compact", manifest.compactTileSize],
+      ['pixel', manifest.tileSize],
+      ['pixel-compact', manifest.compactTileSize],
     ].map(async ([name, tileSize]) => ({
       name,
       tileSize,
@@ -129,30 +129,30 @@ test("PNG atlas renders each icon without shifting or leaking adjacent tiles", a
           await page.evaluate(
             async ({ sources, atlas, size, tileSize }) => {
               document.body.replaceChildren();
-              document.body.style.margin = "0";
+              document.body.style.margin = '0';
               for (const source of sources) {
-                for (const key of ["png", "mask"]) {
+                for (const key of ['png', 'mask']) {
                   const image = new Image();
                   image.src = `data:image/png;base64,${source[key]}`;
                   await image.decode();
                   if (image.width === tileSize) continue;
-                  const canvas = document.createElement("canvas");
+                  const canvas = document.createElement('canvas');
                   canvas.width = canvas.height = tileSize;
-                  const context = canvas.getContext("2d");
+                  const context = canvas.getContext('2d');
                   context.imageSmoothingEnabled = true;
-                  context.imageSmoothingQuality = "high";
+                  context.imageSmoothingQuality = 'high';
                   context.drawImage(image, 0, 0, tileSize, tileSize);
-                  source[key] = canvas.toDataURL("image/png").split(",")[1];
+                  source[key] = canvas.toDataURL('image/png').split(',')[1];
                 }
               }
               const imageURL = (png) => `url("data:image/png;base64,${png}")`;
               for (const [column, source] of sources.entries()) {
                 for (let row = 0; row < 4; row += 1) {
-                  const element = document.createElement("span");
+                  const element = document.createElement('span');
                   const isAtlas = row % 2 === 0;
                   const isMask = row >= 2;
                   Object.assign(element.style, {
-                    position: "absolute",
+                    position: 'absolute',
                     left: `${column * size}px`,
                     top: `${row * size}px`,
                     width: `${size}px`,
@@ -160,14 +160,14 @@ test("PNG atlas renders each icon without shifting or leaking adjacent tiles", a
                     backgroundImage: imageURL(
                       isAtlas ? atlas : isMask ? source.mask : source.png,
                     ),
-                    backgroundRepeat: "no-repeat",
+                    backgroundRepeat: 'no-repeat',
                     backgroundSize: isAtlas
                       ? `${sources.length * 100}% 200%`
-                      : "100% 100%",
+                      : '100% 100%',
                     backgroundPosition: isAtlas
                       ? `${(column / (sources.length - 1)) * 100}% ${isMask ? 100 : 0}%`
-                      : "0 0",
-                    imageRendering: "auto",
+                      : '0 0',
+                    imageRendering: 'auto',
                   });
                   document.body.append(element);
                 }
@@ -193,10 +193,10 @@ test("PNG atlas renders each icon without shifting or leaking adjacent tiles", a
               const image = new Image();
               image.src = `data:image/png;base64,${png}`;
               await image.decode();
-              const canvas = document.createElement("canvas");
+              const canvas = document.createElement('canvas');
               canvas.width = image.width;
               canvas.height = image.height;
-              const context = canvas.getContext("2d");
+              const context = canvas.getContext('2d');
               context.drawImage(image, 0, 0);
               const pixels = context.getImageData(
                 0,
@@ -224,7 +224,7 @@ test("PNG atlas renders each icon without shifting or leaking adjacent tiles", a
               }
               return changed;
             },
-            { png: Buffer.from(screenshot).toString("base64"), size, ratio },
+            { png: Buffer.from(screenshot).toString('base64'), size, ratio },
           );
           assert.equal(
             difference,
@@ -237,11 +237,11 @@ test("PNG atlas renders each icon without shifting or leaking adjacent tiles", a
   });
 });
 
-test("six PNG cursors preserve transparency and use one global cursor", async () => {
-  const config = parse(await readFile(".config/cursor-assets.yaml", "utf8"));
-  const names = ["click", "default", "grab", "pointer", "text", "wait"];
+test('six PNG cursors preserve transparency and use one global cursor', async () => {
+  const config = parse(await readFile('.config/cursor-assets.yaml', 'utf8'));
+  const names = ['click', 'default', 'grab', 'pointer', 'text', 'wait'];
   assert.deepEqual(config.assets.map(({ id }) => id).sort(), names);
-  for (const directory of ["src/assets/cursors", "src/static/cursors"]) {
+  for (const directory of ['src/assets/cursors', 'src/static/cursors']) {
     assert.deepEqual(
       (await readdir(directory)).sort(),
       names.map((id) => `${id}.png`),
@@ -264,10 +264,10 @@ test("six PNG cursors preserve transparency and use one global cursor", async ()
           const image = new Image();
           image.src = `data:image/png;base64,${png}`;
           await image.decode();
-          const canvas = document.createElement("canvas");
+          const canvas = document.createElement('canvas');
           canvas.width = image.width;
           canvas.height = image.height;
-          const context = canvas.getContext("2d");
+          const context = canvas.getContext('2d');
           context.drawImage(image, 0, 0);
           const data = context.getImageData(
             0,
@@ -304,40 +304,40 @@ test("six PNG cursors preserve transparency and use one global cursor", async ()
         asset.id,
       );
       assert.equal(pixels.outside, 0, asset.id);
-      assert.equal(pixels.hotspot > 200, asset.id !== "wait", asset.id);
+      assert.equal(pixels.hotspot > 200, asset.id !== 'wait', asset.id);
     }
   });
-  const css = await readFile("src/assets/css/main.css", "utf8");
+  const css = await readFile('src/assets/css/main.css', 'utf8');
   const declarations = css.match(/\bcursor\s*:[^;]+;/g);
   assert.equal(declarations.length, 1);
-  const active = config.assets.find(({ id }) => id === "default");
+  const active = config.assets.find(({ id }) => id === 'default');
   assert(
     declarations[0].includes(
-      `url("/cursors/default.png") ${active.hotspot.join(" ")}`,
+      `url('/cursors/default.png') ${active.hotspot.join(' ')}`,
     ),
   );
-  await assert.rejects(readFile(".config/scripts/generate-cursors.mjs"), {
-    code: "ENOENT",
+  await assert.rejects(readFile('.config/scripts/generate-cursors.mjs'), {
+    code: 'ENOENT',
   });
-  assert.doesNotMatch(await readFile("justfile", "utf8"), /^cursors:/m);
+  assert.doesNotMatch(await readFile('justfile', 'utf8'), /^cursors:/m);
 });
 
-test("favicon and installable icons use PNG at their declared sizes", async () => {
+test('favicon and installable icons use PNG at their declared sizes', async () => {
   for (const [name, size] of [
-    ["favicon", 64],
-    ["icon-192", 192],
-    ["icon-512", 512],
+    ['favicon', 64],
+    ['icon-192', 192],
+    ['icon-512', 512],
   ]) {
     await loadPNG(`src/static/${name}.png`, size, size);
   }
-  await loadPNG("src/assets/images/ui/clouds.png", 1000, 320);
+  await loadPNG('src/assets/images/ui/clouds.png', 1000, 320);
 });
 
-test("rail slices join matching stems and preserve a complete terminal", async () => {
+test('rail slices join matching stems and preserve a complete terminal', async () => {
   const geometry = JSON.parse(
-    await readFile("src/assets/images/ui/suspension-rail.json", "utf8"),
+    await readFile('src/assets/images/ui/suspension-rail.json', 'utf8'),
   );
-  const source = await readFile("src/assets/images/ui/suspension-rail.png");
+  const source = await readFile('src/assets/images/ui/suspension-rail.png');
   const width = source.readUInt32BE(16);
   const height = source.readUInt32BE(20);
   assert(geometry.width <= width);
@@ -356,10 +356,10 @@ test("rail slices join matching stems and preserve a complete terminal", async (
         const image = new Image();
         image.src = `data:image/png;base64,${png}`;
         await image.decode();
-        const canvas = document.createElement("canvas");
+        const canvas = document.createElement('canvas');
         canvas.width = image.width;
         canvas.height = image.height;
-        const context = canvas.getContext("2d");
+        const context = canvas.getContext('2d');
         context.drawImage(image, 0, 0);
         const pixels = context.getImageData(
           0,
@@ -384,7 +384,7 @@ test("rail slices join matching stems and preserve a complete terminal", async (
           coupling: stem(coupling.top + coupling.height - 1),
         };
       },
-      { png: source.toString("base64"), geometry },
+      { png: source.toString('base64'), geometry },
     );
     assert(edges.first.length > 0);
     assert.deepEqual(edges.first, edges.last);

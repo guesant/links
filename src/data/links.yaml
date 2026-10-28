@@ -1,8 +1,8 @@
 profile:
   name: Gabriel R. Antunes
   username: guesant
-  avatar: ""
-  birth_date: "2005-09-13"
+  avatar: ''
+  birth_date: '2005-09-13'
   same_as_links:
     - github-stats
     - gitlab
@@ -1033,6 +1033,29 @@ sections:
           zh:
             title: Minecraft
             description: 查找我的 Minecraft 资料以及 Briel_Rodriguess 的用户名历史。
+      - id: chesscom
+        url: https://www.chess.com/pt-BR/member/r3tz4m
+        icon: gamepad
+        enabled: true
+        labels:
+          en:
+            title: Chess.com
+            description: Visit my Chess.com profile.
+          pt-br:
+            title: Chess.com
+            description: Acesse meu perfil no Chess.com.
+          fr:
+            title: Chess.com
+            description: Consultez mon profil Chess.com.
+          es:
+            title: Chess.com
+            description: Visita mi perfil de Chess.com.
+          it:
+            title: Chess.com
+            description: Visita il mio profilo Chess.com.
+          zh:
+            title: Chess.com
+            description: 查看我的 Chess.com 个人资料。
   - id: profiles
     icon: users
     enabled: true
@@ -1222,23 +1245,23 @@ sections:
     public: true
     labels:
       pt-br:
-        title: "Interesses"
-        description: "Assuntos que acompanho e exploro."
+        title: 'Interesses'
+        description: 'Assuntos que acompanho e exploro.'
       en:
-        title: "Interests"
-        description: "Subjects I follow and explore."
+        title: 'Interests'
+        description: 'Subjects I follow and explore.'
       fr:
-        title: "Centres d’Intérêt"
-        description: "Les sujets que je suis et explore."
+        title: 'Centres d’Intérêt'
+        description: 'Les sujets que je suis et explore.'
       es:
-        title: "Intereses"
-        description: "Temas que sigo y exploro."
+        title: 'Intereses'
+        description: 'Temas que sigo y exploro.'
       it:
-        title: "Interessi"
-        description: "Argomenti che seguo ed esploro."
+        title: 'Interessi'
+        description: 'Argomenti che seguo ed esploro.'
       zh:
-        title: "兴趣"
-        description: "我关注和探索的话题。"
+        title: '兴趣'
+        description: '我关注和探索的话题。'
     links: []
 
   - id: uses
@@ -1248,23 +1271,23 @@ sections:
     public: true
     labels:
       pt-br:
-        title: "Uses"
-        description: "Ferramentas, equipamentos e configurações que uso."
+        title: 'Uses'
+        description: 'Ferramentas, equipamentos e configurações que uso.'
       en:
-        title: "Uses"
-        description: "Tools, equipment and configurations I use."
+        title: 'Uses'
+        description: 'Tools, equipment and configurations I use.'
       fr:
-        title: "Outils"
-        description: "Outils, matériel et configurations que j’utilise."
+        title: 'Outils'
+        description: 'Outils, matériel et configurations que j’utilise.'
       es:
-        title: "Herramientas"
-        description: "Herramientas, equipos y configuraciones que uso."
+        title: 'Herramientas'
+        description: 'Herramientas, equipos y configuraciones que uso.'
       it:
-        title: "Strumenti"
-        description: "Strumenti, attrezzature e configurazioni che uso."
+        title: 'Strumenti'
+        description: 'Strumenti, attrezzature e configurazioni che uso.'
       zh:
-        title: "工具"
-        description: "我使用的工具、设备和配置。"
+        title: '工具'
+        description: '我使用的工具、设备和配置。'
     links: []
 
   - id: library
@@ -1274,23 +1297,23 @@ sections:
     public: true
     labels:
       pt-br:
-        title: "Biblioteca"
-        description: "Leituras e referências do meu acervo pessoal."
+        title: 'Biblioteca'
+        description: 'Leituras e referências do meu acervo pessoal.'
       en:
-        title: "Library"
-        description: "Reading and references from my personal collection."
+        title: 'Library'
+        description: 'Reading and references from my personal collection.'
       fr:
-        title: "Bibliothèque"
-        description: "Lectures et références de ma collection personnelle."
+        title: 'Bibliothèque'
+        description: 'Lectures et références de ma collection personnelle.'
       es:
-        title: "Biblioteca"
-        description: "Lecturas y referencias de mi colección personal."
+        title: 'Biblioteca'
+        description: 'Lecturas y referencias de mi colección personal.'
       it:
-        title: "Biblioteca"
-        description: "Letture e riferimenti della mia raccolta personale."
+        title: 'Biblioteca'
+        description: 'Letture e riferimenti della mia raccolta personale.'
       zh:
-        title: "书库"
-        description: "我的个人阅读与参考收藏。"
+        title: '书库'
+        description: '我的个人阅读与参考收藏。'
     links: []
 
   - id: curiosities
@@ -1300,23 +1323,23 @@ sections:
     public: true
     labels:
       pt-br:
-        title: "Curiosidades e Coleções"
-        description: "Fatos pessoais e coisas que coleciono."
+        title: 'Curiosidades e Coleções'
+        description: 'Fatos pessoais e coisas que coleciono.'
       en:
-        title: "Curiosities and Collections"
-        description: "Personal facts and things I collect."
+        title: 'Curiosities and Collections'
+        description: 'Personal facts and things I collect.'
       fr:
-        title: "Curiosités et Collections"
-        description: "Faits personnels et objets que je collectionne."
+        title: 'Curiosités et Collections'
+        description: 'Faits personnels et objets que je collectionne.'
       es:
-        title: "Curiosidades y Colecciones"
-        description: "Datos personales y cosas que colecciono."
+        title: 'Curiosidades y Colecciones'
+        description: 'Datos personales y cosas que colecciono.'
       it:
-        title: "Curiosità e Collezioni"
-        description: "Curiosità personali e oggetti che colleziono."
+        title: 'Curiosità e Collezioni'
+        description: 'Curiosità personali e oggetti che colleziono.'
       zh:
-        title: "趣事与收藏"
-        description: "个人趣事与收藏。"
+        title: '趣事与收藏'
+        description: '个人趣事与收藏。'
     links: []
 
 locales:

@@ -23,7 +23,7 @@
     press: urls.pointerPress,
     release: urls.pointerRelease,
   })) {
-    fetch(url, { priority: "low" })
+    fetch(url, { priority: 'low' })
       .then((response) => (response.ok ? response.arrayBuffer() : null))
       .then((bytes) => (bytes ? context.decodeAudioData(bytes) : null))
       .then((buffer) => {
@@ -48,13 +48,13 @@
   }
   function play(name) {
     stop();
-    if (!buffers[name] || context.state !== "running") return;
+    if (!buffers[name] || context.state !== 'running') return;
     try {
       const source = context.createBufferSource();
       source.buffer = buffers[name];
       source.connect(gain);
       source.addEventListener(
-        "ended",
+        'ended',
         () => {
           source.disconnect();
           if (playing === source) playing = null;
@@ -66,53 +66,53 @@
     } catch {}
   }
   const valid = (event) =>
-    event.isTrusted && event.pointerType === "mouse" && event.button === 0;
+    event.isTrusted && event.pointerType === 'mouse' && event.button === 0;
   document.addEventListener(
-    "pointerdown",
+    'pointerdown',
     (event) => {
       if (!valid(event)) return;
       reset();
       pressed = event.pointerId;
       pressedAt = performance.now();
-      if (context.state === "suspended") {
+      if (context.state === 'suspended') {
         try {
           Promise.resolve(context.resume()).catch(() => {});
         } catch {}
       }
-      play("press");
+      play('press');
     },
     { capture: true, passive: true },
   );
   document.addEventListener(
-    "pointerup",
+    'pointerup',
     (event) => {
       if (!valid(event) || pressed !== event.pointerId) return;
       pressed = undefined;
-      if (!buffers.release || context.state !== "running") return;
+      if (!buffers.release || context.state !== 'running') return;
       const remaining = minimumPressDuration - (performance.now() - pressedAt);
       if (remaining <= 0) {
-        play("release");
+        play('release');
       } else {
         releasePointer = event.pointerId;
         releaseTimer = setTimeout(() => {
           releaseTimer = undefined;
           releasePointer = undefined;
-          play("release");
+          play('release');
         }, remaining);
       }
     },
     { capture: true, passive: true },
   );
   document.addEventListener(
-    "pointercancel",
+    'pointercancel',
     (event) => {
       if (pressed === event.pointerId || releasePointer === event.pointerId)
         reset();
     },
     { capture: true, passive: true },
   );
-  window.addEventListener("blur", reset);
-  document.addEventListener("visibilitychange", () => {
+  window.addEventListener('blur', reset);
+  document.addEventListener('visibilitychange', () => {
     if (document.hidden) reset();
   });
 })();

@@ -1,8 +1,0 @@
-{{ define "main" }}
-  {{ $locale := lower .Site.Language.Lang }}
-  {{ $page := index (where (partial "site-pages.html" (dict "locale" $locale)) "id" .Params.page_key) 0 }}
-  {{ partial "page-introduction.html" (dict "id" "page-title" "title" $page.title "description" $page.description) }}
-  <section class="link-sections" aria-labelledby="page-title">
-    {{ partial "section.html" (dict "section" $page.section "language" $locale) }}
-  </section>
-{{ end }}

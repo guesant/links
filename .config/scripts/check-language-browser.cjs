@@ -1,36 +1,36 @@
-const assert = require("node:assert/strict");
+const assert = require('node:assert/strict');
 
 module.exports = async function checkLanguageBrowser(browser, baseURL) {
   const origin = new URL(baseURL);
-  const href = (path) => new URL(path.replace(/^\//, ""), origin).href;
-  const key = "guesant-links-language";
+  const href = (path) => new URL(path.replace(/^\//, ''), origin).href;
+  const key = 'guesant-links-language';
   let passed = 0;
   for (const scenario of [
-    { from: "/", to: "/pt-br/", languages: ["pt-PT", "en-US"] },
-    { from: "/", to: "/en/", languages: ["en-US"] },
-    { from: "/", to: "/fr/", languages: ["en-US"], saved: "fr" },
+    { from: '/', to: '/pt-br/', languages: ['pt-PT', 'en-US'] },
+    { from: '/', to: '/en/', languages: ['en-US'] },
+    { from: '/', to: '/fr/', languages: ['en-US'], saved: 'fr' },
     {
-      from: "/?source=link#details",
-      to: "/pt-br/?source=link#details",
-      languages: ["de-DE"],
+      from: '/?source=link#details',
+      to: '/pt-br/?source=link#details',
+      languages: ['de-DE'],
     },
-    { from: "/", to: "/es/", languages: ["de-DE", "es-MX"] },
-    { from: "/en/code/", to: "/en/code/", languages: ["pt-BR"] },
-    { from: "/fr/code/", to: "/fr/code/", languages: ["pt-BR"] },
+    { from: '/', to: '/es/', languages: ['de-DE', 'es-MX'] },
+    { from: '/en/code/', to: '/en/code/', languages: ['pt-BR'] },
+    { from: '/fr/code/', to: '/fr/code/', languages: ['pt-BR'] },
     {
-      from: "/fr/code/",
-      to: "/pt-br/code/",
-      languages: ["en-US"],
-      saved: "pt-br",
+      from: '/fr/code/',
+      to: '/pt-br/code/',
+      languages: ['en-US'],
+      saved: 'pt-br',
     },
-    { from: "/en/now/", to: "/en/now/", languages: ["fr"], saved: "fr" },
+    { from: '/en/now/', to: '/en/now/', languages: ['fr'], saved: 'fr' },
   ]) {
     const context = await browser.createBrowserContext();
     try {
       const page = await context.newPage();
       await page.evaluateOnNewDocument(
         ({ languages, saved, key }) => {
-          Object.defineProperty(navigator, "languages", {
+          Object.defineProperty(navigator, 'languages', {
             get: () => languages,
           });
           if (saved) localStorage.setItem(key, saved);
@@ -38,20 +38,20 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
         { ...scenario, key },
       );
       let navigations = 0;
-      page.on("request", (request) => {
+      page.on('request', (request) => {
         if (
           request.isNavigationRequest() &&
           request.frame() === page.mainFrame()
         )
           navigations++;
       });
-      await page.goto(href(scenario.from), { waitUntil: "networkidle0" });
+      await page.goto(href(scenario.from), { waitUntil: 'networkidle0' });
       await page.waitForFunction(
         (expected) => location.href === expected,
         {},
         href(scenario.to),
       );
-      assert(navigations <= 2, "language redirect loop");
+      assert(navigations <= 2, 'language redirect loop');
       assert.equal(
         await page.evaluate((key) => localStorage.getItem(key), key),
         scenario.saved || null,
@@ -65,28 +65,28 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
   try {
     const page = await context.newPage();
     await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, "languages", { get: () => ["en-US"] });
+      Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
     });
-    await page.goto(href("/en/code/?source=link#details"), {
-      waitUntil: "networkidle0",
+    await page.goto(href('/en/code/?source=link#details'), {
+      waitUntil: 'networkidle0',
     });
-    await page.click("[data-settings-open]");
+    await page.click('[data-settings-open]');
     await Promise.all([
-      page.waitForNavigation({ waitUntil: "networkidle0" }),
+      page.waitForNavigation({ waitUntil: 'networkidle0' }),
       page.select(
-        "[data-language-switcher]",
-        new URL(href("/pt-br/code/")).pathname,
+        '[data-language-switcher]',
+        new URL(href('/pt-br/code/')).pathname,
       ),
     ]);
-    assert.equal(page.url(), href("/pt-br/code/?source=link#details"));
+    assert.equal(page.url(), href('/pt-br/code/?source=link#details'));
     assert.equal(
       await page.evaluate((key) => localStorage.getItem(key), key),
-      "pt-br",
+      'pt-br',
     );
-    await page.goto(href("/en/writing/"), { waitUntil: "networkidle0" });
-    assert.equal(page.url(), href("/pt-br/writing/"));
-    await page.reload({ waitUntil: "networkidle0" });
-    assert.equal(page.url(), href("/pt-br/writing/"));
+    await page.goto(href('/en/writing/'), { waitUntil: 'networkidle0' });
+    assert.equal(page.url(), href('/pt-br/writing/'));
+    await page.reload({ waitUntil: 'networkidle0' });
+    assert.equal(page.url(), href('/pt-br/writing/'));
     passed++;
   } finally {
     await context.close();

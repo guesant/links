@@ -1,6 +1,6 @@
-const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const { readConfiguration } = require("./configuration.cjs");
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const { readConfiguration } = require('./configuration.cjs');
 
 module.exports = async function checkCompactControls(
   browser,
@@ -13,16 +13,16 @@ module.exports = async function checkCompactControls(
   try {
     const page = await context.newPage();
     await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, "languages", { get: () => ["en-US"] });
+      Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
     });
     for (const language of config.language_options) {
-      for (const suffix of ["", "career/"]) {
+      for (const suffix of ['', 'career/']) {
         const url = new URL(
-          `${language.path}${suffix}`.replace(/^\//, ""),
+          `${language.path}${suffix}`.replace(/^\//, ''),
           baseURL,
         ).href;
-        await page.goto(url, { waitUntil: "networkidle2" });
-        for (const theme of ["dark", "light"]) {
+        await page.goto(url, { waitUntil: 'networkidle2' });
+        for (const theme of ['dark', 'light']) {
           await page.evaluate((value) => {
             document.documentElement.dataset.theme = value;
           }, theme);
@@ -30,28 +30,28 @@ module.exports = async function checkCompactControls(
             await page.setViewport({ width, height: 900 });
             const actual = await page.evaluate(() => {
               const footer = document
-                .querySelector(".site-footer")
+                .querySelector('.site-footer')
                 .getBoundingClientRect();
               const group = document
-                .querySelector(".site-footer-content")
+                .querySelector('.site-footer-content')
                 .getBoundingClientRect();
               const buttons = [
-                ...document.querySelectorAll(".site-footer-content > *"),
+                ...document.querySelectorAll('.site-footer-content > *'),
               ];
               const toolbar = document
-                .querySelector(".link-view-toolbar")
+                .querySelector('.link-view-toolbar')
                 .getBoundingClientRect();
               const options = document
-                .querySelector(".link-view-options")
+                .querySelector('.link-view-options')
                 .getBoundingClientRect();
               const toolbarStyle = getComputedStyle(
-                document.querySelector(".link-view-toolbar"),
+                document.querySelector('.link-view-toolbar'),
               );
-              const controls = [...document.querySelectorAll(".icon-control")];
+              const controls = [...document.querySelectorAll('.icon-control')];
               const size =
                 parseFloat(
                   getComputedStyle(document.documentElement).getPropertyValue(
-                    "--control-min-height",
+                    '--control-min-height',
                   ),
                 ) *
                 parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -87,28 +87,28 @@ module.exports = async function checkCompactControls(
                 ),
                 metadataSeparate:
                   !document.querySelector(
-                    ".site-footer-content .site-footer-commit,.site-footer-content .site-footer-build",
+                    '.site-footer-content .site-footer-commit,.site-footer-content .site-footer-build',
                   ) &&
                   Boolean(
                     document.querySelector(
-                      ".site-footer-meta .site-footer-commit",
+                      '.site-footer-meta .site-footer-commit',
                     ),
                   ) &&
                   Boolean(
                     document.querySelector(
-                      ".site-footer-meta a.site-footer-build",
+                      '.site-footer-meta a.site-footer-build',
                     ),
                   ),
                 named:
                   buttons.every((button) =>
-                    Boolean(button.getAttribute("aria-label")),
+                    Boolean(button.getAttribute('aria-label')),
                   ) &&
                   [
-                    ...document.querySelectorAll(".link-view-options label"),
+                    ...document.querySelectorAll('.link-view-options label'),
                   ].every((label) =>
                     Boolean(
                       label
-                        .querySelector(".visually-hidden")
+                        .querySelector('.visually-hidden')
                         .textContent.trim(),
                     ),
                   ),
@@ -123,7 +123,7 @@ module.exports = async function checkCompactControls(
               `${url} ${theme} ${width} overflow`,
             );
             for (const [key, value] of Object.entries(actual)) {
-              if (!["count", "overflow"].includes(key))
+              if (!['count', 'overflow'].includes(key))
                 assert.equal(value, true, `${url} ${theme} ${width} ${key}`);
             }
             checks.push({ language: language.id, suffix, theme, width });
@@ -131,14 +131,14 @@ module.exports = async function checkCompactControls(
         }
         await page.setViewport({ width: 320, height: 900 });
         await page.evaluate(() => {
-          document.documentElement.style.fontSize = "200%";
+          document.documentElement.style.fontSize = '200%';
         });
         for (const selector of [
-          "label[for=link-view-compact]",
-          "label[for=link-view-detailed]",
-          ".site-footer-repository",
-          "[data-credits-open]",
-          "[data-settings-open]",
+          'label[for=link-view-compact]',
+          'label[for=link-view-detailed]',
+          '.site-footer-repository',
+          '[data-credits-open]',
+          '[data-settings-open]',
         ]) {
           await page.hover(selector);
           assert.equal(
@@ -155,21 +155,21 @@ module.exports = async function checkCompactControls(
           );
         }
         await page.evaluate(() => {
-          document.documentElement.style.removeProperty("font-size");
+          document.documentElement.style.removeProperty('font-size');
         });
       }
     }
-    await page.goto(new URL("pt-br/", baseURL).href, {
-      waitUntil: "networkidle2",
+    await page.goto(new URL('pt-br/', baseURL).href, {
+      waitUntil: 'networkidle2',
     });
     for (const width of [320, 1024]) {
       await page.setViewport({ width, height: 900 });
       for (const selector of [
-        "label[for=link-view-compact]",
-        "label[for=link-view-detailed]",
-        ".site-footer-repository",
-        "[data-credits-open]",
-        "[data-settings-open]",
+        'label[for=link-view-compact]',
+        'label[for=link-view-detailed]',
+        '.site-footer-repository',
+        '[data-credits-open]',
+        '[data-settings-open]',
       ]) {
         await page.hover(selector);
         const tooltip = `${selector} .control-tooltip`;
@@ -178,7 +178,7 @@ module.exports = async function checkCompactControls(
             tooltip,
             (element) => getComputedStyle(element).visibility,
           ),
-          "visible",
+          'visible',
         );
         const rect = await page.$eval(tooltip, (element) => {
           const r = element.getBoundingClientRect();
@@ -194,73 +194,73 @@ module.exports = async function checkCompactControls(
             tooltip,
             (element) => getComputedStyle(element).visibility,
           ),
-          "visible",
+          'visible',
         );
-        await page.keyboard.press("Escape");
+        await page.keyboard.press('Escape');
         assert.equal(
           await page.$eval(
             tooltip,
             (element) => getComputedStyle(element).visibility,
           ),
-          "hidden",
+          'hidden',
         );
         await page.mouse.move(0, 0);
-        const focus = selector.startsWith("label")
-          ? `#${selector.includes("detailed") ? "link-view-detailed" : "link-view-compact"}`
+        const focus = selector.startsWith('label')
+          ? `#${selector.includes('detailed') ? 'link-view-detailed' : 'link-view-compact'}`
           : selector;
         await page.focus(focus);
-        await page.keyboard.press("Tab");
-        await page.keyboard.down("Shift");
-        await page.keyboard.press("Tab");
-        await page.keyboard.up("Shift");
-        if (!selector.startsWith("label"))
+        await page.keyboard.press('Tab');
+        await page.keyboard.down('Shift');
+        await page.keyboard.press('Tab');
+        await page.keyboard.up('Shift');
+        if (!selector.startsWith('label'))
           assert.equal(
             await page.$eval(
               tooltip,
               (element) => getComputedStyle(element).visibility,
             ),
-            "visible",
+            'visible',
           );
       }
-      await page.click("[data-credits-open]");
+      await page.click('[data-credits-open]');
       assert.equal(
-        await page.$eval("#credits-dialog", (dialog) => dialog.open),
+        await page.$eval('#credits-dialog', (dialog) => dialog.open),
         true,
       );
-      await page.keyboard.press("Escape");
-      await page.click("[data-settings-open]");
+      await page.keyboard.press('Escape');
+      await page.click('[data-settings-open]');
       assert.equal(
-        await page.$eval("#settings-dialog", (dialog) => dialog.open),
+        await page.$eval('#settings-dialog', (dialog) => dialog.open),
         true,
       );
-      await page.keyboard.press("Escape");
-      await page.focus("#link-view-compact");
-      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press('Escape');
+      await page.focus('#link-view-compact');
+      await page.keyboard.press('ArrowRight');
       assert.equal(
         await page.$eval(
-          "label[for=link-view-detailed] .control-tooltip",
+          'label[for=link-view-detailed] .control-tooltip',
           (element) => getComputedStyle(element).visibility,
         ),
-        "visible",
+        'visible',
       );
       assert.equal(
-        await page.$eval("#link-view-detailed", (input) => input.checked),
+        await page.$eval('#link-view-detailed', (input) => input.checked),
         true,
       );
-      await page.keyboard.press("ArrowLeft");
+      await page.keyboard.press('ArrowLeft');
       assert.equal(
-        await page.$eval("#link-view-compact", (input) => input.checked),
+        await page.$eval('#link-view-compact', (input) => input.checked),
         true,
       );
       await page.evaluate(() => {
-        document.documentElement.dataset.theme = "dark";
+        document.documentElement.dataset.theme = 'dark';
       });
       await page.mouse.move(0, 0);
-      await page.$eval("body", (element) => {
+      await page.$eval('body', (element) => {
         element.tabIndex = -1;
         element.focus();
       });
-      for (const selector of [".link-view-control", ".site-footer"]) {
+      for (const selector of ['.link-view-control', '.site-footer']) {
         const element = await page.$(selector);
         await element.screenshot({
           path: `${reportDirectory}/compact-${selector.slice(1)}-${width}.png`,

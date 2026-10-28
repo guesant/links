@@ -7,6 +7,9 @@
   },
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "mounts": [
+    "source=links-node-modules,target=/workspace/node_modules,type=volume"
+  ],
   "forwardPorts": [4173],
   "portsAttributes": {
     "4173": { "label": "Links", "onAutoForward": "notify" }

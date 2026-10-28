@@ -1,18 +1,18 @@
 (() => {
-  const storageKey = "guesant-links-theme";
-  const themes = new Set(["system", "dark", "light"]);
+  const storageKey = 'guesant-links-theme';
+  const themes = new Set(['system', 'dark', 'light']);
   const root = document.documentElement;
-  root.dataset.themeReady = "true";
+  root.dataset.themeReady = 'true';
 
-  let storedTheme = "";
+  let storedTheme = '';
 
   try {
-    storedTheme = window.localStorage.getItem(storageKey) || "";
+    storedTheme = window.localStorage.getItem(storageKey) || '';
   } catch {}
 
   const initialTheme = themes.has(storedTheme)
     ? storedTheme
-    : root.dataset.theme || "system";
+    : root.dataset.theme || 'system';
 
   const applyTheme = (theme, persist) => {
     if (!themes.has(theme)) {
@@ -21,7 +21,7 @@
 
     root.dataset.theme = theme;
 
-    document.querySelectorAll("[data-theme-option]").forEach((option) => {
+    document.querySelectorAll('[data-theme-option]').forEach((option) => {
       option.checked = option.value === theme;
     });
 
@@ -34,14 +34,17 @@
 
   applyTheme(initialTheme, false);
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener('DOMContentLoaded', () => {
+    applyTheme(root.dataset.theme, false);
+  });
+  document.addEventListener('lobby:navigate', () => {
     applyTheme(root.dataset.theme, false);
   });
 
-  document.addEventListener("change", (event) => {
+  document.addEventListener('change', (event) => {
     if (
       event.target instanceof HTMLInputElement &&
-      event.target.matches("[data-theme-option]")
+      event.target.matches('[data-theme-option]')
     ) {
       applyTheme(event.target.value, true);
     }

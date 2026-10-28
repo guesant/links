@@ -1,7 +1,0 @@
-{{ $name := lower (. | default "link") }}
-{{ $manifest := resources.Get "icons/manifest.json" | transform.Unmarshal }}
-{{ if not (index $manifest.icons $name) }}{{ $name = "link" }}{{ end }}
-{{ $metadata := index $manifest.icons $name }}
-{{ $sprite := resources.Get "icons/pixel.png" | fingerprint }}
-{{ $compact := resources.Get "icons/pixel-compact.png" | fingerprint }}
-<span class="site-icon{{ if not $metadata.colored }} site-icon-monochrome{{ end }}" data-platform="{{ $name }}" data-finish="beveled" style="{{ printf "--icon-sprite: url('%s'); --icon-sprite-hd: url('%s'); --icon-columns: %v; --icon-position: %v%%" $compact.RelPermalink $sprite.RelPermalink $manifest.count $metadata.position | safeCSS }}" aria-hidden="true"><span class="site-icon-face"></span></span>

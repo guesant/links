@@ -1,9 +1,13 @@
-const fs = require("node:fs");
-const { parse } = require("yaml");
+const fs = require('node:fs');
+const { parse } = require('yaml');
 
-const visible = (entry) => entry.enabled !== false && entry.public !== false;
-const readConfiguration = (path = "src/data/links.yaml") =>
-  parse(fs.readFileSync(path, "utf8"));
+const visible = (entry) =>
+  entry.enabled !== false &&
+  entry.public !== false &&
+  !entry.private &&
+  !entry.draft;
+const readConfiguration = (path = 'src/data/links.yaml') =>
+  parse(fs.readFileSync(path, 'utf8'));
 const visibleLinks = (configuration) =>
   configuration.sections
     .filter(visible)
@@ -32,8 +36,8 @@ function pagesFor(configuration, language) {
   const links = visibleLinks(configuration);
   const pages = [
     {
-      id: "home",
-      type: "home",
+      id: 'home',
+      type: 'home',
       title: configuration.navigation.home.labels[language],
       url: option.path,
       icon: configuration.navigation.home.icon,
@@ -41,14 +45,14 @@ function pagesFor(configuration, language) {
   ];
   for (const id of configuration.navigation.sections) {
     const section = configuration.sections.find((entry) => entry.id === id);
-    if (!section) throw new Error("Unknown navigation section");
+    if (!section) throw new Error('Unknown navigation section');
     if (!visible(section)) continue;
     pages.push({
       id,
-      type: "links-page",
+      type: 'links-page',
       title: section.labels[language].title,
       url: `${option.path}${id}/`,
-      icon: section.icon || "book",
+      icon: section.icon || 'book',
       links: linksForSection(configuration, section),
     });
   }

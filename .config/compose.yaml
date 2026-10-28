@@ -11,10 +11,15 @@ services:
       - ..:/workspace
       - ../../blog/public:/sources/blog:ro
       - ../../resume/site:/sources/resume:ro
+      - node-modules:/workspace/node_modules
     ports:
-      - "127.0.0.1:4173:4173"
+      - '127.0.0.1:4173:4173'
     environment:
+      npm_config_cache: /tmp/npm-cache
       GITHUB_STATS_TOKEN: ${GITHUB_STATS_TOKEN:-}
       LOBBY_BLOG_FEED: ${LOBBY_BLOG_FEED:-}
       LOBBY_RESUME_FEED: ${LOBBY_RESUME_FEED:-}
     init: true
+
+volumes:
+  node-modules:

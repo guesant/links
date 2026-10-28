@@ -1,7 +1,7 @@
-const uptimeElements = document.querySelectorAll("[data-uptime]");
+let uptimeElements = document.querySelectorAll('[data-uptime]');
 
 const elapsedParts = (birthDate, now) => {
-  const [year, month, day] = birthDate.split("-").map(Number);
+  const [year, month, day] = birthDate.split('-').map(Number);
   const today = new Date(
     Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
   );
@@ -44,23 +44,23 @@ const elapsedParts = (birthDate, now) => {
 const formatUptime = (element, now) => {
   const parts = elapsedParts(element.dataset.uptime, now);
   const locale =
-    element.dataset.uptimeLocale || document.documentElement.lang || "en";
-  const units = ["years", "months", "days"];
+    element.dataset.uptimeLocale || document.documentElement.lang || 'en';
+  const units = ['years', 'months', 'days'];
   const unitNames = {
-    years: "year",
-    months: "month",
-    days: "day",
+    years: 'year',
+    months: 'month',
+    days: 'day',
   };
 
   return units
     .map((unit) =>
       new Intl.NumberFormat(locale, {
-        style: "unit",
+        style: 'unit',
         unit: unitNames[unit],
-        unitDisplay: "long",
+        unitDisplay: 'long',
       }).format(parts[unit]),
     )
-    .join(", ");
+    .join(', ');
 };
 
 const updateUptime = () => {
@@ -74,8 +74,14 @@ const updateUptime = () => {
     now.getMonth(),
     now.getDate() + 1,
   );
-  window.setTimeout(updateUptime, tomorrow - now);
+  window.clearTimeout(updateUptime.timer);
+  updateUptime.timer = window.setTimeout(updateUptime, tomorrow - now);
 };
+
+document.addEventListener('lobby:navigate', () => {
+  uptimeElements = document.querySelectorAll('[data-uptime]');
+  if (uptimeElements.length) updateUptime();
+});
 
 if (uptimeElements.length > 0) {
   updateUptime();

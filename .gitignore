@@ -1,3 +1,5 @@
 /.local/
 /.cache/
+/.svelte-kit/
+/node_modules/
 .DS_Store

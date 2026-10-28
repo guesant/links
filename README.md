@@ -1,20 +1,22 @@
 # Lobby
 
-Meu site pessoal, feito com [Hugo](https://gohugo.io/) e publicado em [guesant.net](https://guesant.net/).
+Meu site pessoal, feito com [SvelteKit](https://kit.svelte.dev/) e publicado em [guesant.net](https://guesant.net/).
 
 ## Desenvolvimento
 
-Requer [Docker](https://docs.docker.com/get-started/get-docker/) e [just](https://just.systems/man/en/). Também pode ser aberto em um [Dev Container](https://containers.dev/).
+Requer [Docker](https://docs.docker.com/get-started/get-docker/) e [just](https://just.systems/man/en/). Também pode ser aberto em um [Dev Container](https://containers.dev/). Dependências e comandos do projeto rodam no container, sem instalar Node, SvelteKit ou ferramentas de qualidade na máquina.
 
 ```sh
 just dev
+just lint
+just typecheck
 just check
 just build
 ```
 
-`just dev` abre o servidor em [localhost:4173](http://localhost:4173/). `just build` gera `.local/build/site/`. Use `just` para listar os comandos.
+`just dev` abre o servidor em [localhost:4173](http://localhost:4173/). `just build` pré-renderiza as páginas em `.local/build/site/`. `just check` inclui os linters, checagem Svelte, testes e validações do site. Use `just` para listar os comandos.
 
-O desenvolvimento e o CI usam o mesmo [Dockerfile](.config/container/Dockerfile). Nenhuma ferramenta de build precisa ser instalada na máquina.
+O desenvolvimento e o CI usam o mesmo [Dockerfile](.config/container/Dockerfile). A saída estática inclui navegação client-side e cada rota também funciona aberta diretamente no GitHub Pages.
 
 ## Arquivos
 

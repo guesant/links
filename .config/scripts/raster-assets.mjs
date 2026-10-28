@@ -1,9 +1,9 @@
-import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
+import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 
 const puppeteer = createRequire(
-  "/usr/local/lib/node_modules/pa11y-ci/package.json",
-)("puppeteer");
+  '/usr/local/lib/node_modules/pa11y-ci/package.json',
+)('puppeteer');
 const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
 export async function loadPNG(path, width, height) {
@@ -16,14 +16,14 @@ export async function loadPNG(path, width, height) {
   ) {
     throw new Error(`${path} must be a ${width}x${height} PNG`);
   }
-  return png.toString("base64");
+  return png.toString('base64');
 }
 
 export async function withRasterPage(task) {
   const browser = await puppeteer.launch({
-    executablePath: "/usr/bin/chromium",
+    executablePath: '/usr/bin/chromium',
     headless: true,
-    args: ["--no-sandbox", "--disable-dev-shm-usage"],
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
   });
   try {
     await task(await browser.newPage());

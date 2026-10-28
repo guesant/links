@@ -1,10 +1,10 @@
-const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const { createRequire } = require("node:module");
-const { readConfiguration, pagesFor } = require("./configuration.cjs");
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const { createRequire } = require('node:module');
+const { readConfiguration, pagesFor } = require('./configuration.cjs');
 const pa11y = createRequire(
-  "/usr/local/lib/node_modules/pa11y-ci/package.json",
-)("pa11y");
+  '/usr/local/lib/node_modules/pa11y-ci/package.json',
+)('pa11y');
 
 module.exports = async function checkTerminalBrowser(
   browser,
@@ -16,53 +16,55 @@ module.exports = async function checkTerminalBrowser(
   const checks = [];
   const errors = [];
   const accessibility = [];
-  const url = (path) => new URL(path.replace(/^\//, ""), baseURL).href;
+  const url = (path) => new URL(path.replace(/^\//, ''), baseURL).href;
   try {
     const page = await context.newPage();
-    page.on("pageerror", (error) => errors.push(error.message));
+    page.on('pageerror', (error) => errors.push(error.message));
     for (const language of config.language_options) {
       for (const route of pagesFor(config, language.id).filter(
         (entry) => !entry.fallback,
       )) {
-        const path = `${language.path}terminal/${route.id === "home" ? "" : `${route.id === "now" ? "now" : route.id}/`}`;
+        const path = `${language.path}terminal/${route.id === 'home' ? '' : `${route.id === 'now' ? 'now' : route.id}/`}`;
         assert.equal(
-          (await page.goto(url(path), { waitUntil: "networkidle2" })).status(),
+          (await page.goto(url(path), { waitUntil: 'networkidle2' })).status(),
           200,
           path,
         );
         await page.evaluate(() => document.fonts.ready);
         assert.equal(
-          await page.$eval("html", (root) => root.dataset.interface),
-          "terminal",
+          await page.$eval('html', (root) => root.dataset.interface),
+          'terminal',
         );
         assert.equal(
           await page.$(
-            ".site-frame,.suspension-rails,.quick-access,.world-scene",
+            '.site-frame,.suspension-rails,.quick-access,.world-scene',
           ),
           null,
         );
-        assert.equal(await page.$$eval("h1", (elements) => elements.length), 1);
+        assert.equal(await page.$$eval('h1', (elements) => elements.length), 1);
         assert.deepEqual(
-          await page.$$eval(".language-select option", (options) =>
+          await page.$$eval('.language-select option', (options) =>
             options.map(
               (option) => new URL(option.value, location.href).pathname,
             ),
           ),
           config.language_options.map(
             (option) =>
-              `${option.path}terminal/${route.id === "home" || (route.id === "now" && !config.now[option.id]) ? "" : `${route.id}/`}`,
+              `${option.path}terminal/${route.id === 'home' || (route.id === 'now' && !config.now[option.id]) ? '' : `${route.id}/`}`,
           ),
         );
         assert.equal(
-          await page.$eval("#bios-dialog", (dialog) => dialog.open),
+          await page.$eval('#bios-dialog', (dialog) => dialog.open),
           false,
         );
         const styles = await page.$$eval('link[rel="stylesheet"]', (links) =>
           links.map((link) => link.href),
         );
-        assert(styles.every((href) => href.includes("terminal.min.")));
+        assert(
+          styles.some((href) => href.endsWith('/assets/css/terminal.css')),
+        );
         const initial = await page.$$eval(
-          "[data-link-id],[data-editorial-id]",
+          '[data-link-id],[data-editorial-id]',
           (items) =>
             items.map(
               (item) => item.dataset.linkId || item.dataset.editorialId,
@@ -70,25 +72,25 @@ module.exports = async function checkTerminalBrowser(
         );
         assert.equal(
           await page.$$eval(
-            ".editorial-entry:has(.editorial-details)",
+            '.editorial-entry:has(.editorial-details)',
             (entries) =>
               entries.every(
                 (entry) =>
-                  new URL(entry.querySelector("h3 a").href).hostname ===
-                    "curriculum.guesant.net" &&
+                  new URL(entry.querySelector('h3 a').href).hostname ===
+                    'curriculum.guesant.net' &&
                   [
-                    "github.com",
-                    "gitlab.com",
-                    "www.youtube.com",
-                    "youtube.com",
-                    "youtu.be",
+                    'github.com',
+                    'gitlab.com',
+                    'www.youtube.com',
+                    'youtube.com',
+                    'youtu.be',
                   ].includes(
-                    new URL(entry.querySelector(".editorial-details").href)
+                    new URL(entry.querySelector('.editorial-details').href)
                       .hostname,
                   ) &&
                   Boolean(
                     entry.querySelector(
-                      ".editorial-details .link-third-party-badge",
+                      '.editorial-details .link-third-party-badge',
                     ),
                   ),
               ),
@@ -96,10 +98,10 @@ module.exports = async function checkTerminalBrowser(
           true,
           `${path} curriculum and platform destinations`,
         );
-        for (const mode of ["compact", "detailed"]) {
-          if (route.type !== "now")
+        for (const mode of ['compact', 'detailed']) {
+          if (route.type !== 'now')
             await page.click(`label[for="link-view-${mode}"]`);
-          for (const theme of ["light", "dark"]) {
+          for (const theme of ['light', 'dark']) {
             await page.evaluate((value) => {
               document.documentElement.dataset.theme = value;
             }, theme);
@@ -115,12 +117,12 @@ module.exports = async function checkTerminalBrowser(
                 overflow: document.documentElement.scrollWidth > innerWidth,
                 font: getComputedStyle(document.body).fontFamily,
                 skipHidden:
-                  document.querySelector(".skip-link").getBoundingClientRect()
+                  document.querySelector('.skip-link').getBoundingClientRect()
                     .bottom <= 0,
-                nestedLinks: Boolean(document.querySelector("a a")),
+                nestedLinks: Boolean(document.querySelector('a a')),
                 ids: [
                   ...document.querySelectorAll(
-                    "[data-link-id],[data-editorial-id]",
+                    '[data-link-id],[data-editorial-id]',
                   ),
                 ].map(
                   (item) => item.dataset.linkId || item.dataset.editorialId,
@@ -142,10 +144,10 @@ module.exports = async function checkTerminalBrowser(
             }
           }
         }
-        if (route.id === "home" && language.id === "pt-br") {
-          for (const mode of ["compact", "detailed"]) {
+        if (route.id === 'home' && language.id === 'pt-br') {
+          for (const mode of ['compact', 'detailed']) {
             await page.click(`label[for="link-view-${mode}"]`);
-            for (const theme of ["light", "dark"]) {
+            for (const theme of ['light', 'dark']) {
               await page.evaluate((value) => {
                 document.documentElement.dataset.theme = value;
               }, theme);
@@ -159,8 +161,8 @@ module.exports = async function checkTerminalBrowser(
             }
           }
         }
-        if (["home", "career", "code", "now"].includes(route.id)) {
-          for (const theme of ["light", "dark"]) {
+        if (['home', 'career', 'code', 'now'].includes(route.id)) {
+          for (const theme of ['light', 'dark']) {
             await page.evaluate((value) => {
               document.documentElement.dataset.theme = value;
             }, theme);
@@ -168,9 +170,9 @@ module.exports = async function checkTerminalBrowser(
               browser,
               page,
               ignoreUrl: true,
-              runners: ["axe", "htmlcs"],
-              standard: "WCAG2AA",
-              levelCapWhenNeedsReview: "warning",
+              runners: ['axe', 'htmlcs'],
+              standard: 'WCAG2AA',
+              levelCapWhenNeedsReview: 'warning',
               viewport: {
                 width: 1440,
                 height: await page.evaluate(() =>
@@ -179,7 +181,7 @@ module.exports = async function checkTerminalBrowser(
               },
             });
             const issues = result.issues.filter(
-              (issue) => issue.type === "error",
+              (issue) => issue.type === 'error',
             );
             accessibility.push({ path, theme, issues });
             fs.writeFileSync(
@@ -191,57 +193,57 @@ module.exports = async function checkTerminalBrowser(
         }
       }
     }
-    await page.goto(url("pt-br/career/?verify=terminal#main-content"), {
-      waitUntil: "networkidle2",
+    await page.goto(url('pt-br/career/?verify=terminal#main-content'), {
+      waitUntil: 'networkidle2',
     });
-    await page.click("[data-settings-open]");
+    await page.click('[data-settings-open]');
     await page.click('label[for="theme-light"]');
     await Promise.all([
-      page.waitForNavigation({ waitUntil: "networkidle2" }),
+      page.waitForNavigation({ waitUntil: 'networkidle2' }),
       page.click('label[for="interface-terminal"]'),
     ]);
-    assert.equal(new URL(page.url()).pathname, "/pt-br/terminal/career/");
-    assert.equal(new URL(page.url()).search, "?verify=terminal");
-    assert.equal(new URL(page.url()).hash, "#main-content");
+    assert.equal(new URL(page.url()).pathname, '/pt-br/terminal/career/');
+    assert.equal(new URL(page.url()).search, '?verify=terminal');
+    assert.equal(new URL(page.url()).hash, '#main-content');
     assert.equal(
-      await page.$eval("html", (root) => root.dataset.theme),
-      "light",
+      await page.$eval('html', (root) => root.dataset.theme),
+      'light',
     );
-    await page.keyboard.press("Escape");
+    await page.keyboard.press('Escape');
     assert.equal(
-      await page.$eval("#bios-dialog", (dialog) => dialog.open),
+      await page.$eval('#bios-dialog', (dialog) => dialog.open),
       false,
     );
-    await page.reload({ waitUntil: "networkidle2" });
+    await page.reload({ waitUntil: 'networkidle2' });
     assert.equal(
-      await page.$eval("#bios-dialog", (dialog) => dialog.open),
+      await page.$eval('#bios-dialog', (dialog) => dialog.open),
       false,
     );
     await Promise.all([
-      page.waitForNavigation({ waitUntil: "domcontentloaded" }),
-      page.click("[data-reboot]"),
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.click('[data-reboot]'),
     ]);
     assert.equal(
-      await page.$eval("#bios-dialog", (dialog) => dialog.open),
+      await page.$eval('#bios-dialog', (dialog) => dialog.open),
       true,
     );
-    assert.equal(new URL(page.url()).search, "?verify=terminal");
-    assert.equal(new URL(page.url()).hash, "#main-content");
-    await page.keyboard.press("Escape");
+    assert.equal(new URL(page.url()).search, '?verify=terminal');
+    assert.equal(new URL(page.url()).hash, '#main-content');
+    await page.keyboard.press('Escape');
     await page.emulateMediaFeatures([
-      { name: "prefers-reduced-motion", value: "reduce" },
+      { name: 'prefers-reduced-motion', value: 'reduce' },
     ]);
-    await page.goto(url("pt-br/terminal/?lobby-boot=1"), {
-      waitUntil: "networkidle2",
+    await page.goto(url('pt-br/terminal/?lobby-boot=1'), {
+      waitUntil: 'networkidle2',
     });
     assert.equal(
-      await page.$eval("#bios-dialog", (dialog) => dialog.open),
+      await page.$eval('#bios-dialog', (dialog) => dialog.open),
       false,
     );
-    await page.keyboard.press("Tab");
+    await page.keyboard.press('Tab');
     assert.equal(
       await page.$eval(
-        ".skip-link",
+        '.skip-link',
         (link) =>
           link === document.activeElement &&
           link.getBoundingClientRect().top >= 0,

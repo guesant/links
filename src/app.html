@@ -1,0 +1,40 @@
+<!doctype html>
+<html
+  lang="__LANG__"
+  data-interface="__INTERFACE__"
+  data-page="__PAGE__"
+  data-link-view="compact"
+  data-theme="system"
+  data-motion="on"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    %sveltekit.head%
+  </head>
+  <body class="__BODY_CLASS__">
+    <div style="display: contents">%sveltekit.body%</div>
+    <script src="/assets/js/theme-switcher.js" defer></script>
+    <script src="/assets/js/interface.js" defer></script>
+    <script src="/assets/js/link-view.js" defer></script>
+    <script
+      src="/assets/js/language-switcher.js"
+      data-language-config="__LANGUAGE_CONFIG__"
+      defer
+    ></script>
+    <script src="/assets/js/search.js" defer></script>
+    <script src="/assets/js/page-navigation.js" defer></script>
+    <script src="/assets/js/dialogs.js" defer></script>
+    <script src="/assets/js/uptime.js" defer></script>
+    <script src="/assets/js/ambient-motion.js" defer></script>
+    <script src="/assets/js/rail-layout.js" defer></script>
+    <script
+      src="/assets/js/pointer-sound.js"
+      data-pointer-press="/assets/audio/mouse-press.wav"
+      data-pointer-release="/assets/audio/mouse-release.wav"
+      defer
+    ></script>
+    <script src="/assets/js/tooltips.js" defer></script>
+  </body>
+</html>

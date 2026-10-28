@@ -1,7 +1,0 @@
-{{ define "main" }}
-  {{ $localized := index hugo.Data.links.locales (lower .Site.Language.Lang) }}
-  {{ partial "presentation.html" (dict "content" $localized.presentation) }}
-  {{ partial "link-view.html" (dict "pageKey" "sections") }}
-  {{ partial "category-gallery.html" . }}
-  {{ partial "home-updates.html" . }}
-{{ end }}

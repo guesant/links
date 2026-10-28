@@ -7,34 +7,43 @@ server := if env("LINKS_CONTAINER", "") == "1" { "" } else { compose + " --servi
 default:
     @just --list
 
-dev:
+dependencies:
+    {{ runner }} npm ci
+
+dev: dependencies
     {{ server }} node .config/scripts/tasks.mjs dev
 
-build:
+build: dependencies
     {{ runner }} node .config/scripts/tasks.mjs build
 
-check:
+check: dependencies
     {{ runner }} node .config/scripts/tasks.mjs check
 
-format:
+format: dependencies
     {{ runner }} node .config/scripts/tasks.mjs format
 
-format-fix:
+format-fix: dependencies
     {{ runner }} node .config/scripts/tasks.mjs format-fix
 
-test:
+test: dependencies
     {{ runner }} node .config/scripts/tasks.mjs test
 
-stats:
+lint: dependencies
+    {{ runner }} npm run lint
+
+typecheck: dependencies
+    {{ runner }} npm run check
+
+stats: dependencies
     {{ runner }} node .config/scripts/update-stats.mjs
 
-icons:
+icons: dependencies
     {{ runner }} node .config/scripts/generate-icons.mjs
 
-links:
+links: dependencies
     {{ runner }} node .config/scripts/verify-links.mjs
 
-preview:
+preview: dependencies
     {{ server }} node .config/scripts/tasks.mjs preview
 
 shell:

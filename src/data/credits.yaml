@@ -374,7 +374,7 @@ entries:
     license: reference-only
     official_url: https://www.chunkbase.com/
   - id: go-fonts
-    name: Go fonts, used by Hugo for the Open Graph image
+    name: Go fonts, used in the Open Graph image
     authors: Bigelow & Holmes Inc.
     license: go-fonts
     official_url: https://go.dev/blog/go-fonts
@@ -388,11 +388,6 @@ entries:
     authors: Gabriel R. Antunes, with scenery, ornaments and cursors generated using OpenAI image generation
     license: mit
     official_url: https://github.com/guesant/lobby
-  - id: hugo
-    name: Hugo Extended
-    authors: Hugo Authors
-    license: apache-2.0
-    official_url: https://gohugo.io/
   - id: docker
     name: Docker
     authors: Docker, Inc. and contributors

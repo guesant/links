@@ -1,8 +1,8 @@
-import { createRequire } from "node:module";
+import { createRequire } from 'node:module';
 
 const puppeteer = createRequire(
-  "/usr/local/lib/node_modules/pa11y-ci/package.json",
-)("puppeteer");
+  '/usr/local/lib/node_modules/pa11y-ci/package.json',
+)('puppeteer');
 
 export default async function accessibilityViewports(audits, defaults) {
   const browser = await puppeteer.launch(defaults.chromeLaunchConfig);
@@ -14,11 +14,11 @@ export default async function accessibilityViewports(audits, defaults) {
       const view = audit.actions?.includes(
         'click element label[for="link-view-detailed"]',
       )
-        ? "detailed"
-        : "compact";
+        ? 'detailed'
+        : 'compact';
       const key = `${audit.url}:${view}`;
       if (!heights.has(key)) {
-        await page.goto(audit.url, { waitUntil: "networkidle2" });
+        await page.goto(audit.url, { waitUntil: 'networkidle2' });
         await page.evaluate((view) => {
           document.documentElement.dataset.linkView = view;
         }, view);

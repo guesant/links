@@ -1,60 +1,60 @@
-import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import test from "node:test";
-import { loadFeed, validateFeed } from "./federation.mjs";
+import assert from 'node:assert/strict';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+import { loadFeed, validateFeed } from './federation.mjs';
 
 const source = {
-  id: "blog",
-  origin: "https://blog.guesant.net",
-  url: "https://blog.guesant.net/lobby.json",
+  id: 'blog',
+  origin: 'https://blog.guesant.net',
+  url: 'https://blog.guesant.net/lobby.json',
 };
 const entry = {
-  id: "post-one",
-  language: "pt-br",
-  type: "post",
-  title: "A public post",
-  summary: "Public summary",
-  url: "https://blog.guesant.net/posts/one/",
-  tags: ["testing"],
-  metadata: { date: "2026-01-01" },
+  id: 'post-one',
+  language: 'pt-br',
+  type: 'post',
+  title: 'A public post',
+  summary: 'Public summary',
+  url: 'https://blog.guesant.net/posts/one/',
+  tags: ['testing'],
+  metadata: { date: '2026-01-01' },
 };
-const feed = (items = [entry]) => ({ version: 1, source: "blog", items });
-test("federation keeps only public allowlisted fields", () => {
+const feed = (items = [entry]) => ({ version: 1, source: 'blog', items });
+test('federation keeps only public allowlisted fields', () => {
   const result = validateFeed(
     feed([
       {
         ...entry,
-        secret: "hidden",
-        metadata: { secret: "hidden", date: "2026-01-01" },
+        secret: 'hidden',
+        metadata: { secret: 'hidden', date: '2026-01-01' },
       },
     ]),
     source,
   );
-  assert(!JSON.stringify(result).includes("hidden"));
-  assert.equal(result.items[0].source, "blog");
-  assert.equal(result.items[0].metadata.date, "2026-01-01");
+  assert(!JSON.stringify(result).includes('hidden'));
+  assert.equal(result.items[0].source, 'blog');
+  assert.equal(result.items[0].metadata.date, '2026-01-01');
   assert.deepEqual(validateFeed(feed([]), source).items, []);
 });
-test("resume projects retain only safe declared public platform URLs", () => {
-  const resume = { id: "resume", origin: "https://curriculum.guesant.net" };
+test('resume projects retain only safe declared public platform URLs', () => {
+  const resume = { id: 'resume', origin: 'https://curriculum.guesant.net' };
   const project = {
     ...entry,
-    type: "project",
-    url: "https://curriculum.guesant.net/en/#project-one",
-    metadata: { content_url: "https://github.com/guesant/ava-pro" },
+    type: 'project',
+    url: 'https://curriculum.guesant.net/en/#project-one',
+    metadata: { content_url: 'https://github.com/guesant/ava-pro' },
   };
-  const input = { version: 1, source: "resume", items: [project] };
+  const input = { version: 1, source: 'resume', items: [project] };
   const result = validateFeed(input, resume).items[0];
   assert.equal(result.url, project.url);
   assert.equal(result.metadata.content_url, project.metadata.content_url);
   for (const url of [
-    "javascript:alert(1)",
-    "http://github.com/guesant/ava-pro",
-    "https://github.com.evil.test/guesant/ava-pro",
-    "https://user:secret@github.com/guesant/ava-pro",
-    "https://github.com:444/guesant/ava-pro",
+    'javascript:alert(1)',
+    'http://github.com/guesant/ava-pro',
+    'https://github.com.evil.test/guesant/ava-pro',
+    'https://user:secret@github.com/guesant/ava-pro',
+    'https://github.com:444/guesant/ava-pro',
   ])
     assert.throws(() =>
       validateFeed(
@@ -63,7 +63,7 @@ test("resume projects retain only safe declared public platform URLs", () => {
       ),
     );
   assert.throws(() =>
-    validateFeed({ ...input, items: [{ ...project, type: "case" }] }, resume),
+    validateFeed({ ...input, items: [{ ...project, type: 'case' }] }, resume),
   );
   assert.throws(() =>
     validateFeed(feed([{ ...entry, metadata: project.metadata }]), source),
@@ -71,73 +71,73 @@ test("resume projects retain only safe declared public platform URLs", () => {
 });
 for (const [name, modify] of [
   [
-    "unknown version",
+    'unknown version',
     (value) => {
       value.version = 2;
     },
   ],
   [
-    "wrong source",
+    'wrong source',
     (value) => {
-      value.source = "resume";
+      value.source = 'resume';
     },
   ],
   [
-    "unknown type",
+    'unknown type',
     (value) => {
-      value.items[0].type = "unknown";
+      value.items[0].type = 'unknown';
     },
   ],
   [
-    "missing title",
+    'missing title',
     (value) => {
-      value.items[0].title = "";
+      value.items[0].title = '';
     },
   ],
   [
-    "duplicate identifier",
+    'duplicate identifier',
     (value) => {
       value.items.push({ ...value.items[0] });
     },
   ],
   [
-    "unsafe URL",
+    'unsafe URL',
     (value) => {
-      value.items[0].url = "javascript:alert(1)";
+      value.items[0].url = 'javascript:alert(1)';
     },
   ],
   [
-    "wrong canonical host",
+    'wrong canonical host',
     (value) => {
-      value.items[0].url = "https://blog.guesant.net.evil.test/post";
+      value.items[0].url = 'https://blog.guesant.net.evil.test/post';
     },
   ],
   [
-    "credentials",
+    'credentials',
     (value) => {
-      value.items[0].url = "https://user:pass@blog.guesant.net/post";
+      value.items[0].url = 'https://user:pass@blog.guesant.net/post';
     },
   ],
   [
-    "private",
+    'private',
     (value) => {
       value.items[0].private = true;
     },
   ],
   [
-    "disabled",
+    'disabled',
     (value) => {
       value.items[0].enabled = false;
     },
   ],
   [
-    "draft",
+    'draft',
     (value) => {
       value.items[0].draft = true;
     },
   ],
   [
-    "nonpublic",
+    'nonpublic',
     (value) => {
       value.items[0].public = false;
     },
@@ -149,8 +149,8 @@ for (const [name, modify] of [
     assert.throws(() => validateFeed(value, source));
   });
 }
-test("federation uses valid cache only for network failures", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "lobby-feed-"));
+test('federation uses valid cache only for network failures', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'lobby-feed-'));
   try {
     const messages = [];
     const options = {
@@ -167,7 +167,7 @@ test("federation uses valid cache only for network failures", async () => {
     const result = await loadFeed(source, {
       ...options,
       fetcher: async () => {
-        throw new Error("Offline");
+        throw new Error('Offline');
       },
     });
     assert.equal(result.items.length, 1);
@@ -182,24 +182,24 @@ test("federation uses valid cache only for network failures", async () => {
       }),
     );
     assert.equal(
-      JSON.parse(await readFile(join(directory, "blog.json"), "utf8")).version,
+      JSON.parse(await readFile(join(directory, 'blog.json'), 'utf8')).version,
       1,
     );
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
 });
-test("federation fails without usable cache and supports local generated inputs", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "lobby-feed-"));
+test('federation fails without usable cache and supports local generated inputs', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'lobby-feed-'));
   try {
     const fetcher = async () => {
-      throw new Error("Offline");
+      throw new Error('Offline');
     };
     await assert.rejects(
       loadFeed(source, { cacheDirectory: directory, fetcher }),
       /No valid feed/,
     );
-    const localFile = join(directory, "local.json");
+    const localFile = join(directory, 'local.json');
     await writeFile(localFile, JSON.stringify(feed([])));
     assert.deepEqual(
       (
@@ -211,7 +211,7 @@ test("federation fails without usable cache and supports local generated inputs"
       ).items,
       [],
     );
-    await writeFile(localFile, "{}");
+    await writeFile(localFile, '{}');
     await assert.rejects(
       loadFeed(source, { cacheDirectory: directory, localFile }),
     );

@@ -1,12 +1,12 @@
-import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { runInNewContext } from "node:vm";
-import test from "node:test";
-const script = await readFile("src/assets/js/interface.js", "utf8");
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { runInNewContext } from 'node:vm';
+import test from 'node:test';
+const script = await readFile('src/assets/js/interface.js', 'utf8');
 function harness({
-  current = "minecraft",
+  current = 'minecraft',
   reduced = false,
-  href = "https://guesant.net/pt-br/career/?x=1#skills",
+  href = 'https://guesant.net/pt-br/career/?x=1#skills',
 } = {}) {
   const events = new Map();
   const biosEvents = new Map();
@@ -23,9 +23,9 @@ function harness({
     hidden: true,
   }));
   const bootLine = { hidden: true };
-  const progress = { textContent: "" };
+  const progress = { textContent: '' };
   const root = {
-    dataset: { theme: "light", motion: "on", interface: current },
+    dataset: { theme: 'light', motion: 'on', interface: current },
   };
   let identifier = 0;
   class HTMLInputElement {
@@ -34,13 +34,13 @@ function harness({
       this.checked = true;
       this.dataset = {
         interfaceUrl:
-          value === "terminal"
-            ? "https://guesant.net/pt-br/terminal/career/"
-            : "https://guesant.net/pt-br/career/",
+          value === 'terminal'
+            ? 'https://guesant.net/pt-br/terminal/career/'
+            : 'https://guesant.net/pt-br/career/',
       };
     }
     matches(selector) {
-      return selector === "[data-interface-option]";
+      return selector === '[data-interface-option]';
     }
   }
   const bios = {
@@ -53,15 +53,15 @@ function harness({
       this.open = false;
     },
     querySelector(selector) {
-      if (selector === "[data-bios-interface]") return { textContent: "" };
-      if (selector === "[data-bios-boot-line]") return bootLine;
-      if (selector === "[data-bios-progress]") return progress;
+      if (selector === '[data-bios-interface]') return { textContent: '' };
+      if (selector === '[data-bios-boot-line]') return bootLine;
+      if (selector === '[data-bios-progress]') return progress;
       return {
-        addEventListener: (_, callback) => biosEvents.set("skip", callback),
+        addEventListener: (_, callback) => biosEvents.set('skip', callback),
       };
     },
     querySelectorAll(selector) {
-      return selector === "[data-bios-step]" ? postLines : [];
+      return selector === '[data-bios-step]' ? postLines : [];
     },
     addEventListener(name, callback) {
       biosEvents.set(name, callback);
@@ -71,10 +71,10 @@ function harness({
     documentElement: root,
     activeElement: null,
     querySelector(selector) {
-      return selector === "#bios-dialog" ? bios : null;
+      return selector === '#bios-dialog' ? bios : null;
     },
     querySelectorAll(selector) {
-      return selector === "dialog[open]" && bios.open ? [bios] : [];
+      return selector === 'dialog[open]' && bios.open ? [bios] : [];
     },
     addEventListener(name, callback) {
       events.set(name, [...(events.get(name) || []), callback]);
@@ -104,13 +104,13 @@ function harness({
   const emit = (name, event = {}) => {
     for (const callback of events.get(name) || []) callback(event);
   };
-  emit("DOMContentLoaded");
+  emit('DOMContentLoaded');
   return {
     root,
     state,
     bios,
     select(value) {
-      emit("change", { target: new HTMLInputElement(value) });
+      emit('change', { target: new HTMLInputElement(value) });
     },
     finish() {
       for (const [id, callback] of timers) {
@@ -120,11 +120,11 @@ function harness({
     },
     clearBootMarker() {
       const url = new URL(browserLocation.href);
-      url.searchParams.delete("lobby-boot");
+      url.searchParams.delete('lobby-boot');
       browserLocation.href = url.href;
     },
     skip() {
-      biosEvents.get("skip")();
+      biosEvents.get('skip')();
     },
     tick() {
       const [id, callback] = timers.entries().next().value;
@@ -135,20 +135,20 @@ function harness({
     bootLine,
     progress,
     escape() {
-      biosEvents.get("cancel")({ preventDefault() {} });
+      biosEvents.get('cancel')({ preventDefault() {} });
     },
   };
 }
-test("interface route is independent from appearance and stored preferences", () => {
-  const h = harness({ current: "terminal" });
-  assert.equal(h.root.dataset.interface, "terminal");
-  assert.equal(h.root.dataset.theme, "light");
+test('interface route is independent from appearance and stored preferences', () => {
+  const h = harness({ current: 'terminal' });
+  assert.equal(h.root.dataset.interface, 'terminal');
+  assert.equal(h.root.dataset.theme, 'light');
   assert.equal(h.state.bootCount, 0);
 });
-test("BIOS reveals the mock POST progressively after opening the Terminal route", () => {
+test('BIOS reveals the mock POST progressively after opening the Terminal route', () => {
   const h = harness({
-    current: "terminal",
-    href: "https://guesant.net/pt-br/terminal/career/?lobby-boot=1#skills",
+    current: 'terminal',
+    href: 'https://guesant.net/pt-br/terminal/career/?lobby-boot=1#skills',
   });
   assert.equal(h.state.bootCount, 1);
   h.tick();
@@ -157,60 +157,60 @@ test("BIOS reveals the mock POST progressively after opening the Terminal route"
   h.skip();
   assert.equal(h.bios.open, false);
 });
-test("switching interfaces navigates to the matching route and boots Terminal once", () => {
+test('switching interfaces navigates to the matching route and boots Terminal once', () => {
   const h = harness();
-  h.select("terminal");
+  h.select('terminal');
   assert.equal(h.state.bootCount, 0);
   assert.equal(
     h.state.assigned[0],
-    "https://guesant.net/pt-br/terminal/career/?x=1&lobby-boot=1#skills",
+    'https://guesant.net/pt-br/terminal/career/?x=1&lobby-boot=1#skills',
   );
   const terminal = harness({
-    current: "terminal",
-    href: "https://guesant.net/pt-br/terminal/career/?x=1&lobby-boot=1#skills",
+    current: 'terminal',
+    href: 'https://guesant.net/pt-br/terminal/career/?x=1&lobby-boot=1#skills',
   });
   assert.equal(terminal.state.bootCount, 1);
   terminal.finish();
   assert.equal(terminal.bios.open, false);
   terminal.clearBootMarker();
-  terminal.select("terminal");
+  terminal.select('terminal');
   assert.equal(terminal.state.assigned.length, 0);
-  terminal.select("minecraft");
+  terminal.select('minecraft');
   assert.equal(
     terminal.state.assigned[0],
-    "https://guesant.net/pt-br/career/?x=1#skills",
+    'https://guesant.net/pt-br/career/?x=1#skills',
   );
   assert.equal(terminal.state.bootCount, 1);
 });
-test("Reboot consumes its marker once and preserves Terminal route, query and hash", () => {
+test('Reboot consumes its marker once and preserves Terminal route, query and hash', () => {
   const h = harness({
-    current: "terminal",
-    href: "https://guesant.net/pt-br/terminal/career/?x=1&lobby-boot=1#skills",
+    current: 'terminal',
+    href: 'https://guesant.net/pt-br/terminal/career/?x=1&lobby-boot=1#skills',
   });
   assert.equal(h.state.bootCount, 1);
-  assert.equal(h.root.dataset.interface, "terminal");
+  assert.equal(h.root.dataset.interface, 'terminal');
   assert.equal(
     h.state.replaced[0],
-    "https://guesant.net/pt-br/terminal/career/?x=1#skills",
+    'https://guesant.net/pt-br/terminal/career/?x=1#skills',
   );
 });
-for (const method of ["skip", "escape"])
+for (const method of ['skip', 'escape'])
   test(`BIOS ${method} cancels its timer`, () => {
     const h = harness({
-      current: "terminal",
-      href: "https://guesant.net/pt-br/terminal/?lobby-boot=1",
+      current: 'terminal',
+      href: 'https://guesant.net/pt-br/terminal/?lobby-boot=1',
     });
     assert.equal(h.state.bootCount, 1);
     h[method]();
     h.finish();
     assert.equal(h.bios.open, false);
   });
-test("reduced motion skips BIOS waiting on a Terminal route", () => {
+test('reduced motion skips BIOS waiting on a Terminal route', () => {
   const h = harness({
-    current: "terminal",
+    current: 'terminal',
     reduced: true,
-    href: "https://guesant.net/pt-br/terminal/?lobby-boot=1",
+    href: 'https://guesant.net/pt-br/terminal/?lobby-boot=1',
   });
-  assert.equal(h.root.dataset.interface, "terminal");
+  assert.equal(h.root.dataset.interface, 'terminal');
   assert.equal(h.state.bootCount, 0);
 });
