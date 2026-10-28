@@ -762,16 +762,7 @@ const checks = [];
                 const sections = [
                   ...document.querySelectorAll(".category-card"),
                 ];
-                const wide =
-                  document.querySelector(".page-content").clientWidth >= 448;
-                const dividers = sections.map(
-                  (card) =>
-                    card
-                      .querySelector(".category-links")
-                      .getBoundingClientRect().left -
-                    card.getBoundingClientRect().left,
-                );
-                return sections.every((card, index) => {
+                return sections.every((card) => {
                   const style = getComputedStyle(card);
                   const summary = card.querySelector(".category-summary");
                   const links = card.querySelector(".category-links");
@@ -782,22 +773,11 @@ const checks = [];
                     .querySelector(".category-icon")
                     .getBoundingClientRect();
                   return (
-                    style.gridTemplateColumns.split(" ").length ===
-                      (wide ? 2 : 1) &&
+                    style.gridTemplateColumns.split(" ").length === 1 &&
                     Math.abs(icon.width - icon.height) < 1 &&
-                    (wide
-                      ? Math.abs(dividers[index] - dividers[0]) < 1 &&
-                        parseFloat(linkStyle.borderInlineStartWidth) === 1 &&
-                        (card.querySelector(".editorial-entry")
-                          ? Math.abs(summaryRect.top - listRect.top) < 1
-                          : Math.abs(
-                              summaryRect.top +
-                                summaryRect.height / 2 -
-                                listRect.top -
-                                listRect.height / 2,
-                            ) < 1)
-                      : summaryRect.bottom <= listRect.top &&
-                        parseFloat(linkStyle.borderInlineStartWidth) === 0)
+                    summaryRect.bottom <= listRect.top &&
+                    Math.abs(summaryRect.width - listRect.width) < 1 &&
+                    parseFloat(linkStyle.borderInlineStartWidth) === 0
                   );
                 });
               })(),
@@ -811,7 +791,12 @@ const checks = [];
                   style.borderRadius === "0px" &&
                   parseFloat(style.borderLeftWidth) === 0 &&
                   parseFloat(style.borderRightWidth) === 0 &&
-                  parseFloat(style.borderTopWidth) === 1 &&
+                  parseFloat(style.borderTopWidth) +
+                    parseFloat(
+                      getComputedStyle(list.previousElementSibling)
+                        .borderBottomWidth,
+                    ) ===
+                    1 &&
                   parseFloat(style.borderBottomWidth) === 1 &&
                   style.boxShadow === "none" &&
                   items.every((item, index) => {
@@ -830,7 +815,9 @@ const checks = [];
                       ).gridTemplateColumns.split(" ").length === 3 &&
                       rowStyle.borderRadius === "0px" &&
                       parseFloat(rowStyle.paddingTop) > 0 &&
-                      parseFloat(rowStyle.paddingLeft) === 0 &&
+                      parseFloat(rowStyle.paddingLeft) >
+                        parseFloat(rowStyle.paddingTop) &&
+                      rowStyle.paddingLeft === rowStyle.paddingRight &&
                       parseFloat(itemStyle.borderTopWidth) ===
                         (index ? 1 : 0) &&
                       (!index ||

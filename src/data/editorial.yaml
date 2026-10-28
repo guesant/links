@@ -1,5 +1,6 @@
 ui:
   pt-br:
+    links: "Links"
     platform_link: "Ver no {platform}"
     list_partial: "Mostrando {shown} de {total}"
     list_view_all: "Ver Todos"
@@ -62,6 +63,7 @@ ui:
     status: "Status"
     group: "Grupo"
   en:
+    links: "Links"
     platform_link: "View on {platform}"
     list_partial: "Showing {shown} of {total}"
     list_view_all: "View All"
@@ -124,6 +126,7 @@ ui:
     status: "Status"
     group: "Group"
   fr:
+    links: "Liens"
     platform_link: "Voir sur {platform}"
     list_partial: "Affichage de {shown} sur {total}"
     list_view_all: "Tout Voir"
@@ -186,6 +189,7 @@ ui:
     status: "Statut"
     group: "Groupe"
   es:
+    links: "Enlaces"
     platform_link: "Ver en {platform}"
     list_partial: "Mostrando {shown} de {total}"
     list_view_all: "Ver Todos"
@@ -248,6 +252,7 @@ ui:
     status: "Estado"
     group: "Grupo"
   it:
+    links: "Link"
     platform_link: "Apri su {platform}"
     list_partial: "Visualizzati {shown} di {total}"
     list_view_all: "Vedi Tutti"
@@ -310,6 +315,7 @@ ui:
     status: "Stato"
     group: "Gruppo"
   zh:
+    links: "链接"
     platform_link: "在 {platform} 上查看"
     list_partial: "显示 {shown} 项，共 {total} 项"
     list_view_all: "查看全部"

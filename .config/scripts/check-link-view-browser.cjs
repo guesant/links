@@ -132,26 +132,67 @@ module.exports = async function checkLinkViewBrowser(
                     getComputedStyle(list).gridTemplateColumns.split(" ")
                       .length === 1,
                 ),
-                fullWidth:
-                  !detailed ||
-                  [...document.querySelectorAll(".category-card")].every(
-                    (card) => {
-                      const style = getComputedStyle(card);
-                      const available =
-                        card.clientWidth -
-                        parseFloat(style.paddingLeft) -
-                        parseFloat(style.paddingRight);
-                      return (
-                        getComputedStyle(card).gridTemplateColumns.split(" ")
-                          .length === 1 &&
-                        Math.abs(
-                          card
-                            .querySelector(".category-links")
-                            .getBoundingClientRect().width - available,
-                        ) < 1
-                      );
-                    },
-                  ),
+                fullWidth: [
+                  ...document.querySelectorAll(".category-card"),
+                ].every((card) => {
+                  const style = getComputedStyle(card);
+                  const available =
+                    card.clientWidth -
+                    parseFloat(style.paddingLeft) -
+                    parseFloat(style.paddingRight);
+                  return (
+                    getComputedStyle(card).gridTemplateColumns.split(" ")
+                      .length === 1 &&
+                    Math.abs(
+                      card
+                        .querySelector(".category-links")
+                        .getBoundingClientRect().width - available,
+                    ) < 1
+                  );
+                }),
+                categoryHeaderLayout: [
+                  ...document.querySelectorAll(".category-summary"),
+                ].every((summary) => {
+                  const icon = summary
+                    .querySelector(".category-icon")
+                    .getBoundingClientRect();
+                  const title = summary
+                    .querySelector(".category-title")
+                    .getBoundingClientRect();
+                  const heading = summary
+                    .querySelector(".category-heading")
+                    .getBoundingClientRect();
+                  const copy = summary
+                    .querySelector(".category-copy")
+                    ?.getBoundingClientRect();
+                  const rect = summary.getBoundingClientRect();
+                  const style = getComputedStyle(summary);
+                  const contentLeft = rect.left + parseFloat(style.paddingLeft);
+                  const contentWidth =
+                    summary.clientWidth -
+                    parseFloat(style.paddingLeft) -
+                    parseFloat(style.paddingRight);
+                  return (
+                    getComputedStyle(summary).gridTemplateColumns.split(" ")
+                      .length === 1 &&
+                    Math.abs(
+                      heading.left +
+                        heading.width / 2 -
+                        contentLeft -
+                        contentWidth / 2,
+                    ) < 1 &&
+                    icon.bottom <= title.top &&
+                    Math.abs(
+                      icon.left + icon.width / 2 - title.left - title.width / 2,
+                    ) < 1 &&
+                    (!copy ||
+                      (heading.bottom <= copy.top &&
+                        Math.abs(copy.width - contentWidth) < 1 &&
+                        getComputedStyle(
+                          summary.querySelector(".category-copy"),
+                        ).textAlign === "center"))
+                  );
+                }),
                 linksIndependent: [
                   ...document.querySelectorAll(".category-preview-link"),
                 ].every(
@@ -165,8 +206,8 @@ module.exports = async function checkLinkViewBrowser(
                   ),
                 ].every(
                   (entry) =>
-                    new URL(entry.querySelector("h3 a").href).hostname ===
-                      "curriculum.guesant.net" &&
+                    new URL(entry.querySelector(":is(h3,h5) a").href)
+                      .hostname === "curriculum.guesant.net" &&
                     [
                       "github.com",
                       "gitlab.com",
@@ -184,6 +225,17 @@ module.exports = async function checkLinkViewBrowser(
                       ),
                     ),
                 ),
+                editorialBorders: [
+                  ...document.querySelectorAll(".editorial-group-items"),
+                ].every(
+                  (group) =>
+                    parseFloat(getComputedStyle(group).borderBottomWidth) > 0,
+                ),
+                editorialSummaries: [
+                  ...document.querySelectorAll(
+                    '.editorial-entry:is([data-editorial-type="skill"],[data-editorial-type="project"]) .editorial-description',
+                  ),
+                ].every(visible),
                 numericFit: [...document.querySelectorAll(".statistic dd")]
                   .filter(visible)
                   .every((element) => {
@@ -237,6 +289,9 @@ module.exports = async function checkLinkViewBrowser(
               "details",
               "columns",
               "fullWidth",
+              "categoryHeaderLayout",
+              "editorialBorders",
+              "editorialSummaries",
               "linksIndependent",
               "editorialDestinations",
               "numericFit",

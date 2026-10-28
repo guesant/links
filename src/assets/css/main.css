@@ -166,6 +166,7 @@
   --color-wood-divider-wash: rgb(128 85 47 / 0.65);
   --preview-row-height: var(--control-min-height);
   --preview-row-padding: var(--space-2);
+  --preview-row-padding-inline: var(--space-3);
   --preview-icon-size: 1.25rem;
   --visually-hidden-size: 0.0625rem;
   --pixel-border: 0.125rem;
@@ -1275,19 +1276,32 @@ input {
 }
 .category-summary {
   display: grid;
-  grid-template-columns: var(--icon-frame-size) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
+  justify-items: center;
   gap: var(--summary-gap);
   min-width: var(--space-0);
+}
+.category-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--summary-gap);
+  min-width: var(--space-0);
+  max-width: var(--size-full);
 }
 .category-card:has(.editorial-entry) .category-summary {
   align-self: start;
 }
 .category-links {
+  display: grid;
+  gap: var(--space-5);
   min-width: var(--space-0);
 }
 .category-icon {
   display: grid;
+  flex-shrink: 0;
   place-items: center;
   width: var(--icon-frame-size);
   height: var(--icon-frame-size);
@@ -1307,10 +1321,12 @@ input {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
   min-width: var(--space-0);
+  width: var(--size-full);
   text-align: center;
 }
 .category-title {
   min-width: var(--space-0);
+  text-align: center;
   color: var(--color-accent-strong);
   font-family: var(--font-body);
   font-size: var(--font-size-category);
@@ -1346,7 +1362,7 @@ input {
   gap: var(--space-2);
   min-width: var(--space-0);
   min-height: var(--preview-row-height);
-  padding: var(--preview-row-padding) var(--space-0);
+  padding: var(--preview-row-padding) var(--preview-row-padding-inline);
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
   overflow-wrap: anywhere;
@@ -1356,7 +1372,7 @@ input {
 .category-preview-link:focus-visible {
   background: var(--color-surface-hover);
   color: var(--color-accent-strong);
-  text-decoration: underline;
+  text-decoration: none;
 }
 .category-preview-link:active {
   box-shadow: var(--shadow-pressed);
@@ -2098,23 +2114,6 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
   }
 }
 @container sections (min-width: 28rem) {
-  .category-card {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-0);
-  }
-  .category-summary {
-    padding-inline-end: var(--divider-gap);
-  }
-  .category-copy {
-    text-align: start;
-  }
-  .category-links {
-    align-self: stretch;
-    display: grid;
-    align-items: center;
-    padding-inline-start: var(--divider-gap);
-    border-inline-start: var(--divider-width) solid var(--color-border-control);
-  }
   .category-preview {
     --preview-row-height: var(--space-6);
     --preview-row-padding: var(--space-1);
@@ -2275,6 +2274,9 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
   gap: var(--space-0);
   border-block: var(--divider-width) solid var(--color-border-control);
 }
+:root[data-link-view="compact"] .content-link-group > .link-list {
+  border-block-start: var(--space-0);
+}
 :root[data-link-view="compact"] .link-row + .link-row {
   border-block-start: var(--divider-width) solid var(--color-border-control);
 }
@@ -2283,7 +2285,7 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
   align-items: center;
   gap: var(--space-0);
   min-height: var(--preview-row-height);
-  padding: var(--preview-row-padding) var(--space-0);
+  padding: var(--preview-row-padding) var(--preview-row-padding-inline);
   border: var(--space-0);
   background: var(--color-transparent);
   box-shadow: none;
@@ -2352,13 +2354,10 @@ html[data-page-hidden="true"] :is(.world-clouds, .lantern-glow) {
   gap: var(--divider-gap);
 }
 :root[data-link-view="detailed"] .category-summary {
+  gap: var(--space-2);
   padding-inline-end: var(--space-0);
 }
-:root[data-link-view="detailed"] .category-copy {
-  text-align: center;
-}
 :root[data-link-view="detailed"] .category-links {
-  display: block;
   padding-inline-start: var(--space-0);
   border-inline-start: var(--space-0);
 }

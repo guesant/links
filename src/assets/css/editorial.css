@@ -10,8 +10,33 @@
 }
 .editorial-list {
   display: grid;
-  gap: var(--space-0);
+  gap: var(--space-5);
   min-width: var(--space-0);
+}
+.editorial-group,
+.editorial-group-items,
+.content-link-group {
+  display: grid;
+  min-width: var(--space-0);
+}
+.content-list-heading {
+  padding-block: var(--space-3);
+  border-block-end: var(--divider-width) solid var(--color-border-control);
+}
+.editorial-group-items {
+  border-block-end: var(--divider-width) solid var(--color-border-control);
+}
+.content-list-heading :is(h2, h4) {
+  color: var(--color-accent-strong);
+  font-family: var(--font-body);
+  font-size: var(--font-size-category);
+  line-height: var(--line-height-tight);
+}
+.content-link-group > .category-preview {
+  border-block-start: var(--space-0);
+}
+.editorial-group-items > .editorial-entry:first-child {
+  border-block-start: var(--space-0);
 }
 .list-status {
   display: flex;
@@ -38,7 +63,7 @@
   justify-content: space-between;
   gap: var(--space-2);
 }
-.editorial-entry h3 {
+.editorial-entry :is(h3, h5) {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   line-height: var(--line-height-tight);
@@ -98,10 +123,69 @@
   position: relative;
   z-index: 2;
 }
+:root[data-interface="minecraft"] .editorial-entry a {
+  text-decoration: none;
+}
+:root[data-interface="minecraft"] .editorial-entry a:hover {
+  color: var(--color-accent-strong);
+}
+:root[data-interface="minecraft"][data-link-view="compact"] .editorial-entry {
+  padding: var(--preview-row-padding) var(--preview-row-padding-inline);
+}
+:root[data-interface="minecraft"]
+  .editorial-entry[data-editorial-type="project"]
+  .editorial-entry-heading {
+  display: grid;
+  grid-template-columns: var(--preview-icon-size) minmax(0, 1fr) var(
+      --external-icon-size
+    );
+  align-items: center;
+}
+:root[data-interface="minecraft"] .editorial-entry-icon,
+:root[data-interface="minecraft"] .editorial-entry-icon .site-icon {
+  width: var(--preview-icon-size);
+  height: var(--preview-icon-size);
+}
+:root[data-interface="minecraft"] .editorial-entry-heading :is(h3, h5) {
+  min-width: var(--space-0);
+  font-size: var(--font-size-small);
+}
+:root[data-interface="minecraft"]
+  .editorial-entry[data-editorial-type="project"]
+  .editorial-origin {
+  grid-column: 2 / -1;
+}
+:root[data-interface="minecraft"] .editorial-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto var(--external-icon-size);
+  align-items: center;
+  justify-self: stretch;
+  gap: var(--space-2);
+  min-width: var(--space-0);
+  min-height: var(--preview-row-height);
+  padding-block: var(--preview-row-padding);
+  color: var(--color-text-muted);
+}
 :root[data-link-view="compact"]
   .editorial-entry
   :is(.editorial-description, .editorial-metadata, .editorial-tags) {
   display: none;
+}
+:root[data-interface="minecraft"][data-link-view="compact"]
+  .editorial-entry:is(
+    [data-editorial-type="skill"],
+    [data-editorial-type="project"]
+  )
+  :is(.editorial-description, .editorial-tags, .editorial-metadata) {
+  display: grid;
+}
+:root[data-interface="minecraft"][data-link-view="compact"]
+  .editorial-entry:is(
+    [data-editorial-type="skill"],
+    [data-editorial-type="project"]
+  )
+  .editorial-tags {
+  display: flex;
 }
 .search-dialog {
   width: min(

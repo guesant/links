@@ -10,24 +10,37 @@
 {{ $scope := cond (.preview | default false) "preview" "page" }}
 {{ $selection := partial "list-selection.html" (dict "items" $allItems "limit" .limit) }}
 {{ $items = $selection.items }}
+{{ $previewHeading := and (.preview | default false) (eq $interface "minecraft") }}
 {{ if $items }}
   <div class="editorial-list" data-editorial-section="{{ $id }}">
-    {{ $lastKind := "" }}
-    {{ range $items }}
+    {{ $types := slice }}
+    {{ range $items }}{{ if not (in $types .type) }}{{ $types = $types | append .type }}{{ end }}{{ end }}
+    {{ range $types }}
+    {{ $type := . }}
+    <section class="editorial-group" data-editorial-kind="{{ $type }}">
+      {{ partial "content-list-heading.html" (dict "title" (index $ui $type | default (index $ui $id)) "preview" $previewHeading) }}
+      <div class="editorial-group-items">
+    {{ range where $items "type" $type }}
       {{ $entry := . }}
-      {{ if and (not $.preview) (ne .type $lastKind) }}
-        <h2 class="editorial-kind">{{ index $ui .type | default (index $ui $id) }}</h2>
-        {{ $lastKind = .type }}
-      {{ end }}
-      <article class="editorial-entry" data-editorial-id="{{ .id }}" id="{{ $scope }}-{{ $id }}-{{ .id }}" lang="{{ .language }}">
+      <article class="editorial-entry" data-editorial-type="{{ .type }}" data-editorial-id="{{ .id }}" id="{{ $scope }}-{{ $id }}-{{ .id }}" lang="{{ .language }}">
         <header class="editorial-entry-heading">
-          <h3>{{ if .url }}<a href="{{ if hasPrefix .url "/" }}{{ partial "interface-url.html" (dict "url" .url "locale" $locale "interface" $interface) }}{{ else }}{{ .url }}{{ end }}">{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</h3>
-          <span class="editorial-origin">{{ index $ui .type | default (index $ui $id) }} · {{ .source }}{{ if ne .language $locale }} · {{ $ui.language }}: {{ .language }}{{ end }}</span>
+          {{ if and (eq $interface "minecraft") (eq .type "project") }}
+            {{ $icon := "code" }}
+            {{ with .metadata.content_url }}{{ $icon = index (dict "github.com" "github" "gitlab.com" "gitlab" "youtube.com" "youtube" "www.youtube.com" "youtube" "youtu.be" "youtube") (lower (urls.Parse .).Hostname) | default "code" }}{{ end }}
+            <span class="editorial-entry-icon" aria-hidden="true">{{ partial "icon.html" $icon }}</span>
+          {{ end }}
+          {{ $title := .title }}
+          {{ if .url }}{{ $url := .url }}{{ if hasPrefix $url "/" }}{{ $url = partial "interface-url.html" (dict "url" $url "locale" $locale "interface" $interface) }}{{ end }}{{ $title = printf "<a href=\"%s\">%s</a>" ($url | htmlEscape) (.title | htmlEscape) | safeHTML }}{{ end }}
+          {{ if $previewHeading }}<h5>{{ $title }}</h5>{{ else }}<h3>{{ $title }}</h3>{{ end }}
+          {{ if and (eq $interface "minecraft") (eq .type "project") .url }}<span class="editorial-entry-indicator external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span>{{ end }}
+          {{ if eq $interface "terminal" }}<span class="editorial-origin">{{ .source }}{{ if ne .language $locale }} · {{ $ui.language }}: {{ .language }}{{ end }}</span>{{ else if ne .language $locale }}<span class="editorial-origin">{{ $ui.language }}: {{ .language }}</span>{{ end }}
         </header>
-        {{ with .details_url }}<a class="editorial-details" href="{{ . }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $entry.details_label }}: {{ $entry.title }}">{{ $entry.details_label }} <span class="link-third-party-badge">{{ (index hugo.Data.links.locales $locale).ui.third_party }}</span></a>{{ end }}
         {{ with .summary }}<p class="editorial-description">{{ . }}</p>{{ end }}
+        {{ with .details_url }}<a class="editorial-details" href="{{ . }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $entry.details_label }}: {{ $entry.title }}"><span>{{ $entry.details_label }}</span><span class="link-third-party-badge">{{ (index hugo.Data.links.locales $locale).ui.third_party }}</span><span class="external-link-icon" aria-hidden="true">{{ partial "icon.html" "external-link" }}</span></a>{{ end }}
         {{ with .tags }}<ul class="editorial-tags">{{ range . }}<li>{{ . }}</li>{{ end }}</ul>{{ end }}
-        {{ with .metadata }}
+        {{ $metadata := dict }}
+        {{ range $key, $value := .metadata }}{{ if and $value (ne $key "content_url") (not (and (eq $entry.type "experience") (eq $key "position"))) }}{{ $metadata = merge $metadata (dict $key $value) }}{{ end }}{{ end }}
+        {{ with $metadata }}
           <dl class="editorial-metadata">
             {{ range $key, $value := . }}
               {{ if and $value (ne $key "content_url") (not (and (eq $entry.type "experience") (eq $key "position"))) }}<div><dt>{{ index $ui $key | default $key }}</dt><dd>{{ if reflect.IsSlice $value }}{{ delimit $value ", " }}{{ else }}{{ $value }}{{ end }}</dd></div>{{ end }}
@@ -35,6 +48,9 @@
           </dl>
         {{ end }}
       </article>
+    {{ end }}
+      </div>
+    </section>
     {{ end }}
   </div>
 {{ end }}

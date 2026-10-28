@@ -505,6 +505,9 @@
   display: grid;
   min-width: var(--space-0);
 }
+:root[data-interface="terminal"] .editorial-group-items {
+  border-block-end: var(--divider-width) solid var(--terminal-border);
+}
 :root[data-interface="terminal"] .list-status {
   display: flex;
   flex-wrap: wrap;

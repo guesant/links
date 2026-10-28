@@ -974,7 +974,7 @@ test("platform project titles open the curriculum and keep separate platform lin
               assert(article[0].includes(title));
               assert(
                 article[0]
-                  .match(/<h3>[\s\S]*?<\/h3>/)[0]
+                  .match(/<h(?:3|5)>[\s\S]*?<\/h(?:3|5)>/)[0]
                   .includes(`https://curriculum.guesant.net/en/#project-${id}`),
               );
               if (url) {
@@ -1086,7 +1086,9 @@ test("experience titles retain the published engagement in previews, pages and s
               join(output, language.path, prefix, page),
               "utf8",
             );
-            const headings = [...html.matchAll(/<h3\b[^>]*>[\s\S]*?<\/h3>/g)];
+            const headings = [
+              ...html.matchAll(/<h(?:3|5)\b[^>]*>[\s\S]*?<\/h(?:3|5)>/g),
+            ];
             assert(headings.some(([heading]) => heading.includes(title)));
             if (language.id !== "pt-br")
               assert(
@@ -1189,6 +1191,17 @@ test("all Home sections preserve the complete page lists in both interfaces", as
               /\bdata-(?:category|home-update)=|<footer\b/,
             );
             const card = end < 0 ? tail : tail.slice(0, end);
+            const groupTypes = ids(card, "data-editorial-kind");
+            assert.equal(new Set(groupTypes).size, groupTypes.length);
+            for (const type of groupTypes) {
+              assert(card.includes(editorial.ui[language.id][type]));
+            }
+            if (name === "minecraft") {
+              assert.doesNotMatch(
+                card,
+                /class=["']?editorial-origin[^>]*>[^<]*resume/,
+              );
+            }
             const page = await readFile(
               join(output, language.path, prefix, section, "index.html"),
               "utf8",

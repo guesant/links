@@ -1,4 +1,6 @@
 {{ $selection := partial "list-selection.html" (dict "items" .items "limit" .limit) }}
+<section class="content-link-group">
+{{ if $selection.items }}{{ partial "content-list-heading.html" (dict "title" (index hugo.Data.editorial.ui .language).links "preview" true) }}{{ end }}
 <ul class="category-preview">
   {{ range $selection.items }}
     <li>
@@ -7,3 +9,4 @@
   {{ end }}
 </ul>
 {{ partial "list-status.html" (merge $selection (dict "language" .language "url" .url)) }}
+</section>
