@@ -4,10 +4,14 @@
   import TerminalPage from '$lib/TerminalPage.svelte';
 
   let { data } = $props();
+
   let terminal = $derived(data.interfaceName === 'terminal');
+
   let { config, editorialUI, localized, locale, page, languageRoutes } =
     $derived(data);
+
   let home = $derived(page.id === 'home');
+
   let title = $derived(
     home
       ? localized.seo.title
@@ -15,6 +19,7 @@
         ? data.now.seo.title
         : `${page.title} | ${config.profile.name}`,
   );
+
   let description = $derived(
     home
       ? localized.seo.description
@@ -22,13 +27,17 @@
         ? data.now.seo.description
         : page.description || localized.seo.description,
   );
+
   let canonical = $derived(`https://guesant.net${page.url}`);
+
   let siteCanonical = $derived(`https://guesant.net/${locale}/`);
+
   let defaultRoute = $derived(
     languageRoutes.find(
       (option) => option.id === config.language_preference.default,
     ),
   );
+
   let structuredData = $derived(
     JSON.stringify({
       '@context': 'https://schema.org',
@@ -66,6 +75,7 @@
       ],
     }).replaceAll('<', '\\u003c'),
   );
+
   let structuredDataMarkup = $derived(
     '<scr' +
       'ipt type="application/ld+json">' +

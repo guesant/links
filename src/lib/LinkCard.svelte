@@ -2,6 +2,7 @@
   import Icon from './Icon.svelte';
 
   let { item, thirdPartyLabel, preview = false, destination } = $props();
+
   const target = $derived(destination(item));
 </script>
 

@@ -8,6 +8,7 @@
   import { destinationFor } from './render-utils.js';
 
   let { data } = $props();
+
   let {
     config,
     editorialData,
@@ -23,18 +24,23 @@
     editorial,
     now,
   } = $derived(data);
+
   let language = $derived(
     config.language_options.find((entry) => entry.id === locale),
   );
+
   let home = $derived(page.id === 'home');
+
   let profile = $derived({
     ...config.profile,
     bio: localized.profile.bio,
     birthDate: config.profile.birth_date,
   });
+
   let homeURL = $derived(
     pages.find((entry) => entry.id === 'home')?.url || language.path,
   );
+
   let footerNav = $derived(
     pages.filter(
       (entry) =>
@@ -43,7 +49,9 @@
         entry.id === 'now',
     ),
   );
+
   const iconURL = '/assets/generated/rail-terminal.png';
+
   const lanternURL = '/assets/generated/rail-lantern.png';
 
   function destination(item) {

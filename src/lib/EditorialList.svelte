@@ -10,6 +10,7 @@
     pageURL,
     empty = false,
   } = $props();
+
   const kinds = {
     career: ['skill', 'experience', 'education'],
     code: ['project', 'case'],
@@ -19,6 +20,7 @@
     library: ['library'],
     curiosities: ['curiosities'],
   };
+
   const groups = $derived(
     (kinds[sectionID] || [...new Set(items.map((item) => item.type))])
       .map((type) => ({
@@ -27,6 +29,7 @@
       }))
       .filter((group) => group.items.length),
   );
+
   const missing = $derived(
     (kinds[sectionID] || []).filter(
       (type) => !items.some((item) => item.type === type),

@@ -1,9 +1,13 @@
 function lobbySelectList(items, limit = 0) {
   limit = Number(limit);
+
   if (!Number.isSafeInteger(limit) || limit < 0)
     throw new RangeError('List limit must be a nonnegative integer');
+
   const total = items.length;
+
   const selected = limit ? items.slice(0, limit) : items;
+
   return {
     items: selected,
     total,
@@ -11,14 +15,18 @@ function lobbySelectList(items, limit = 0) {
     partial: selected.length < total,
   };
 }
+
 function lobbySearchItems(index, query) {
   const normalize = (value) =>
     value
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLocaleLowerCase();
+
   const terms = normalize(query.trim()).split(/\s+/).filter(Boolean);
+
   if (!terms.length) return [];
+
   return index.filter((item) => {
     const haystack = normalize(
       [
@@ -28,28 +36,40 @@ function lobbySearchItems(index, query) {
         ...Object.values(item.metadata || {}),
       ].join(' '),
     );
+
     return terms.every((term) => haystack.includes(term));
   });
 }
+
 (() => {
   let currentOpen = () => {};
+
   const initialized = new WeakSet();
 
   function initialize() {
     const dialog = document.querySelector('#search-dialog');
+
     if (
       !dialog ||
       typeof dialog.showModal !== 'function' ||
       initialized.has(dialog)
     )
       return;
+
     initialized.add(dialog);
+
     const query = dialog.querySelector('input');
+
     const results = dialog.querySelector('#search-results');
+
     const status = dialog.querySelector('#search-status');
+
     const retry = dialog.querySelector('[data-search-retry]');
+
     let index;
+
     let loading;
+
     let state = 'idle';
 
     function render() {
@@ -57,22 +77,30 @@ function lobbySearchItems(index, query) {
       results.setAttribute('aria-busy', String(state === 'loading'));
       retry.hidden = state !== 'error';
       retry.disabled = state === 'loading';
+
       if (state === 'loading') {
         status.textContent = dialog.dataset.searchLoading;
+
         return;
       }
+
       if (state === 'error') {
         status.textContent = dialog.dataset.searchUnavailable;
+
         return;
       }
+
       if (!query.value.trim()) {
         status.textContent = dialog.dataset.searchStart;
+
         return;
       }
+
       const selection = lobbySelectList(
         lobbySearchItems(index || [], query.value),
         dialog.dataset.searchLimit,
       );
+
       status.textContent = selection.partial
         ? dialog.dataset.searchPartial
             .replaceAll('{shown}', String(selection.shown))
@@ -80,25 +108,36 @@ function lobbySearchItems(index, query) {
         : selection.total
           ? String(selection.total)
           : dialog.dataset.searchEmpty;
+
       const groups = new Map();
+
       for (const item of selection.items) {
         let list = groups.get(item.group);
+
         if (!list) {
           const heading = document.createElement('h3');
+
           heading.textContent = item.group;
           list = document.createElement('ul');
           results.append(heading, list);
           groups.set(item.group, list);
         }
+
         const row = document.createElement('li');
+
         const link = document.createElement('a');
+
         link.href = item.url;
         link.textContent = item.title;
+
         const meta = document.createElement('small');
+
         meta.textContent = `${dialog.dataset.searchSource}: ${item.source} · ${dialog.dataset.searchLanguage}: ${item.language}`;
         row.append(link, meta);
+
         if (item.details_url) {
           const details = document.createElement('a');
+
           details.href = item.details_url;
           details.textContent = item.details_label;
           details.target = '_blank';
@@ -110,22 +149,27 @@ function lobbySearchItems(index, query) {
           details.className = 'editorial-details';
           row.append(details);
         }
+
         list.append(row);
       }
     }
 
     async function load() {
       if (state === 'loading') return;
+
       state = 'loading';
       render();
+
       try {
         loading = fetch(dialog.dataset.searchIndex, {
           signal: AbortSignal.timeout(10000),
         }).then((response) => {
           if (!response.ok) throw new Error('Search unavailable');
+
           return response.json();
         });
         index = await loading;
+
         if (
           !Array.isArray(index) ||
           !index.every(
@@ -139,10 +183,13 @@ function lobbySearchItems(index, query) {
           )
         )
           throw new Error('Invalid search index');
+
         state = 'ready';
+
         if (dialog.open) render();
       } catch {
         state = 'error';
+
         if (dialog.open) render();
       } finally {
         loading = undefined;
@@ -151,8 +198,10 @@ function lobbySearchItems(index, query) {
 
     function open() {
       if (dialog.open) return;
+
       dialog.showModal();
       query.focus();
+
       if (state === 'idle') load();
       else render();
     }
@@ -165,7 +214,9 @@ function lobbySearchItems(index, query) {
     query.addEventListener('input', render);
     query.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowDown') return;
+
       const first = results.querySelector('a');
+
       if (first) {
         event.preventDefault();
         first.focus();
@@ -173,10 +224,15 @@ function lobbySearchItems(index, query) {
     });
     results.addEventListener('keydown', (event) => {
       if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+
       const links = [...results.querySelectorAll('a')];
+
       const position = links.indexOf(document.activeElement);
+
       if (position < 0) return;
+
       event.preventDefault();
+
       if (event.key === 'ArrowUp' && position === 0) query.focus();
       else
         links[
@@ -199,6 +255,7 @@ function lobbySearchItems(index, query) {
     document.addEventListener('keydown', (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
+
         if (
           !document.querySelector('dialog[open]') ||
           document.querySelector('#search-dialog')?.open
@@ -207,5 +264,6 @@ function lobbySearchItems(index, query) {
       }
     });
   }
+
   initialize();
 })();

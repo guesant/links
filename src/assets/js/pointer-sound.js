@@ -1,16 +1,28 @@
 (() => {
   const urls = document.currentScript?.dataset;
+
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
   if (!urls?.pointerPress || !urls.pointerRelease || !AudioContextClass) return;
+
   let context;
+
   let gain;
+
   let playing;
+
   let pressed;
+
   let pressedAt = 0;
+
   let releaseTimer;
+
   let releasePointer;
+
   const minimumPressDuration = 80;
+
   const buffers = {};
+
   try {
     context = new AudioContextClass();
     gain = context.createGain();
@@ -19,6 +31,7 @@
   } catch {
     return;
   }
+
   for (const [name, url] of Object.entries({
     press: urls.pointerPress,
     release: urls.pointerRelease,
@@ -31,14 +44,18 @@
       })
       .catch(() => {});
   }
+
   function stop() {
     if (!playing) return;
+
     try {
       playing.stop();
     } catch {}
+
     playing.disconnect();
     playing = null;
   }
+
   function reset() {
     pressed = undefined;
     clearTimeout(releaseTimer);
@@ -46,17 +63,22 @@
     releasePointer = undefined;
     stop();
   }
+
   function play(name) {
     stop();
+
     if (!buffers[name] || context.state !== 'running') return;
+
     try {
       const source = context.createBufferSource();
+
       source.buffer = buffers[name];
       source.connect(gain);
       source.addEventListener(
         'ended',
         () => {
           source.disconnect();
+
           if (playing === source) playing = null;
         },
         { once: true },
@@ -65,20 +87,25 @@
       playing = source;
     } catch {}
   }
+
   const valid = (event) =>
     event.isTrusted && event.pointerType === 'mouse' && event.button === 0;
+
   document.addEventListener(
     'pointerdown',
     (event) => {
       if (!valid(event)) return;
+
       reset();
       pressed = event.pointerId;
       pressedAt = performance.now();
+
       if (context.state === 'suspended') {
         try {
           Promise.resolve(context.resume()).catch(() => {});
         } catch {}
       }
+
       play('press');
     },
     { capture: true, passive: true },
@@ -87,9 +114,13 @@
     'pointerup',
     (event) => {
       if (!valid(event) || pressed !== event.pointerId) return;
+
       pressed = undefined;
+
       if (!buffers.release || context.state !== 'running') return;
+
       const remaining = minimumPressDuration - (performance.now() - pressedAt);
+
       if (remaining <= 0) {
         play('release');
       } else {

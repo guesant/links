@@ -2,9 +2,13 @@ const assert = require('node:assert/strict');
 
 module.exports = async function checkLanguageBrowser(browser, baseURL) {
   const origin = new URL(baseURL);
+
   const href = (path) => new URL(path.replace(/^\//, ''), origin).href;
+
   const key = 'guesant-links-language';
+
   let passed = 0;
+
   for (const scenario of [
     { from: '/', to: '/pt-br/', languages: ['pt-PT', 'en-US'] },
     { from: '/', to: '/en/', languages: ['en-US'] },
@@ -26,18 +30,23 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
     { from: '/en/now/', to: '/en/now/', languages: ['fr'], saved: 'fr' },
   ]) {
     const context = await browser.createBrowserContext();
+
     try {
       const page = await context.newPage();
+
       await page.evaluateOnNewDocument(
         ({ languages, saved, key }) => {
           Object.defineProperty(navigator, 'languages', {
             get: () => languages,
           });
+
           if (saved) localStorage.setItem(key, saved);
         },
         { ...scenario, key },
       );
+
       let navigations = 0;
+
       page.on('request', (request) => {
         if (
           request.isNavigationRequest() &&
@@ -61,9 +70,12 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
       await context.close();
     }
   }
+
   const context = await browser.createBrowserContext();
+
   try {
     const page = await context.newPage();
+
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
     });
@@ -91,6 +103,7 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
   } finally {
     await context.close();
   }
+
   console.log(
     JSON.stringify({ languageBrowserScenarios: passed, failures: [] }),
   );

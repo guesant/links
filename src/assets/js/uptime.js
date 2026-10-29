@@ -2,10 +2,13 @@ let uptimeElements = document.querySelectorAll('[data-uptime]');
 
 const elapsedParts = (birthDate, now) => {
   const [year, month, day] = birthDate.split('-').map(Number);
+
   const today = new Date(
     Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
   );
+
   let years = today.getUTCFullYear() - year;
+
   let anniversary = new Date(Date.UTC(year + years, month - 1, day));
 
   if (anniversary > today) {
@@ -25,6 +28,7 @@ const elapsedParts = (birthDate, now) => {
       day,
     ),
   );
+
   if (monthiversary > today) {
     months -= 1;
     monthiversary = new Date(
@@ -43,9 +47,12 @@ const elapsedParts = (birthDate, now) => {
 
 const formatUptime = (element, now) => {
   const parts = elapsedParts(element.dataset.uptime, now);
+
   const locale =
     element.dataset.uptimeLocale || document.documentElement.lang || 'en';
+
   const units = ['years', 'months', 'days'];
+
   const unitNames = {
     years: 'year',
     months: 'month',
@@ -69,17 +76,20 @@ const updateUptime = () => {
   uptimeElements.forEach((element) => {
     element.textContent = formatUptime(element, now);
   });
+
   const tomorrow = new Date(
     now.getFullYear(),
     now.getMonth(),
     now.getDate() + 1,
   );
+
   window.clearTimeout(updateUptime.timer);
   updateUptime.timer = window.setTimeout(updateUptime, tomorrow - now);
 };
 
 document.addEventListener('lobby:navigate', () => {
   uptimeElements = document.querySelectorAll('[data-uptime]');
+
   if (uptimeElements.length) updateUptime();
 });
 

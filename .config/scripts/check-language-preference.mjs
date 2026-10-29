@@ -17,11 +17,14 @@ function harness({
 } = {}) {
   const routes = ['pt-br', 'zh', 'fr', 'es', 'it', 'en'].map((id) => {
     const home = `${prefix}${id}/`;
+
     return { id, home, url: unavailable.includes(id) ? '' : `${home}${page}` };
   });
+
   let url = new URL(
     `https://example.test${current ? routes.find((r) => r.id === current).url : prefix}${suffix}`,
   );
+
   const state = {
     saved,
     writes: [],
@@ -29,15 +32,19 @@ function harness({
     assignments: [],
     cleanups: [],
   };
+
   const listeners = new Map();
+
   class HTMLSelectElement {
     constructor(id) {
       this.selectedOptions = [{ dataset: { language: id } }];
     }
+
     matches() {
       return true;
     }
   }
+
   runInNewContext(script, {
     URL,
     HTMLSelectElement,
@@ -61,10 +68,12 @@ function harness({
       localStorage: {
         getItem() {
           if (blocked) throw new Error('Storage blocked');
+
           return state.saved;
         },
         setItem(key, value) {
           if (blocked) throw new Error('Storage blocked');
+
           assert.equal(key, 'guesant-links-language');
           state.saved = value;
           state.writes.push(value);
@@ -97,6 +106,7 @@ function harness({
       },
     },
   });
+
   return {
     state,
     select: (id) =>
@@ -114,10 +124,12 @@ for (const [tag, expected] of [
 ]) {
   test(`browser preference ${tag} resolves a supported locale`, () => {
     const { state } = harness({ languages: [tag] });
+
     assert.deepEqual(state.replacements, [`https://example.test/${expected}/`]);
     assert.deepEqual(state.writes, []);
   });
 }
+
 test('unsupported and absent preferences default to Portuguese', () => {
   for (const languages of [['de-DE', 'ru-RU'], []]) {
     assert.deepEqual(harness({ languages }).state.replacements, [
@@ -177,6 +189,7 @@ test('manual selection persists a locale and the equivalent page', () => {
     page: 'code/',
     suffix: '?source=link#details',
   });
+
   select('fr');
   assert.equal(state.saved, 'fr');
   assert.deepEqual(state.assignments, [
@@ -189,6 +202,7 @@ test('manual fallback to a locale home drops an unavailable page fragment', () =
     unavailable: ['fr'],
     suffix: '#now-context',
   });
+
   select('fr');
   assert.deepEqual(state.assignments, ['https://example.test/fr/']);
 });
@@ -198,6 +212,7 @@ test('blocked storage keeps manual English selection explicit in the URL', () =>
     page: 'code/',
     blocked: true,
   });
+
   select('en');
   assert.deepEqual(state.assignments, [
     'https://example.test/en/code/?lang=en',
@@ -210,6 +225,7 @@ test('blocked storage keeps manual English selection explicit in the URL', () =>
 });
 test('explicit query preferences are persisted and removed from the address', () => {
   const { state } = harness({ suffix: '?lang=en&source=link#details' });
+
   assert.equal(state.saved, 'en');
   assert.deepEqual(state.cleanups, [
     'https://example.test/?source=link#details',
@@ -220,6 +236,7 @@ test('explicit query preferences are persisted and removed from the address', ()
 });
 test('unknown manual selections are ignored', () => {
   const { state, select } = harness({ current: 'pt-br' });
+
   select('unknown');
   assert.deepEqual(state.assignments, []);
   assert.deepEqual(state.writes, []);

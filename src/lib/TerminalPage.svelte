@@ -4,6 +4,7 @@
   import { destinationFor } from './render-utils.js';
 
   let { data } = $props();
+
   let {
     config,
     editorialUI,
@@ -17,6 +18,7 @@
     editorial,
     now,
   } = $derived(data);
+
   let home = $derived(page.id === 'home');
 
   function destination(item) {

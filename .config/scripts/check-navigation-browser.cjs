@@ -4,32 +4,46 @@ const { readConfiguration, pagesFor } = require('./configuration.cjs');
 
 async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
   const config = readConfiguration();
+
   const base = new URL(baseURL);
+
   const href = (path) => new URL(path.replace(/^\//, ''), base).href;
+
   const context = await browser.createBrowserContext();
+
   const checks = [];
+
   const errors = [];
+
   fs.mkdirSync(reportDirectory, { recursive: true });
+
   try {
     const page = await context.newPage();
+
     page.on('pageerror', (error) => errors.push(error.message));
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
     });
+
     for (const language of config.language_options) {
       const pages = pagesFor(config, language.id);
+
       const expected = pages.filter((entry) =>
         ['home', 'links-page'].includes(entry.type),
       );
+
       const now = pages.find((entry) => entry.id === 'now');
+
       for (const route of pages.filter((entry) => !entry.fallback)) {
         await page.goto(href(route.url), { waitUntil: 'networkidle0' });
         await page.evaluate(() => document.fonts.ready);
+
         const normalize = (entry) => ({
           title: entry.title,
           href: href(entry.url),
           current: entry.id === route.id,
         });
+
         for (const [selector, entries] of [
           ['.section-menu-list a', expected],
           ['.footer-navigation-links a', [...expected, now]],
@@ -45,6 +59,7 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
             entries.map(normalize),
           );
         }
+
         assert.deepEqual(
           await page.$$eval('[data-now-shortcut]', (links) =>
             links.map((link) => ({
@@ -76,19 +91,23 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
           ),
           true,
         );
+
         for (const theme of ['dark', 'light']) {
           await page.evaluate((theme) => {
             document.documentElement.dataset.theme = theme;
           }, theme);
+
           for (const width of [320, 390, 768, 1024, 1440]) {
             await page.setViewport({ width, height: 900 });
             await page.$eval('.page-navigation', (bar) =>
               bar.scrollIntoView({ block: 'center', behavior: 'instant' }),
             );
+
             const before = await page.$eval(
               '.page-content',
               (content) => content.getBoundingClientRect().top,
             );
+
             await page.focus('.section-switcher-trigger');
             await page.keyboard.press('Enter');
             await page.waitForFunction(
@@ -104,12 +123,18 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                   requestAnimationFrame(() => requestAnimationFrame(done)),
                 ),
             );
+
             const actual = await page.evaluate(() => {
               const bar = document.querySelector('.page-navigation');
+
               const panel = document.querySelector('.section-menu');
+
               const rect = panel.getBoundingClientRect();
+
               const links = [...panel.querySelectorAll('a')];
+
               const footer = document.querySelector('.footer-navigation');
+
               return {
                 fits:
                   rect.left >= 0 &&
@@ -137,7 +162,9 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                   ) < 1,
                 layered: (() => {
                   const x = rect.left + rect.width / 2;
+
                   const y = rect.top + Math.min(rect.height / 2, 100);
+
                   return panel.contains(document.elementFromPoint(x, y));
                 })(),
                 contentTop: document
@@ -150,11 +177,13 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                 ),
               };
             });
+
             assert.equal(
               actual.overflow,
               false,
               `${route.url} ${width} ${theme}`,
             );
+
             for (const key of [
               'fits',
               'panelContentFits',
@@ -168,6 +197,7 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                 actual[key],
                 `${route.url} ${width} ${theme} ${key}: ${JSON.stringify(actual)}`,
               );
+
             assert(
               Math.abs(before - actual.contentTop) < 1,
               'Opening navigation must not move content',
@@ -176,9 +206,11 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
             assert(
               await page.$eval('.section-menu [data-now-shortcut]', (link) => {
                 const rect = link.getBoundingClientRect();
+
                 const panel = link
                   .closest('.section-menu')
                   .getBoundingClientRect();
+
                 return rect.top >= panel.top && rect.bottom <= panel.bottom;
               }),
               'Last menu link must scroll into view',
@@ -192,16 +224,20 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                   !trigger.parentElement.open,
               ),
             );
+
             const screenshot =
               language.id === 'pt-br' &&
               ['home', 'career'].includes(route.id) &&
               [390, 1440].includes(width);
+
             if (screenshot) {
               await page.evaluate(() => {
                 document.activeElement?.blur();
                 scrollTo(0, 0);
               });
+
               const prefix = `${reportDirectory}/navigation-${route.id}-${theme}-${width}`;
+
               await page.screenshot({ path: `${prefix}.png`, fullPage: true });
               await page.$eval('.page-navigation', (bar) =>
                 bar.scrollIntoView({ block: 'start', behavior: 'instant' }),
@@ -216,11 +252,13 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
               await page.screenshot({ path: `${prefix}-open.png` });
               await page.keyboard.press('Escape');
             }
+
             checks.push({ path: route.url, theme, width, passed: true });
           }
         }
       }
     }
+
     await page.goto(href('/pt-br/career/'), { waitUntil: 'networkidle0' });
     await page.setViewport({ width: 390, height: 640 });
     await page.focus('.section-switcher-trigger');
@@ -262,6 +300,7 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
     await page.$eval('html', (root) => {
       root.style.fontSize = '200%';
     });
+
     for (const width of [320, 390, 768, 1024, 1440]) {
       await page.setViewport({ width, height: 900 });
       await page.click('.section-switcher-trigger');
@@ -274,6 +313,7 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
       );
       await page.keyboard.press('Escape');
     }
+
     assert.deepEqual(errors, []);
     fs.writeFileSync(
       `${reportDirectory}/navigation-checks.json`,
@@ -292,16 +332,20 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
 }
 
 module.exports = checkNavigationBrowser;
+
 if (require.main === module) {
   const { createRequire } = require('node:module');
+
   const puppeteer = createRequire(
     '/usr/local/lib/node_modules/pa11y-ci/package.json',
   )('puppeteer');
+
   (async () => {
     const browser = await puppeteer.launch({
       executablePath: '/usr/bin/chromium',
       args: ['--no-sandbox', '--disable-dev-shm-usage'],
     });
+
     try {
       await checkNavigationBrowser(
         browser,

@@ -10,25 +10,37 @@ import {
 } from '../../src/lib/site-data.js';
 
 const output = resolve('.local/svelte-static');
+
 const assets = resolve('src/assets');
+
 const generated = resolve(output, 'assets/generated');
+
 await rm(output, { recursive: true, force: true });
 await mkdir(generated, { recursive: true });
 await cp(resolve('src/static'), output, { recursive: true });
 await cp(assets, resolve(output, 'assets'), { recursive: true });
 
 const images = resolve(assets, 'images');
+
 const ui = resolve(images, 'ui');
+
 const scenery = resolve(images, 'scenery');
+
 const rail = sharp(resolve(ui, 'suspension-rail.png'));
+
 const railMetadata = await rail.metadata();
+
 const geometry = JSON.parse(
   await readFile(resolve(ui, 'suspension-rail.json'), 'utf8'),
 );
+
 const railLeft = Math.floor((railMetadata.width - geometry.width) / 2);
+
 const slices = {};
+
 for (const [name, slice] of Object.entries(geometry.slices)) {
   const path = resolve(generated, `rail-${name}.png`);
+
   await sharp(resolve(ui, 'suspension-rail.png'))
     .extract({
       left: railLeft,
@@ -40,6 +52,7 @@ for (const [name, slice] of Object.entries(geometry.slices)) {
     .toFile(path);
   slices[name] = `/assets/generated/rail-${name}.png`;
 }
+
 const imagesToGenerate = [
   [
     'stone-frame.webp',
@@ -100,14 +113,18 @@ const imagesToGenerate = [
     { resize: { width: 160 } },
   ],
 ];
+
 for (const [name, path, options] of imagesToGenerate) {
   let image = sharp(path);
+
   if (options.extract) image = image.extract(options.extract);
+
   await image
     .resize(options.resize)
     .webp({ quality: 82 })
     .toFile(resolve(generated, name));
 }
+
 for (const [name, path, resize] of [
   ['night-desktop.webp', resolve(scenery, 'night-canyon.png'), { width: 1536 }],
   [
@@ -127,6 +144,7 @@ for (const [name, path, resize] of [
     .webp({ quality: 78 })
     .toFile(resolve(generated, name));
 }
+
 const substitutions = {
   fontLatin: '/assets/fonts/press-start-2p-latin.woff2',
   fontLatinExt: '/assets/fonts/press-start-2p-latin-ext.woff2',
@@ -149,25 +167,36 @@ const substitutions = {
   dayDesktop: '/assets/generated/day-desktop.webp',
   dayMobile: '/assets/generated/day-mobile.webp',
 };
+
 for (const file of ['main.css', 'terminal.css']) {
   let css = await readFile(resolve(assets, 'css', file), 'utf8');
+
   for (const [key, value] of Object.entries(substitutions))
     css = css.replaceAll(`{{ .${key} }}`, value);
+
   if (css.includes('{{ .')) throw new Error(`Unresolved CSS asset in ${file}`);
+
   await writeFile(resolve(output, 'assets/css', file), css);
 }
 
 const data = await getSiteData();
+
 const searchDirectory = resolve(output, 'search');
+
 await mkdir(searchDirectory, { recursive: true });
+
 for (const language of data.links.language_options) {
   for (const interfaceName of ['minecraft', 'terminal']) {
     const pages = pagesFor(data, language.id, interfaceName).filter(
       (page) => !page.fallback,
     );
+
     const ui = data.editorial.ui[language.id];
+
     const entries = [];
+
     const add = (entry) => entries.push(entry);
+
     for (const page of pages) {
       add({
         id: `page-${page.id}`,
@@ -180,7 +209,9 @@ for (const language of data.links.language_options) {
         language: language.id,
         tags: [],
       });
+
       if (page.type !== 'links-page') continue;
+
       for (const item of sectionLinks(data, page.section, language.id)) {
         add({
           id: `${page.id}-${item.id}`,
@@ -194,6 +225,7 @@ for (const language of data.links.language_options) {
           tags: [],
         });
       }
+
       for (const item of editorialItems(data, page.id, language.id)) {
         add({
           id: `${page.id}-${item.source}-${item.id}`,
@@ -211,8 +243,11 @@ for (const language of data.links.language_options) {
         });
       }
     }
+
     const nowPage = pages.find((page) => page.id === 'now') || pages[0];
+
     const now = data.links.now[language.id] || data.links.now.en;
+
     for (const section of now.sections || []) {
       add({
         id: `now-${section.id}`,
@@ -226,10 +261,13 @@ for (const language of data.links.language_options) {
         tags: [],
       });
     }
+
     const activity = data.editorial.now[language.id] || {};
+
     const activityPage = data.editorial.now[language.id]
       ? nowPage
       : pages.find((page) => page.id === 'home');
+
     for (const key of [
       'working',
       'building',
@@ -239,6 +277,7 @@ for (const language of data.links.language_options) {
       'watching',
     ]) {
       if (!activity[key]) continue;
+
       add({
         id: `now-activity-${key}`,
         title: ui[key],
@@ -251,15 +290,18 @@ for (const language of data.links.language_options) {
         tags: [],
       });
     }
+
     await writeFile(
       resolve(searchDirectory, `${language.id}-${interfaceName}.json`),
       JSON.stringify(entries),
     );
   }
 }
+
 for (const language of data.links.language_options) {
   for (const interfaceName of ['minecraft', 'terminal']) {
     const start = `/${language.id}/${interfaceName === 'terminal' ? 'terminal/' : ''}`;
+
     await mkdir(resolve(output, 'manifests'), { recursive: true });
     await writeFile(
       resolve(
@@ -295,15 +337,20 @@ for (const language of data.links.language_options) {
     );
   }
 }
+
 const sitemap = routeEntries(data)
   .map((path) => `<url><loc>https://guesant.net/${path}/</loc></url>`)
   .join('');
+
 const sitemapContent = `<?xml version="1.0" encoding="utf-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap}</urlset>`;
+
 await writeFile(resolve(output, 'sitemap.xml'), sitemapContent);
+
 for (const language of data.links.language_options) {
   await mkdir(resolve(output, language.id), { recursive: true });
   await writeFile(resolve(output, language.id, 'sitemap.xml'), sitemapContent);
 }
+
 await writeFile(
   resolve(output, 'robots.txt'),
   `User-agent: *\nAllow: /\nSitemap: https://guesant.net/sitemap.xml\n`,

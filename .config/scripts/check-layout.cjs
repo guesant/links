@@ -8,56 +8,74 @@ const {
   localizedURL,
   pagesFor,
 } = require('./configuration.cjs');
+
 const puppeteer = createRequire(
   '/usr/local/lib/node_modules/pa11y-ci/package.json',
 )('puppeteer');
+
 const config = readConfiguration(
   process.env.QA_LINKS_CONFIG ||
     resolve(__dirname, '../../src/data/links.yaml'),
 );
+
 const snapshots = require('yaml').parse(
   fs.readFileSync(resolve(__dirname, '../../src/data/statistics.yaml'), 'utf8'),
 );
+
 const reportDirectory = process.env.QA_REPORT_DIR || resolve('.local/reports');
+
 const base = new URL(
   (process.env.QA_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '') + '/',
 );
+
 const href = (path) =>
   /^(https?:|mailto:|tel:)/.test(path)
     ? new URL(path).href
     : new URL(path.replace(/^\/+/, ''), base).href;
+
 const widths = [320, 390, 768, 1024, 1440];
+
 const routes = config.language_options.flatMap(({ id }) =>
   pagesFor(config, id)
     .filter((page) => !page.fallback)
     .map((page) => ({ ...page, language: id })),
 );
+
 const checks = [];
 
 (async () => {
   fs.mkdirSync(reportDirectory, { recursive: true });
+
   const browser = await puppeteer.launch({
     executablePath: '/usr/bin/chromium',
     headless: true,
     args: ['--no-sandbox', '--disable-dev-shm-usage'],
   });
+
   const page = await browser.newPage();
+
   const errors = [];
+
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('response', (response) => {
     if (response.url().startsWith(base.origin) && response.status() >= 400)
       errors.push(`${response.status()} ${response.url()}`);
   });
+
   const represented = new Set();
+
   try {
     for (const route of routes) {
       const response = await page.goto(href(route.url), {
         waitUntil: 'networkidle2',
       });
+
       assert.equal(response.status(), 200, route.url);
       await page.evaluate(() => document.fonts.ready);
+
       const typography = await page.evaluate(async () => {
         const weights = [400, 600, 700];
+
         const loaded = await Promise.all(
           weights.map((weight) =>
             document.fonts.load(
@@ -66,6 +84,7 @@ const checks = [];
             ),
           ),
         );
+
         return {
           body: getComputedStyle(document.body).fontFamily,
           control: getComputedStyle(
@@ -79,6 +98,7 @@ const checks = [];
           ),
         };
       });
+
       assert.match(typography.body, /^"?Oxanium"?,/);
       assert.match(typography.control, /^"?Oxanium"?,/);
       assert.match(
@@ -86,6 +106,7 @@ const checks = [];
         route.id === 'home' ? /press start 2p/ : /^"?Oxanium"?,/,
       );
       assert(typography.loaded, `Oxanium failed to load on ${route.url}`);
+
       const expectedNavigation = pagesFor(config, route.language)
         .filter((entry) => ['home', 'links-page'].includes(entry.type))
         .map((entry) => ({
@@ -94,11 +115,15 @@ const checks = [];
           current: entry.id === route.id,
           icon: entry.icon,
         }));
+
       const expectedLinks = (route.links || [])
         .map((entry) => href(localizedURL(entry, route.language)))
         .sort();
+
       for (const entry of route.links || []) represented.add(entry.id);
+
       if (config.navigation.links.includes(route.id)) represented.add(route.id);
+
       assert.deepEqual(
         await page.$$eval('.section-menu-list a', (tabs) =>
           tabs.map((tab) => ({
@@ -110,9 +135,11 @@ const checks = [];
         ),
         expectedNavigation,
       );
+
       const nowPage = pagesFor(config, route.language).find(
         (entry) => entry.id === 'now',
       );
+
       assert.deepEqual(
         await page.$$eval('[data-now-shortcut]', (links) =>
           links.map((link) => ({
@@ -143,6 +170,7 @@ const checks = [];
           const translated = pagesFor(config, language.id).find(
             (entry) => entry.id === route.id && !entry.fallback,
           );
+
           return {
             href: href(translated?.url || language.path),
             selected: language.id === route.language,
@@ -156,8 +184,10 @@ const checks = [];
         expectedLinks,
       );
       assert.equal(await page.$$eval('h1', (headings) => headings.length), 1);
+
       if (route.id === 'home') {
         const expected = config.locales[route.language].presentation;
+
         assert.deepEqual(
           await page.$eval('.home-introduction', (panel) => ({
             title: document
@@ -177,7 +207,9 @@ const checks = [];
           expected,
         );
       }
+
       const expectedCanonical = `https://${config.site.first_party_domains[0]}${route.url}`;
+
       assert.equal(
         await page.$eval('link[rel="canonical"]', (link) => link.href),
         expectedCanonical,
@@ -186,48 +218,65 @@ const checks = [];
         await page.$eval('html', (element) => element.lang),
         config.locales[route.language].ui.html_lang,
       );
+
       for (const theme of ['dark', 'light']) {
         await page.click('[data-settings-open]');
         await page.$eval(`#theme-${theme}`, (option) => option.click());
         await page.click('#settings-dialog [data-dialog-close]');
+
         if (
           route.id === 'home' &&
           route.language === config.language_options[0].id
         ) {
           const materialContrast = await page.evaluate(async () => {
             const root = document.documentElement;
+
             const color = (name) => {
               const sample = document.createElement('span');
+
               sample.style.color = `var(--${name})`;
               root.append(sample);
+
               const result = getComputedStyle(sample)
                 .color.match(/[\d.]+/g)
                 .map(Number);
+
               sample.remove();
+
               return result;
             };
+
             const imageURL = getComputedStyle(root)
               .getPropertyValue('--texture-aged-oak')
               .match(/url\(["']?(.*?)["']?\)/)[1];
+
             const image = new Image();
+
             image.src = imageURL;
             await image.decode();
+
             const canvas = document.createElement('canvas');
+
             canvas.width = image.naturalWidth;
             canvas.height = image.naturalHeight;
+
             const context = canvas.getContext('2d');
+
             context.drawImage(image, 0, 0);
+
             const pixels = context.getImageData(
               0,
               0,
               canvas.width,
               canvas.height,
             ).data;
+
             const luminance = (rgb) =>
               rgb
                 .slice(0, 3)
                 .map((value) => {
                   value /= 255;
+
                   return value <= 0.04045
                     ? value / 12.92
                     : ((value + 0.055) / 1.055) ** 2.4;
@@ -237,43 +286,60 @@ const checks = [];
                     sum + value * [0.2126, 0.7152, 0.0722][index],
                   0,
                 );
+
             const blend = (under, over) =>
               under.map(
                 (value, index) =>
                   value * (1 - (over[3] ?? 1)) + over[index] * (over[3] ?? 1),
               );
+
             const ratio = (one, two) => {
               const a = luminance(one),
                 b = luminance(two);
+
               return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
             };
+
             const panelWash = color('color-panel-wash');
+
             const woodWash = color('color-wood-wash');
+
             const warmth = color('color-frame-warmth');
+
             const panelText = [
               'color-text',
               'color-text-muted',
               'color-accent-strong',
             ].map(color);
+
             const woodText = ['color-wood-text', 'color-wood-muted'].map(color);
+
             let panel = Infinity,
               wood = Infinity;
+
             for (let index = 0; index < pixels.length; index += 4) {
               const pixel = [...pixels.slice(index, index + 3)];
+
               if (pixels[index + 3] !== 255)
                 throw new Error('Material must be opaque');
+
               const panelPixel = blend(pixel, panelWash);
+
               const woodPixel = blend(
                 blend(blend(pixel, woodWash), warmth),
                 warmth,
               );
+
               for (const foreground of panelText)
                 panel = Math.min(panel, ratio(foreground, panelPixel));
+
               for (const foreground of woodText)
                 wood = Math.min(wood, ratio(foreground, woodPixel));
             }
+
             return { panel, wood };
           });
+
           assert(
             materialContrast.panel >= 4.5 && materialContrast.wood >= 4.5,
             JSON.stringify(materialContrast),
@@ -285,6 +351,7 @@ const checks = [];
             passed: true,
           });
         }
+
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
           await page.evaluate(
@@ -293,13 +360,17 @@ const checks = [];
                 requestAnimationFrame(() => requestAnimationFrame(resolve)),
               ),
           );
+
           const layout = await page.evaluate(() => {
             const cards = [...document.querySelectorAll('.link-button')];
+
             const rowAligned = (elements) =>
               elements.every((element) => {
                 const rect = element.getBoundingClientRect();
+
                 return elements.every((other) => {
                   const otherRect = other.getBoundingClientRect();
+
                   return (
                     Math.abs(rect.top - otherRect.top) > 1 ||
                     (Math.abs(rect.height - otherRect.height) < 1 &&
@@ -307,36 +378,48 @@ const checks = [];
                   );
                 });
               });
+
             return {
               regionsAligned: (() => {
                 const shell = document
                   .querySelector('.site-shell')
                   .getBoundingClientRect();
+
                 const navigation = document
                   .querySelector('.page-navigation')
                   .getBoundingClientRect();
+
                 const content = document
                   .querySelector('.page-content')
                   .getBoundingClientRect();
+
                 const footer = document
                   .querySelector('.site-footer')
                   .getBoundingClientRect();
+
                 const profile = document
                   .querySelector('.profile')
                   .getBoundingClientRect();
+
                 const quickContacts = document
                   .querySelector('.quick-contacts')
                   .getBoundingClientRect();
+
                 const suspended = document.querySelector('.suspended-content');
+
                 const suspendedStyle = getComputedStyle(suspended);
+
                 const insetStart = parseFloat(suspendedStyle.paddingLeft);
+
                 const insetEnd = parseFloat(suspendedStyle.paddingRight);
+
                 const outerAligned = [profile, footer].every(
                   (rect) =>
                     Math.abs(rect.width - shell.width) < 1 &&
                     Math.abs(rect.left - shell.left) < 1 &&
                     Math.abs(rect.right - shell.right) < 1,
                 );
+
                 const aligned =
                   outerAligned &&
                   [navigation, content].every(
@@ -344,6 +427,7 @@ const checks = [];
                       Math.abs(rect.left - shell.left - insetStart) < 1 &&
                       Math.abs(shell.right - rect.right - insetEnd) < 1,
                   );
+
                 return (
                   aligned &&
                   navigation.top <= quickContacts.top &&
@@ -373,16 +457,22 @@ const checks = [];
               overflow: document.documentElement.scrollWidth > innerWidth,
               mainContentGeometry: (() => {
                 const main = document.querySelector('#main-content');
+
                 const shell = document.querySelector('.site-shell');
+
                 const rect = main.getBoundingClientRect();
+
                 const shellRect = shell.getBoundingClientRect();
+
                 const suspendedStyle = getComputedStyle(
                   document.querySelector('.suspended-content'),
                 );
+
                 const availableWidth =
                   shellRect.width -
                   parseFloat(suspendedStyle.paddingLeft) -
                   parseFloat(suspendedStyle.paddingRight);
+
                 return (
                   Math.abs(rect.width - Math.min(640, availableWidth)) < 1 &&
                   Math.abs(
@@ -397,12 +487,15 @@ const checks = [];
                 ...document.querySelectorAll('.link-row'),
               ].every((row) => {
                 const statistics = [...row.querySelectorAll('.statistics')];
+
                 return (
                   innerWidth < 896 ||
                   statistics.every((entry) =>
                     statistics.every((other) => {
                       const rect = entry.getBoundingClientRect();
+
                       const compared = other.getBoundingClientRect();
+
                       return (
                         Math.abs(rect.top - compared.top) < 1 &&
                         Math.abs(rect.bottom - compared.bottom) < 1
@@ -448,30 +541,46 @@ const checks = [];
                 ...document.querySelectorAll('.suspension-rail'),
               ].every((rail) => {
                 const frame = rail.getBoundingClientRect();
+
                 if (getComputedStyle(rail).display === 'none')
                   return frame.width === 0;
+
                 const terminals = [
                   ...rail.querySelectorAll('.suspension-terminal'),
                 ];
+
                 const body = rail
                   .querySelector('.suspension-body')
                   .getBoundingClientRect();
+
                 const chains = [...rail.querySelectorAll('.suspension-chain')];
+
                 const upper = chains[0].getBoundingClientRect();
+
                 const lower = chains[1].getBoundingClientRect();
+
                 const first = terminals[0].getBoundingClientRect();
+
                 const last = terminals[1].getBoundingClientRect();
+
                 const lantern = rail.querySelector(
                   '.suspension-lantern-middle',
                 );
+
                 const lanternRect = lantern?.getBoundingClientRect();
+
                 const profile = document.querySelector('.profile');
+
                 const footer = document.querySelector('.site-footer');
+
                 const headerRect = profile.getBoundingClientRect();
+
                 const footerRect = footer.getBoundingClientRect();
+
                 const headerBorder = parseFloat(
                   getComputedStyle(profile).borderBottomWidth,
                 );
+
                 const couplingSeat =
                   parseFloat(
                     getComputedStyle(rail).getPropertyValue(
@@ -481,19 +590,25 @@ const checks = [];
                   parseFloat(
                     getComputedStyle(document.documentElement).fontSize,
                   );
+
                 const footerBorder = parseFloat(
                   getComputedStyle(footer).borderTopWidth,
                 );
+
                 const atStart = rail.classList.contains(
                   'suspension-rail-start',
                 );
+
                 const center = frame.left + frame.width / 2;
+
                 const headerJoint = atStart
                   ? headerRect.left + headerBorder / 2
                   : headerRect.right - headerBorder / 2;
+
                 const footerJoint = atStart
                   ? footerRect.left + footerBorder / 2
                   : footerRect.right - footerBorder / 2;
+
                 return (
                   Math.abs(
                     frame.top +
@@ -531,9 +646,11 @@ const checks = [];
                   ) &&
                   [...rail.querySelectorAll('img')].every((image) => {
                     const rect = image.getBoundingClientRect();
+
                     const expected =
                       Number(image.getAttribute('width')) /
                       Number(image.getAttribute('height'));
+
                     return (
                       rect.top >= frame.top - 1 &&
                       rect.bottom <= frame.bottom + 1 &&
@@ -544,10 +661,13 @@ const checks = [];
               }),
               railContentClearance: (() => {
                 const suspended = document.querySelector('.suspended-content');
+
                 const style = getComputedStyle(suspended);
+
                 const rails = [
                   ...suspended.querySelectorAll('.suspension-rail'),
                 ];
+
                 if (
                   rails.every(
                     (rail) => getComputedStyle(rail).display === 'none',
@@ -557,12 +677,16 @@ const checks = [];
                     parseFloat(style.paddingLeft) === 0 &&
                     parseFloat(style.paddingRight) === 0
                   );
+
                 const gap =
                   parseFloat(style.paddingLeft) -
                   (rails[0].getBoundingClientRect().right -
                     suspended.getBoundingClientRect().left);
+
                 const start = rails[0].getBoundingClientRect();
+
                 const end = rails[1].getBoundingClientRect();
+
                 return (
                   gap > 0 &&
                   [...suspended.children]
@@ -572,6 +696,7 @@ const checks = [];
                     )
                     .every((element) => {
                       const rect = element.getBoundingClientRect();
+
                       return (
                         rect.left - start.right >= gap - 1 &&
                         end.left - rect.right >= gap - 1
@@ -583,16 +708,23 @@ const checks = [];
                 const anchors = [
                   ...document.querySelectorAll('[data-rail-anchor]'),
                 ];
+
                 if (!anchors.length) return true;
+
                 const content = document.querySelector('.suspended-content');
+
                 const gap = parseFloat(getComputedStyle(content).rowGap);
+
                 return [...content.querySelectorAll('.suspension-body')].every(
                   (body) => {
                     if (!body.getClientRects().length) return true;
+
                     const frame = body.getBoundingClientRect();
+
                     const lanterns = [
                       ...body.querySelectorAll('[data-rail-lantern]'),
                     ];
+
                     return (
                       lanterns.length === anchors.length &&
                       lanterns.every((lantern, index) => {
@@ -600,12 +732,15 @@ const checks = [];
                           anchors[index].getBoundingClientRect().bottom +
                           gap / 2 -
                           frame.top;
+
                         const actual = parseFloat(
                           lantern.style.getPropertyValue(
                             '--rail-lantern-position',
                           ),
                         );
+
                         const image = lantern.getBoundingClientRect();
+
                         return (
                           Math.abs(expected - actual) < 1 &&
                           Math.abs(
@@ -636,8 +771,11 @@ const checks = [];
                 .filter((icon) => icon.getClientRects().length)
                 .every((icon) => {
                   const rect = icon.getBoundingClientRect();
+
                   const image = icon.querySelector('.site-icon');
+
                   const glyph = image?.getBoundingClientRect();
+
                   return (
                     Math.abs(rect.width - rect.height) < 1 &&
                     image &&
@@ -657,6 +795,7 @@ const checks = [];
                 }),
               coloredIcons: (() => {
                 const icons = [...document.querySelectorAll('.site-icon')];
+
                 return (
                   icons.length > 0 &&
                   icons.every(
@@ -668,6 +807,7 @@ const checks = [];
               beveledIcons: [...document.querySelectorAll('.site-icon')].every(
                 (icon) => {
                   const face = icon.querySelector('.site-icon-face');
+
                   return (
                     icon.dataset.finish === 'beveled' &&
                     face &&
@@ -688,10 +828,12 @@ const checks = [];
                   const style = getComputedStyle(
                     icon.querySelector('.site-icon-face'),
                   );
+
                   const source =
                     style.maskImage !== 'none'
                       ? style.maskImage
                       : style.backgroundImage;
+
                   return (
                     new URL(source.slice(5, -2), location.href).origin ===
                     location.origin
@@ -725,7 +867,9 @@ const checks = [];
                 .filter((value) => value.getClientRects().length)
                 .every((value) => {
                   const range = document.createRange();
+
                   range.selectNodeContents(value.firstChild);
+
                   return range.getClientRects().length === 1;
                 }),
               brokenImages: [...document.images].filter(
@@ -759,16 +903,24 @@ const checks = [];
                 const sections = [
                   ...document.querySelectorAll('.category-card'),
                 ];
+
                 return sections.every((card) => {
                   const style = getComputedStyle(card);
+
                   const summary = card.querySelector('.category-summary');
+
                   const links = card.querySelector('.category-links');
+
                   const summaryRect = summary.getBoundingClientRect();
+
                   const listRect = links.getBoundingClientRect();
+
                   const linkStyle = getComputedStyle(links);
+
                   const icon = card
                     .querySelector('.category-icon')
                     .getBoundingClientRect();
+
                   return (
                     style.gridTemplateColumns.split(' ').length === 1 &&
                     Math.abs(icon.width - icon.height) < 1 &&
@@ -782,7 +934,9 @@ const checks = [];
                 ...document.querySelectorAll('.category-preview'),
               ].every((list) => {
                 const style = getComputedStyle(list);
+
                 const items = [...list.children];
+
                 return (
                   style.rowGap === '0px' &&
                   style.borderRadius === '0px' &&
@@ -798,9 +952,13 @@ const checks = [];
                   style.boxShadow === 'none' &&
                   items.every((item, index) => {
                     const link = item.querySelector('a');
+
                     const row = link.getBoundingClientRect();
+
                     const rowStyle = getComputedStyle(link);
+
                     const itemStyle = getComputedStyle(item);
+
                     return (
                       row.height >=
                         (document.querySelector('.page-content').clientWidth >=
@@ -828,9 +986,12 @@ const checks = [];
               }),
               squareQuickAccess: (() => {
                 const grid = document.querySelector('.quick-contacts');
+
                 const buttons = [...grid.children];
+
                 const columns =
                   getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+
                 return (
                   buttons.length === 8 &&
                   columns ===
@@ -839,6 +1000,7 @@ const checks = [];
                       : 4) &&
                   buttons.every((button) => {
                     const rect = button.getBoundingClientRect();
+
                     return (
                       Math.abs(rect.width - rect.height) < 1 &&
                       rect.width >=
@@ -852,12 +1014,15 @@ const checks = [];
               })(),
               layeredBackground: (() => {
                 const world = document.querySelector('.world-scene');
+
                 const landscape = getComputedStyle(
                   document.querySelector('.world-landscape'),
                 );
+
                 const dim = document
                   .querySelector('.world-dim')
                   .getBoundingClientRect();
+
                 return (
                   getComputedStyle(world).position === 'fixed' &&
                   landscape.filter.includes('blur(8px)') &&
@@ -871,14 +1036,22 @@ const checks = [];
               minimalContext: (() => {
                 const introduction =
                   document.querySelector('.home-introduction');
+
                 if (!introduction) return true;
+
                 const grid = introduction.querySelector('.about-context-grid');
+
                 const site = introduction.querySelector('.about-site');
+
                 const siteStyle = getComputedStyle(site);
+
                 const wide =
                   document.querySelector('.site-shell').clientWidth >= 448;
+
                 const rect = introduction.getBoundingClientRect();
+
                 const navigation = document.querySelector('.footer-navigation');
+
                 return (
                   introduction.querySelectorAll('.about-fact').length === 3 &&
                   introduction.querySelectorAll('.about-topics > li').length ===
@@ -900,6 +1073,7 @@ const checks = [];
                     ),
                   ].every((icon) => {
                     const box = icon.getBoundingClientRect();
+
                     return Math.abs(box.width - box.height) < 1;
                   }) &&
                   navigation.closest('.site-footer') !== null &&
@@ -915,9 +1089,11 @@ const checks = [];
                 ...document.querySelectorAll('.category-card'),
               ].every((card, _, cards) => {
                 const rect = card.getBoundingClientRect();
+
                 const grid = document
                   .querySelector('.category-grid')
                   .getBoundingClientRect();
+
                 return (
                   Math.abs(rect.left - grid.left) < 1 &&
                   Math.abs(rect.width - grid.width) < 1 &&
@@ -948,11 +1124,13 @@ const checks = [];
               ].every((group) => group.closest('#settings-dialog')),
             };
           });
+
           assert.equal(
             layout.overflow,
             false,
             `${route.url} overflow at ${width}`,
           );
+
           for (const key of [
             'cardsAligned',
             'regionsAligned',
@@ -991,14 +1169,18 @@ const checks = [];
               true,
               `${route.url} ${key} at ${width}/${theme}`,
             );
+
           assert(layout.columns.every((columns) => columns === 1));
           assert.equal(layout.languageControls, 1);
+
           if (route.id === 'home') {
             assert.equal(layout.galleryColumns, 1);
           }
+
           assert.equal(layout.statisticsImages, 0);
           assert.equal(layout.brokenImages, 0);
           checks.push({ path: route.url, theme, width, passed: true });
+
           if (
             route.language === config.language_options[0].id &&
             [390, 1440].includes(width)
@@ -1014,6 +1196,7 @@ const checks = [];
           }
         }
       }
+
       if (route.id === 'home') {
         const categories = await page.$$eval(
           '.home-categories [data-category]',
@@ -1025,6 +1208,7 @@ const checks = [];
               ),
             })),
         );
+
         const expectedCategories = pagesFor(config, route.language)
           .filter((entry) => entry.type === 'links-page')
           .map((entry) => ({
@@ -1042,6 +1226,7 @@ const checks = [];
                     }),
                   ),
           }));
+
         assert.deepEqual(categories, expectedCategories);
         assert.deepEqual(
           await page.$$eval(
@@ -1059,38 +1244,48 @@ const checks = [];
             }),
           ),
         );
+
         if (route.language === config.language_options[0].id) {
           await page.evaluate(() => {
             window.linkClicks = [];
             document.addEventListener('click', (event) => {
               const anchor = event.target.closest('a');
+
               if (!anchor) return;
+
               event.preventDefault();
               window.linkClicks.push(anchor.href);
             });
           });
+
           for (const anchor of await page.$$('.category-preview-link')) {
             const expected = await anchor.evaluate((link) => link.href);
+
             await anchor.click();
             assert.equal(
               await page.evaluate(() => window.linkClicks.at(-1)),
               expected,
             );
           }
+
           for (const card of await page.$$('.category-card')) {
             await card.evaluate((element) =>
               element.scrollIntoView({ block: 'center', behavior: 'instant' }),
             );
+
             const previousClickCount = await page.evaluate(
               () => window.linkClicks.length,
             );
+
             const rect = await card.boundingBox();
+
             await page.mouse.click(rect.x + 12, rect.y + 12);
             assert.equal(
               await page.evaluate(() => window.linkClicks.length),
               previousClickCount,
             );
           }
+
           await page.focus('.category-preview-link');
           assert.equal(
             await page.$eval(':focus', (link) =>
@@ -1098,7 +1293,9 @@ const checks = [];
             ),
             true,
           );
+
           const expected = await page.$eval(':focus', (link) => link.href);
+
           await page.keyboard.press('Enter');
           assert.equal(
             await page.evaluate(() => window.linkClicks.at(-1)),
@@ -1107,13 +1304,17 @@ const checks = [];
           await page.reload({ waitUntil: 'networkidle2' });
         }
       }
+
       for (const entry of route.links || []) {
         if (!entry.stats) continue;
+
         const snapshot = snapshots[entry.id];
+
         assert(
           snapshot?.profile_url === entry.url &&
             snapshot.provider === entry.stats.provider,
         );
+
         const actual = await page.$$eval(
           `[data-statistics="${entry.id}"] .statistic`,
           (statistics) =>
@@ -1124,6 +1325,7 @@ const checks = [];
                 .firstChild.textContent.trim(),
             })),
         );
+
         assert.deepEqual(
           actual,
           entry.stats.metrics.map((metric) => ({
@@ -1132,6 +1334,7 @@ const checks = [];
           })),
         );
       }
+
       if (
         route.language === config.language_options[0].id &&
         ['home', ...config.navigation.sections, 'now'].includes(route.id)
@@ -1145,12 +1348,17 @@ const checks = [];
             '.link-url-text',
           ].flatMap((selector) => {
             const element = document.querySelector(selector);
+
             if (!element) return [];
+
             const text = element.textContent;
+
             element.textContent = text.repeat(6);
+
             return [{ selector, text }];
           }),
         );
+
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
           assert.equal(
@@ -1166,6 +1374,7 @@ const checks = [];
             passed: true,
           });
         }
+
         await page.evaluate((original) => {
           for (const { selector, text } of original)
             document.querySelector(selector).textContent = text;
@@ -1173,8 +1382,10 @@ const checks = [];
         await page.evaluate(
           () => (document.documentElement.style.fontSize = '200%'),
         );
+
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
+
           const enlarged = await page.evaluate(() => ({
             overflow: document.documentElement.scrollWidth > innerWidth,
             contentFits: [
@@ -1185,6 +1396,7 @@ const checks = [];
               (element) => element.scrollWidth <= element.clientWidth + 1,
             ),
           }));
+
           assert.equal(
             enlarged.overflow,
             false,
@@ -1202,19 +1414,26 @@ const checks = [];
             passed: true,
           });
         }
+
         await page.evaluate(() =>
           document.documentElement.style.removeProperty('font-size'),
         );
       }
+
       const control =
         (await page.$('.link-button')) ||
         (await page.$('.section-switcher-trigger'));
+
       await control.evaluate((element) =>
         element.scrollIntoView({ block: 'center', behavior: 'instant' }),
       );
+
       const before = await control.boundingBox();
+
       await control.hover();
+
       const hovered = await control.boundingBox();
+
       assert.deepEqual(hovered, before, 'hover must not displace controls');
       await page.mouse.down();
       assert.equal(
@@ -1226,14 +1445,20 @@ const checks = [];
       await page.mouse.move(0, 0);
       await page.mouse.up();
       await page.setViewport({ width: 320, height: 640 });
+
       const headerBefore = await page.$eval('.profile', (element) => {
         const { left, width } = element.getBoundingClientRect();
+
         return { left, width };
       });
+
       await page.click('[data-settings-open]');
+
       const settings = await page.$eval('#settings-dialog', (dialog) => {
         const rect = dialog.getBoundingClientRect();
+
         const languages = [...dialog.querySelectorAll('.language-select')];
+
         return {
           open: dialog.open,
           fits:
@@ -1252,6 +1477,7 @@ const checks = [];
           ),
         };
       });
+
       assert(
         settings.open &&
           settings.fits &&
@@ -1263,6 +1489,7 @@ const checks = [];
       assert.deepEqual(
         await page.$eval('.profile', (element) => {
           const { left, width } = element.getBoundingClientRect();
+
           return { left, width };
         }),
         headerBefore,
@@ -1276,6 +1503,7 @@ const checks = [];
         true,
       );
       await page.click('[data-credits-open]');
+
       const dialog = await page.$eval('#credits-dialog', (dialog) => ({
         open: dialog.open,
         top: dialog.getBoundingClientRect().top,
@@ -1285,6 +1513,7 @@ const checks = [];
           getComputedStyle(dialog.querySelector('.credits-dialog-content'))
             .overflowY === 'auto',
       }));
+
       assert(
         dialog.open &&
           dialog.top >= 0 &&
@@ -1298,6 +1527,7 @@ const checks = [];
       );
       console.log(JSON.stringify({ path: route.url, layout: 'passed' }));
     }
+
     assert.deepEqual(
       [...represented].sort(),
       visibleLinks(config)
@@ -1306,6 +1536,7 @@ const checks = [];
       'Every public entry must have a page or tab',
     );
     await page.setJavaScriptEnabled(false);
+
     for (const route of routes) {
       await page.goto(href(route.url), { waitUntil: 'networkidle2' });
       await page.focus('.section-switcher-trigger');
@@ -1321,10 +1552,12 @@ const checks = [];
         ),
         true,
       );
+
       const destination = pagesFor(config, route.language).find(
         (entry) =>
           entry.id !== route.id && ['home', 'links-page'].includes(entry.type),
       );
+
       await page.focus(
         `.section-menu-link[href="${new URL(href(destination.url)).pathname}"]`,
       );
@@ -1346,13 +1579,16 @@ const checks = [];
         passed: true,
       });
     }
+
     await page.setJavaScriptEnabled(true);
+
     for (const language of config.language_options) {
       for (const id of ['start-here', 'networks', 'personal']) {
         for (const suffix of ['/', '']) {
           const response = await fetch(href(`${language.path}${id}${suffix}`), {
             redirect: 'manual',
           });
+
           assert.equal(
             response.status,
             404,
@@ -1361,6 +1597,7 @@ const checks = [];
         }
       }
     }
+
     await page.goto(href(config.language_options[0].path), {
       waitUntil: 'networkidle2',
     });

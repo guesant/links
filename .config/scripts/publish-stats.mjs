@@ -1,21 +1,28 @@
 import { spawnSync } from 'node:child_process';
 
 const token = process.env.GITHUB_STATS_TOKEN;
+
 const repository = process.env.GITHUB_REPOSITORY;
+
 if (!token || !/^[\w.-]+\/[\w.-]+$/.test(repository || '')) {
   throw new Error('Missing workflow credentials or repository');
 }
+
 const git = (...args) => {
   const result = spawnSync(
     'git',
     ['-c', 'safe.directory=/workspace', ...args],
     { stdio: 'inherit' },
   );
+
   if (result.error) throw new Error('Git could not run');
+
   return result.status;
 };
+
 if (git('diff', '--quiet', '--', 'src/data/statistics.yaml') === 0)
   process.exit(0);
+
 for (const args of [
   ['add', '--', 'src/data/statistics.yaml'],
   [
@@ -41,6 +48,7 @@ for (const args of [
 ]) {
   if (git(...args) !== 0) throw new Error('Statistics publication failed');
 }
+
 const response = await fetch(
   `https://api.github.com/repos/${repository}/actions/workflows/pages.yml/dispatches`,
   {
@@ -55,5 +63,6 @@ const response = await fetch(
     signal: AbortSignal.timeout(20000),
   },
 );
+
 if (!response.ok)
   throw new Error(`Pages dispatch failed: HTTP ${response.status}`);

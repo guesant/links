@@ -6,6 +6,7 @@
 
   afterNavigate(() => {
     const data = page.data;
+
     if (data.interfaceName) {
       document.documentElement.dataset.interface = data.interfaceName;
       document.documentElement.dataset.page = data.page.id;
@@ -15,6 +16,7 @@
           ? 'terminal-interface'
           : 'theme-minecraft appearance-system background-default';
     }
+
     requestAnimationFrame(() =>
       document.dispatchEvent(new Event('lobby:navigate')),
     );

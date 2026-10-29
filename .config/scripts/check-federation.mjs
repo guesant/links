@@ -10,6 +10,7 @@ const source = {
   origin: 'https://blog.guesant.net',
   url: 'https://blog.guesant.net/lobby.json',
 };
+
 const entry = {
   id: 'post-one',
   language: 'pt-br',
@@ -20,7 +21,9 @@ const entry = {
   tags: ['testing'],
   metadata: { date: '2026-01-01' },
 };
+
 const feed = (items = [entry]) => ({ version: 1, source: 'blog', items });
+
 test('federation keeps only public allowlisted fields', () => {
   const result = validateFeed(
     feed([
@@ -32,6 +35,7 @@ test('federation keeps only public allowlisted fields', () => {
     ]),
     source,
   );
+
   assert(!JSON.stringify(result).includes('hidden'));
   assert.equal(result.items[0].source, 'blog');
   assert.equal(result.items[0].metadata.date, '2026-01-01');
@@ -39,16 +43,21 @@ test('federation keeps only public allowlisted fields', () => {
 });
 test('resume projects retain only safe declared public platform URLs', () => {
   const resume = { id: 'resume', origin: 'https://curriculum.guesant.net' };
+
   const project = {
     ...entry,
     type: 'project',
     url: 'https://curriculum.guesant.net/en/#project-one',
     metadata: { content_url: 'https://github.com/guesant/ava-pro' },
   };
+
   const input = { version: 1, source: 'resume', items: [project] };
+
   const result = validateFeed(input, resume).items[0];
+
   assert.equal(result.url, project.url);
   assert.equal(result.metadata.content_url, project.metadata.content_url);
+
   for (const url of [
     'javascript:alert(1)',
     'http://github.com/guesant/ava-pro',
@@ -62,6 +71,7 @@ test('resume projects retain only safe declared public platform URLs', () => {
         resume,
       ),
     );
+
   assert.throws(() =>
     validateFeed({ ...input, items: [{ ...project, type: 'case' }] }, resume),
   );
@@ -69,6 +79,7 @@ test('resume projects retain only safe declared public platform URLs', () => {
     validateFeed(feed([{ ...entry, metadata: project.metadata }]), source),
   );
 });
+
 for (const [name, modify] of [
   [
     'unknown version',
@@ -145,18 +156,23 @@ for (const [name, modify] of [
 ]) {
   test(`federation rejects ${name}`, () => {
     const value = structuredClone(feed());
+
     modify(value);
     assert.throws(() => validateFeed(value, source));
   });
 }
+
 test('federation uses valid cache only for network failures', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'lobby-feed-'));
+
   try {
     const messages = [];
+
     const options = {
       cacheDirectory: directory,
       warn: (message) => messages.push(message),
     };
+
     await loadFeed(source, {
       ...options,
       fetcher: async () => ({
@@ -164,12 +180,14 @@ test('federation uses valid cache only for network failures', async () => {
         text: async () => JSON.stringify(feed()),
       }),
     });
+
     const result = await loadFeed(source, {
       ...options,
       fetcher: async () => {
         throw new Error('Offline');
       },
     });
+
     assert.equal(result.items.length, 1);
     assert.equal(messages.length, 1);
     await assert.rejects(
@@ -191,15 +209,19 @@ test('federation uses valid cache only for network failures', async () => {
 });
 test('federation fails without usable cache and supports local generated inputs', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'lobby-feed-'));
+
   try {
     const fetcher = async () => {
       throw new Error('Offline');
     };
+
     await assert.rejects(
       loadFeed(source, { cacheDirectory: directory, fetcher }),
       /No valid feed/,
     );
+
     const localFile = join(directory, 'local.json');
+
     await writeFile(localFile, JSON.stringify(feed([])));
     assert.deepEqual(
       (

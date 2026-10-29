@@ -8,7 +8,9 @@ import accessibilityViewports from './accessibility-viewports.mjs';
 import { syncFederation } from './federation.mjs';
 
 const { parse } = createRequire(import.meta.url)('yaml');
+
 const config = parse(await readFile('src/data/links.yaml', 'utf8'));
+
 const command = (name, args = [], env = {}, cwd = process.cwd()) =>
   new Promise((accept, reject) => {
     const process = spawn(name, args, {
@@ -16,6 +18,7 @@ const command = (name, args = [], env = {}, cwd = process.cwd()) =>
       stdio: 'inherit',
       env: { ...globalThis.process.env, ...env },
     });
+
     process.on('error', reject);
     process.on('exit', (code, signal) =>
       code === 0
@@ -23,15 +26,18 @@ const command = (name, args = [], env = {}, cwd = process.cwd()) =>
         : reject(new Error(`${name} failed: ${code ?? signal}`)),
     );
   });
+
 const routes = config.language_options.flatMap((language) =>
   configuration
     .pagesFor(config, language.id)
     .filter((page) => !page.fallback)
     .map((page) => page.url),
 );
+
 const build = async (destination = '.local/build/site') => {
   await syncFederation();
   await command('node', ['.config/scripts/prepare-svelte-assets.mjs']);
+
   return command('npm', ['run', 'build'], {
     SITE_OUTPUT_DIR: resolve(destination),
     GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY || config.site.repository,
@@ -40,26 +46,33 @@ const build = async (destination = '.local/build/site') => {
     GITHUB_RUN_ID: process.env.GITHUB_RUN_ID || '',
   });
 };
+
 async function withServer(task) {
   const server = spawn(
     'serve',
     ['--no-clipboard', '--listen', 'tcp://127.0.0.1:4173', '.local/build/qa'],
     { stdio: 'ignore' },
   );
+
   try {
     for (let attempt = 0; ; attempt += 1) {
       try {
         const response = await fetch('http://127.0.0.1:4173/');
+
         if (response.ok) break;
       } catch {}
+
       if (attempt >= 50) throw new Error('Preview server did not start');
+
       await setTimeout(100);
     }
+
     await task();
   } finally {
     server.kill('SIGTERM');
   }
 }
+
 async function tests() {
   await command('node', [
     '--test',
@@ -75,6 +88,7 @@ async function tests() {
     '.config/scripts/check-search.mjs',
   ]);
 }
+
 async function check() {
   await command('npm', ['run', 'format']);
   await command('just', ['--fmt', '--check']);
@@ -85,7 +99,9 @@ async function check() {
   await mkdir('.local/reports', { recursive: true });
   await build('.local/build/qa');
   await tests();
+
   const pa11y = JSON.parse(await readFile('.config/pa11yci.json', 'utf8'));
+
   pa11y.urls = routes.flatMap((path) =>
     ['dark', 'light'].map((theme) => ({
       url: `http://127.0.0.1:4173${path}`,
@@ -96,7 +112,9 @@ async function check() {
       ],
     })),
   );
+
   const pageAudits = pa11y.urls.length;
+
   pa11y.urls.push(
     ...config.language_options.flatMap((language) =>
       [language.path, `${language.path}code/`].flatMap((path) =>
@@ -156,9 +174,11 @@ async function check() {
     });
   });
   await build('.local/build/lighthouse');
+
   const lighthouse = JSON.parse(
     await readFile('.config/lighthouserc.json', 'utf8'),
   );
+
   lighthouse.ci.collect.url = routes.map((path) => `http://localhost${path}`);
   lighthouse.ci.collect.staticDistDir = resolve('.local/build/lighthouse');
   lighthouse.ci.upload.outputDir = 'reports';
@@ -173,7 +193,9 @@ async function check() {
   await build();
   await command('node', ['.config/scripts/verify-links.mjs']);
 }
+
 const task = process.argv[2];
+
 try {
   switch (task) {
     case 'dev':
@@ -181,9 +203,11 @@ try {
       await command('node', ['.config/scripts/prepare-svelte-assets.mjs']);
       await command('npm', ['run', 'dev']);
       break;
+
     case 'build':
       await build();
       break;
+
     case 'preview':
       await command('serve', [
         '--no-clipboard',
@@ -192,12 +216,15 @@ try {
         '.local/build/site',
       ]);
       break;
+
     case 'test':
       await tests();
       break;
+
     case 'check':
       await check();
       break;
+
     case 'format':
     case 'format-fix':
       await command('npm', [
@@ -209,6 +236,7 @@ try {
         ...(task === 'format' ? ['--check'] : []),
       ]);
       break;
+
     default:
       throw new Error('Unknown task');
   }

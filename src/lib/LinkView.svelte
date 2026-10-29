@@ -1,5 +1,6 @@
 <script>
   import IconButton from './IconButton.svelte';
+
   let { ui, pageKey, terminal = false } = $props();
 </script>
 

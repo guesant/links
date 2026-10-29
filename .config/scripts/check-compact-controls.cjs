@@ -8,46 +8,62 @@ module.exports = async function checkCompactControls(
   reportDirectory,
 ) {
   const config = readConfiguration();
+
   const context = await browser.createBrowserContext();
+
   const checks = [];
+
   try {
     const page = await context.newPage();
+
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
     });
+
     for (const language of config.language_options) {
       for (const suffix of ['', 'career/']) {
         const url = new URL(
           `${language.path}${suffix}`.replace(/^\//, ''),
           baseURL,
         ).href;
+
         await page.goto(url, { waitUntil: 'networkidle2' });
+
         for (const theme of ['dark', 'light']) {
           await page.evaluate((value) => {
             document.documentElement.dataset.theme = value;
           }, theme);
+
           for (const width of [320, 390, 768, 1024, 1440]) {
             await page.setViewport({ width, height: 900 });
+
             const actual = await page.evaluate(() => {
               const footer = document
                 .querySelector('.site-footer')
                 .getBoundingClientRect();
+
               const group = document
                 .querySelector('.site-footer-content')
                 .getBoundingClientRect();
+
               const buttons = [
                 ...document.querySelectorAll('.site-footer-content > *'),
               ];
+
               const toolbar = document
                 .querySelector('.link-view-toolbar')
                 .getBoundingClientRect();
+
               const options = document
                 .querySelector('.link-view-options')
                 .getBoundingClientRect();
+
               const toolbarStyle = getComputedStyle(
                 document.querySelector('.link-view-toolbar'),
               );
+
               const controls = [...document.querySelectorAll('.icon-control')];
+
               const size =
                 parseFloat(
                   getComputedStyle(document.documentElement).getPropertyValue(
@@ -55,6 +71,7 @@ module.exports = async function checkCompactControls(
                   ),
                 ) *
                 parseFloat(getComputedStyle(document.documentElement).fontSize);
+
               return {
                 count: buttons.length,
                 centered:
@@ -116,23 +133,28 @@ module.exports = async function checkCompactControls(
                 compactHeight: toolbar.height < size * 1.5,
               };
             });
+
             assert.equal(actual.count, 5);
             assert.equal(
               actual.overflow,
               false,
               `${url} ${theme} ${width} overflow`,
             );
+
             for (const [key, value] of Object.entries(actual)) {
               if (!['count', 'overflow'].includes(key))
                 assert.equal(value, true, `${url} ${theme} ${width} ${key}`);
             }
+
             checks.push({ language: language.id, suffix, theme, width });
           }
         }
+
         await page.setViewport({ width: 320, height: 900 });
         await page.evaluate(() => {
           document.documentElement.style.fontSize = '200%';
         });
+
         for (const selector of [
           'label[for=link-view-compact]',
           'label[for=link-view-detailed]',
@@ -144,6 +166,7 @@ module.exports = async function checkCompactControls(
           assert.equal(
             await page.$eval(`${selector} .control-tooltip`, (element) => {
               const rect = element.getBoundingClientRect();
+
               return (
                 rect.left >= 0 &&
                 rect.right <= innerWidth &&
@@ -154,16 +177,20 @@ module.exports = async function checkCompactControls(
             `${language.id} ${selector} enlarged tooltip`,
           );
         }
+
         await page.evaluate(() => {
           document.documentElement.style.removeProperty('font-size');
         });
       }
     }
+
     await page.goto(new URL('pt-br/', baseURL).href, {
       waitUntil: 'networkidle2',
     });
+
     for (const width of [320, 1024]) {
       await page.setViewport({ width, height: 900 });
+
       for (const selector of [
         'label[for=link-view-compact]',
         'label[for=link-view-detailed]',
@@ -172,7 +199,9 @@ module.exports = async function checkCompactControls(
         '[data-settings-open]',
       ]) {
         await page.hover(selector);
+
         const tooltip = `${selector} .control-tooltip`;
+
         assert.equal(
           await page.$eval(
             tooltip,
@@ -180,10 +209,13 @@ module.exports = async function checkCompactControls(
           ),
           'visible',
         );
+
         const rect = await page.$eval(tooltip, (element) => {
           const r = element.getBoundingClientRect();
+
           return { left: r.left, right: r.right };
         });
+
         assert(
           rect.left >= 0 && rect.right <= width,
           `${selector} tooltip at ${width}`,
@@ -205,14 +237,17 @@ module.exports = async function checkCompactControls(
           'hidden',
         );
         await page.mouse.move(0, 0);
+
         const focus = selector.startsWith('label')
           ? `#${selector.includes('detailed') ? 'link-view-detailed' : 'link-view-compact'}`
           : selector;
+
         await page.focus(focus);
         await page.keyboard.press('Tab');
         await page.keyboard.down('Shift');
         await page.keyboard.press('Tab');
         await page.keyboard.up('Shift');
+
         if (!selector.startsWith('label'))
           assert.equal(
             await page.$eval(
@@ -222,6 +257,7 @@ module.exports = async function checkCompactControls(
             'visible',
           );
       }
+
       await page.click('[data-credits-open]');
       assert.equal(
         await page.$eval('#credits-dialog', (dialog) => dialog.open),
@@ -260,13 +296,16 @@ module.exports = async function checkCompactControls(
         element.tabIndex = -1;
         element.focus();
       });
+
       for (const selector of ['.link-view-control', '.site-footer']) {
         const element = await page.$(selector);
+
         await element.screenshot({
           path: `${reportDirectory}/compact-${selector.slice(1)}-${width}.png`,
         });
       }
     }
+
     fs.writeFileSync(
       `${reportDirectory}/compact-controls.json`,
       JSON.stringify({ passed: checks.length, checks }, null, 2),

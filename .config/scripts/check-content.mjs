@@ -13,19 +13,24 @@ import {
 const { linksForSection } = createRequire(import.meta.url)(
   './configuration.cjs',
 );
+
 const data = await getSiteData();
 
 test('localized static routes are unique and include both interfaces', () => {
   const routes = routeEntries(data);
+
   assert.equal(new Set(routes).size, routes.length);
+
   for (const language of data.links.language_options) {
     for (const route of ['home', 'career', 'code', 'now']) {
       const standard = pagesFor(data, language.id, 'minecraft').find(
         (page) => page.id === route,
       );
+
       const terminal = pagesFor(data, language.id, 'terminal').find(
         (page) => page.id === route,
       );
+
       if (standard.fallback) {
         assert.equal(
           standard.url,
@@ -35,6 +40,7 @@ test('localized static routes are unique and include both interfaces', () => {
       } else {
         assert(standard.url.startsWith(`/${language.id}/`));
       }
+
       if (terminal.fallback) {
         assert.equal(
           terminal.url,
@@ -44,6 +50,7 @@ test('localized static routes are unique and include both interfaces', () => {
       } else {
         assert(terminal.url.startsWith(`/${language.id}/terminal/`));
       }
+
       assert(routes.includes(standard.url.slice(1, -1)));
       assert(routes.includes(terminal.url.slice(1, -1)));
     }
@@ -52,8 +59,11 @@ test('localized static routes are unique and include both interfaces', () => {
 
 test('section references resolve visible links without duplicate definitions', () => {
   const career = data.links.sections.find((section) => section.id === 'career');
+
   const resolved = linksForSection(data.links, career);
+
   const identifiers = resolved.map((item) => item.id);
+
   assert.equal(new Set(identifiers).size, identifiers.length);
   assert.deepEqual(
     resolved.map((item) => item.id),
@@ -72,7 +82,9 @@ test('section references resolve visible links without duplicate definitions', (
 
 test('link filters and destinations preserve ownership and public visibility', () => {
   const section = data.links.sections.find((item) => item.id === 'career');
+
   const fixture = structuredClone(data.links);
+
   fixture.sections.push({
     ...structuredClone(section),
     id: 'fixture',
@@ -117,6 +129,7 @@ test('link filters and destinations preserve ownership and public visibility', (
 
 test('editorial records hide private, disabled, and draft entries', () => {
   const fixture = structuredClone(data);
+
   fixture.federation = { version: 1, items: [] };
   fixture.editorial.entries.career = [
     {
@@ -142,11 +155,14 @@ test('editorial records hide private, disabled, and draft entries', () => {
 test('section pages retain all configured links and translated routes', () => {
   for (const language of data.links.language_options) {
     const pages = pagesFor(data, language.id);
+
     for (const sectionID of data.links.navigation.sections) {
       const section = data.links.sections.find(
         (entry) => entry.id === sectionID,
       );
+
       const page = pages.find((entry) => entry.id === section.id);
+
       assert(page, `${language.id}: missing ${section.id}`);
       assert.equal(page.url, `/${language.id}/${section.id}/`);
       assert.deepEqual(

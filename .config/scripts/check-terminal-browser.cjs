@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { createRequire } = require('node:module');
 const { readConfiguration, pagesFor } = require('./configuration.cjs');
+
 const pa11y = createRequire(
   '/usr/local/lib/node_modules/pa11y-ci/package.json',
 )('pa11y');
@@ -12,19 +13,28 @@ module.exports = async function checkTerminalBrowser(
   reportDirectory,
 ) {
   const config = readConfiguration();
+
   const context = await browser.createBrowserContext();
+
   const checks = [];
+
   const errors = [];
+
   const accessibility = [];
+
   const url = (path) => new URL(path.replace(/^\//, ''), baseURL).href;
+
   try {
     const page = await context.newPage();
+
     page.on('pageerror', (error) => errors.push(error.message));
+
     for (const language of config.language_options) {
       for (const route of pagesFor(config, language.id).filter(
         (entry) => !entry.fallback,
       )) {
         const path = `${language.path}terminal/${route.id === 'home' ? '' : `${route.id === 'now' ? 'now' : route.id}/`}`;
+
         assert.equal(
           (await page.goto(url(path), { waitUntil: 'networkidle2' })).status(),
           200,
@@ -57,12 +67,15 @@ module.exports = async function checkTerminalBrowser(
           await page.$eval('#bios-dialog', (dialog) => dialog.open),
           false,
         );
+
         const styles = await page.$$eval('link[rel="stylesheet"]', (links) =>
           links.map((link) => link.href),
         );
+
         assert(
           styles.some((href) => href.endsWith('/assets/css/terminal.css')),
         );
+
         const initial = await page.$$eval(
           '[data-link-id],[data-editorial-id]',
           (items) =>
@@ -70,6 +83,7 @@ module.exports = async function checkTerminalBrowser(
               (item) => item.dataset.linkId || item.dataset.editorialId,
             ),
         );
+
         assert.equal(
           await page.$$eval(
             '.editorial-entry:has(.editorial-details)',
@@ -98,13 +112,16 @@ module.exports = async function checkTerminalBrowser(
           true,
           `${path} curriculum and platform destinations`,
         );
+
         for (const mode of ['compact', 'detailed']) {
           if (route.type !== 'now')
             await page.click(`label[for="link-view-${mode}"]`);
+
           for (const theme of ['light', 'dark']) {
             await page.evaluate((value) => {
               document.documentElement.dataset.theme = value;
             }, theme);
+
             for (const width of [320, 390, 768, 1024, 1440]) {
               await page.setViewport({ width, height: 900 });
               await page.evaluate(
@@ -113,6 +130,7 @@ module.exports = async function checkTerminalBrowser(
                     requestAnimationFrame(() => requestAnimationFrame(resolve)),
                   ),
               );
+
               const actual = await page.evaluate(() => ({
                 overflow: document.documentElement.scrollWidth > innerWidth,
                 font: getComputedStyle(document.body).fontFamily,
@@ -128,6 +146,7 @@ module.exports = async function checkTerminalBrowser(
                   (item) => item.dataset.linkId || item.dataset.editorialId,
                 ),
               }));
+
               assert.equal(
                 actual.overflow,
                 false,
@@ -144,13 +163,16 @@ module.exports = async function checkTerminalBrowser(
             }
           }
         }
+
         if (route.id === 'home' && language.id === 'pt-br') {
           for (const mode of ['compact', 'detailed']) {
             await page.click(`label[for="link-view-${mode}"]`);
+
             for (const theme of ['light', 'dark']) {
               await page.evaluate((value) => {
                 document.documentElement.dataset.theme = value;
               }, theme);
+
               for (const width of [390, 1440]) {
                 await page.setViewport({ width, height: 900 });
                 await page.evaluate(() => scrollTo(0, 0));
@@ -161,11 +183,13 @@ module.exports = async function checkTerminalBrowser(
             }
           }
         }
+
         if (['home', 'career', 'code', 'now'].includes(route.id)) {
           for (const theme of ['light', 'dark']) {
             await page.evaluate((value) => {
               document.documentElement.dataset.theme = value;
             }, theme);
+
             const result = await pa11y(url(path), {
               browser,
               page,
@@ -180,9 +204,11 @@ module.exports = async function checkTerminalBrowser(
                 ),
               },
             });
+
             const issues = result.issues.filter(
               (issue) => issue.type === 'error',
             );
+
             accessibility.push({ path, theme, issues });
             fs.writeFileSync(
               `${reportDirectory}/terminal-accessibility.json`,
@@ -193,6 +219,7 @@ module.exports = async function checkTerminalBrowser(
         }
       }
     }
+
     await page.goto(url('pt-br/career/?verify=terminal#main-content'), {
       waitUntil: 'networkidle2',
     });

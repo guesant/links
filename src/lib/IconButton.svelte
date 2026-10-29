@@ -1,5 +1,6 @@
 <script>
   import Icon from './Icon.svelte';
+
   let { name } = $props();
 </script>
 

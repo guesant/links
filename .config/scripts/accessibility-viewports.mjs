@@ -6,17 +6,23 @@ const puppeteer = createRequire(
 
 export default async function accessibilityViewports(audits, defaults) {
   const browser = await puppeteer.launch(defaults.chromeLaunchConfig);
+
   const heights = new Map();
+
   try {
     const page = await browser.newPage();
+
     await page.setViewport(defaults.viewport);
+
     for (const audit of audits) {
       const view = audit.actions?.includes(
         'click element label[for="link-view-detailed"]',
       )
         ? 'detailed'
         : 'compact';
+
       const key = `${audit.url}:${view}`;
+
       if (!heights.has(key)) {
         await page.goto(audit.url, { waitUntil: 'networkidle2' });
         await page.evaluate((view) => {
@@ -28,6 +34,7 @@ export default async function accessibilityViewports(audits, defaults) {
           await page.evaluate(() => document.documentElement.scrollHeight),
         );
       }
+
       audit.viewport = {
         ...defaults.viewport,
         height: Math.max(defaults.viewport.height, heights.get(key)),

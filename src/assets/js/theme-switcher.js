@@ -1,7 +1,10 @@
 (() => {
   const storageKey = 'guesant-links-theme';
+
   const themes = new Set(['system', 'dark', 'light']);
+
   const root = document.documentElement;
+
   root.dataset.themeReady = 'true';
 
   let storedTheme = '';

@@ -4,11 +4,14 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const { parse, stringify } = createRequire(import.meta.url)('yaml');
+
 const root = fileURLToPath(new URL('../../', import.meta.url));
+
 const integer = (value) => {
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new Error('Invalid public statistic');
   }
+
   return value;
 };
 
@@ -18,50 +21,70 @@ async function request(url, options, fetcher) {
     redirect: 'error',
     signal: AbortSignal.timeout(20000),
   });
+
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
   return response.json();
 }
 
 export async function collectGitHub(entry, fetcher = fetch) {
   const url = new URL(entry.url);
+
   const parts = url.pathname.split('/').filter(Boolean);
+
   if (url.hostname !== 'github.com' || parts.length !== 1) {
     throw new Error('GitHub statistics require a profile URL');
   }
+
   const username = parts[0];
+
   const headers = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2026-03-10',
   };
+
   if (process.env.GITHUB_STATS_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_STATS_TOKEN}`;
   }
+
   const endpoint = `https://api.github.com/users/${encodeURIComponent(username)}`;
+
   const user = await request(endpoint, { headers }, fetcher);
+
   if (user.login?.toLowerCase() !== username.toLowerCase()) {
     throw new Error('GitHub returned a different profile');
   }
+
   const repositories = new Map();
+
   for (let page = 1; ; page += 1) {
     if (page > 100) throw new Error('GitHub pagination exceeded safety limit');
+
     const entries = await request(
       `${endpoint}/repos?type=owner&per_page=100&page=${page}`,
       { headers },
       fetcher,
     );
+
     if (!Array.isArray(entries)) throw new Error('Invalid repository response');
+
     for (const repository of entries) {
       if (repository.private !== false || !repository.id) {
         throw new Error('Repository response is not explicitly public');
       }
+
       if (repository.owner?.login?.toLowerCase() !== username.toLowerCase()) {
         throw new Error('Repository belongs to another account');
       }
+
       repositories.set(repository.id, repository);
     }
+
     if (entries.length < 100) break;
   }
+
   const publicRepositories = [...repositories.values()];
+
   return {
     username: user.login,
     metrics: {
@@ -81,7 +104,9 @@ export async function collectGitHub(entry, fetcher = fetch) {
 
 export async function collectLeetCode(entry, fetcher = fetch) {
   const url = new URL(entry.url);
+
   const parts = url.pathname.split('/').filter(Boolean);
+
   if (
     url.hostname !== 'leetcode.com' ||
     parts[0] !== 'u' ||
@@ -89,7 +114,9 @@ export async function collectLeetCode(entry, fetcher = fetch) {
   ) {
     throw new Error('LeetCode statistics require a profile URL');
   }
+
   const username = parts[1];
+
   const result = await request(
     'https://leetcode.com/graphql/',
     {
@@ -106,34 +133,46 @@ export async function collectLeetCode(entry, fetcher = fetch) {
     },
     fetcher,
   );
+
   const user = result.data?.matchedUser;
+
   if (
     result.errors?.length ||
     user?.username?.toLowerCase() !== username.toLowerCase()
   ) {
     throw new Error('LeetCode returned an invalid profile');
   }
+
   const solved = user.submitStatsGlobal?.acSubmissionNum;
+
   const totals = result.data.allQuestionsCount;
+
   if (!Array.isArray(solved) || !Array.isArray(totals)) {
     throw new Error('LeetCode returned invalid counts');
   }
+
   const metrics = { ranking: integer(user.profile?.ranking) };
+
   const available = {};
+
   for (const difficulty of ['All', 'Easy', 'Medium', 'Hard']) {
     const key = difficulty === 'All' ? 'solved' : difficulty.toLowerCase();
+
     metrics[key] = integer(
       solved.find((item) => item.difficulty === difficulty)?.count,
     );
     available[key] = integer(
       totals.find((item) => item.difficulty === difficulty)?.count,
     );
+
     if (metrics[key] > available[key])
       throw new Error('Solved count exceeds total');
   }
+
   if (metrics.easy + metrics.medium + metrics.hard !== metrics.solved) {
     throw new Error('LeetCode difficulty counts do not add up');
   }
+
   return { username: user.username, metrics, available };
 }
 
@@ -144,19 +183,27 @@ export async function updateStats({
   now = () => new Date(),
 } = {}) {
   const configuration = parse(await readFile(configurationPath, 'utf8'));
+
   let previousText = '';
+
   try {
     previousText = await readFile(outputPath, 'utf8');
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
+
   const previous = previousText ? parse(previousText) : {};
+
   if (!previous || typeof previous !== 'object' || Array.isArray(previous)) {
     throw new Error('Invalid statistics cache');
   }
+
   const next = { ...previous };
+
   const providers = { github: collectGitHub, leetcode: collectLeetCode };
+
   const results = [];
+
   const entries = configuration.sections
     .filter((section) => section.enabled !== false && section.public !== false)
     .flatMap((section) => section.links)
@@ -164,7 +211,9 @@ export async function updateStats({
       (entry) =>
         entry.enabled !== false && entry.public !== false && entry.stats,
     );
+
   const ids = new Set();
+
   for (const entry of entries) {
     if (
       !entry.id ||
@@ -175,22 +224,28 @@ export async function updateStats({
     ) {
       throw new Error('Invalid statistics provider configuration');
     }
+
     ids.add(entry.id);
+
     try {
       const data = await providers[entry.stats.provider](entry, fetcher);
+
       const snapshot = {
         ...data,
         profile_url: entry.url,
         provider: entry.stats.provider,
         updated_at: now().toISOString(),
       };
+
       for (const key of entry.stats.metrics) integer(snapshot.metrics[key]);
+
       next[entry.id] = snapshot;
       results.push({ id: entry.id, status: 'updated' });
     } catch (error) {
       const cached =
         previous[entry.id]?.profile_url === entry.url &&
         previous[entry.id]?.provider === entry.stats.provider;
+
       results.push({
         id: entry.id,
         status: cached ? 'cached' : 'unavailable',
@@ -198,12 +253,16 @@ export async function updateStats({
       });
     }
   }
+
   if (results.some((entry) => entry.status === 'updated')) {
     await mkdir(dirname(outputPath), { recursive: true });
+
     const temporary = `${outputPath}.${process.pid}.tmp`;
+
     await writeFile(temporary, stringify(next), { mode: 0o644 });
     await rename(temporary, outputPath);
   }
+
   return results;
 }
 

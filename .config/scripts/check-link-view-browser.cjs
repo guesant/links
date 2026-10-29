@@ -8,18 +8,26 @@ module.exports = async function checkLinkViewBrowser(
   reportDirectory,
 ) {
   const config = readConfiguration();
+
   const base = new URL(baseURL);
+
   const href = (path) => new URL(path.replace(/^\//, ''), base).href;
+
   const routes = config.language_options.flatMap(({ id }) =>
     pagesFor(config, id)
       .filter((page) => ['home', 'links-page'].includes(page.type))
       .map((page) => ({ ...page, language: id })),
   );
+
   const context = await browser.createBrowserContext();
+
   const checks = [];
+
   const errors = [];
+
   try {
     const page = await context.newPage();
+
     page.on('pageerror', (error) => errors.push(error.message));
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
@@ -29,7 +37,9 @@ module.exports = async function checkLinkViewBrowser(
       await page.$eval('html', (root) => root.dataset.linkView),
       'compact',
     );
+
     const originalURL = page.url();
+
     await page.focus('#link-view-compact');
     await page.keyboard.press('ArrowRight');
     assert.equal(
@@ -71,29 +81,37 @@ module.exports = async function checkLinkViewBrowser(
     await page.evaluate(() =>
       localStorage.removeItem('guesant-links-language'),
     );
+
     for (const route of routes) {
       await page.goto(href(route.url), { waitUntil: 'networkidle2' });
+
       const labels = config.locales[route.language].ui;
+
       assert.equal(
         await page.$eval('.link-view-control legend', (legend) =>
           legend.textContent.trim(),
         ),
         labels.link_view_label,
       );
+
       const initialLinks = await page.$$eval('.link-button', (links) =>
         links.map((link) => link.href),
       );
+
       await page.evaluate(() => {
         window.initialViewLinks = [
           ...document.querySelectorAll('.link-button'),
         ];
       });
+
       for (const mode of ['compact', 'detailed']) {
         await page.click(`label[for="link-view-${mode}"]`);
+
         for (const theme of ['dark', 'light']) {
           await page.evaluate((value) => {
             document.documentElement.dataset.theme = value;
           }, theme);
+
           for (const width of [320, 390, 768, 1024, 1440]) {
             await page.setViewport({ width, height: 900 });
             await page.evaluate(
@@ -104,11 +122,15 @@ module.exports = async function checkLinkViewBrowser(
                   ),
                 ),
             );
+
             const actual = await page.evaluate(() => {
               const detailed =
                 document.documentElement.dataset.linkView === 'detailed';
+
               const links = [...document.querySelectorAll('.link-button')];
+
               const visible = (element) => element.getClientRects().length > 0;
+
               return {
                 overflow: document.documentElement.scrollWidth > innerWidth,
                 stableLinks: links.every(
@@ -136,10 +158,12 @@ module.exports = async function checkLinkViewBrowser(
                   ...document.querySelectorAll('.category-card'),
                 ].every((card) => {
                   const style = getComputedStyle(card);
+
                   const available =
                     card.clientWidth -
                     parseFloat(style.paddingLeft) -
                     parseFloat(style.paddingRight);
+
                   return (
                     getComputedStyle(card).gridTemplateColumns.split(' ')
                       .length === 1 &&
@@ -156,22 +180,30 @@ module.exports = async function checkLinkViewBrowser(
                   const icon = summary
                     .querySelector('.category-icon')
                     .getBoundingClientRect();
+
                   const title = summary
                     .querySelector('.category-title')
                     .getBoundingClientRect();
+
                   const heading = summary
                     .querySelector('.category-heading')
                     .getBoundingClientRect();
+
                   const copy = summary
                     .querySelector('.category-copy')
                     ?.getBoundingClientRect();
+
                   const rect = summary.getBoundingClientRect();
+
                   const style = getComputedStyle(summary);
+
                   const contentLeft = rect.left + parseFloat(style.paddingLeft);
+
                   const contentWidth =
                     summary.clientWidth -
                     parseFloat(style.paddingLeft) -
                     parseFloat(style.paddingRight);
+
                   return (
                     getComputedStyle(summary).gridTemplateColumns.split(' ')
                       .length === 1 &&
@@ -240,25 +272,32 @@ module.exports = async function checkLinkViewBrowser(
                   .filter(visible)
                   .every((element) => {
                     const range = document.createRange();
+
                     range.selectNodeContents(element.firstChild);
+
                     return range.getClientRects().length === 1;
                   }),
                 rails: [...document.querySelectorAll('.suspension-body')].every(
                   (body) => {
                     if (!visible(body)) return true;
+
                     const top = body.getBoundingClientRect().top;
+
                     const anchors = [
                       ...document.querySelectorAll('[data-rail-anchor]'),
                     ];
+
                     const gap = parseFloat(
                       getComputedStyle(
                         document.querySelector('.suspended-content'),
                       ).rowGap,
                     );
+
                     return [
                       ...body.querySelectorAll('[data-rail-lantern]'),
                     ].every((lamp) => {
                       const anchor = anchors[Number(lamp.dataset.railLantern)];
+
                       return (
                         !anchor ||
                         Math.abs(
@@ -277,12 +316,14 @@ module.exports = async function checkLinkViewBrowser(
                 ),
               };
             });
+
             assert.equal(
               actual.overflow,
               false,
               `${route.url} ${mode} ${theme} ${width} overflow`,
             );
             assert.equal(actual.checked, mode);
+
             for (const key of [
               'stableLinks',
               'contentFits',
@@ -302,7 +343,9 @@ module.exports = async function checkLinkViewBrowser(
                 true,
                 `${route.url} ${mode} ${theme} ${width} ${key}`,
               );
+
             checks.push({ path: route.url, mode, theme, width });
+
             if (
               route.language === 'pt-br' &&
               ['home', 'career', 'code'].includes(route.id) &&
@@ -319,6 +362,7 @@ module.exports = async function checkLinkViewBrowser(
             }
           }
         }
+
         assert.deepEqual(
           await page.$$eval('.link-button', (links) =>
             links.map((link) => link.href),
@@ -327,7 +371,9 @@ module.exports = async function checkLinkViewBrowser(
         );
       }
     }
+
     await page.goto(href('/en/code/'), { waitUntil: 'networkidle0' });
+
     for (const mode of ['compact', 'detailed']) {
       await page.click(`label[for="link-view-${mode}"]`);
       await page.evaluate(() => {
@@ -335,9 +381,11 @@ module.exports = async function checkLinkViewBrowser(
         window.viewLongText = [
           ...document.querySelectorAll('.link-title,.link-description'),
         ].map((element) => [element, element.textContent]);
+
         for (const [element, text] of window.viewLongText)
           element.textContent = text.repeat(4);
       });
+
       for (const width of [320, 390, 768, 1024, 1440]) {
         await page.setViewport({ width, height: 900 });
         assert.equal(
@@ -348,20 +396,26 @@ module.exports = async function checkLinkViewBrowser(
           `${mode} enlarged text ${width}`,
         );
       }
+
       await page.evaluate(() => {
         document.documentElement.style.removeProperty('font-size');
+
         for (const [element, text] of window.viewLongText)
           element.textContent = text;
       });
     }
+
     assert.deepEqual(errors, []);
   } finally {
     await context.close();
   }
+
   for (const blocked of [false, true]) {
     const isolated = await browser.createBrowserContext();
+
     try {
       const page = await isolated.newPage();
+
       await page.evaluateOnNewDocument((blocked) => {
         if (blocked)
           Object.defineProperty(window, 'localStorage', {
@@ -385,10 +439,14 @@ module.exports = async function checkLinkViewBrowser(
       await isolated.close();
     }
   }
+
   const noJS = await browser.createBrowserContext();
+
   try {
     const page = await noJS.newPage();
+
     await page.setJavaScriptEnabled(false);
+
     for (const route of ['/en/', '/en/career/']) {
       await page.goto(href(route), { waitUntil: 'networkidle0' });
       assert.equal(
@@ -413,6 +471,7 @@ module.exports = async function checkLinkViewBrowser(
   } finally {
     await noJS.close();
   }
+
   fs.writeFileSync(
     `${reportDirectory}/link-view-checks.json`,
     JSON.stringify(
