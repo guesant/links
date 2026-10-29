@@ -769,6 +769,29 @@ sections:
           zh:
             title: Hyperskill
             description: 查看我的 Hyperskill 课程和学习进度。
+      - id: duolingo
+        url: https://pt.duolingo.com/profile/guesant
+        icon: education
+        enabled: true
+        labels:
+          en:
+            title: Duolingo
+            description: Visit my Duolingo profile.
+          pt-br:
+            title: Duolingo
+            description: Acesse meu perfil no Duolingo.
+          fr:
+            title: Duolingo
+            description: Consultez mon profil Duolingo.
+          es:
+            title: Duolingo
+            description: Visita mi perfil de Duolingo.
+          it:
+            title: Duolingo
+            description: Visita il mio profilo Duolingo.
+          zh:
+            title: Duolingo
+            description: 查看我的 Duolingo 个人资料。
   - id: reading
     icon: book
     enabled: true
