@@ -57,14 +57,22 @@ const build = async (destination = '.local/build/site') => {
 async function withServer(task) {
   const server = spawn(
     'serve',
-    ['--no-clipboard', '--listen', 'tcp://127.0.0.1:4173', '.local/build/qa'],
-    { stdio: 'ignore' },
+    [
+      '--no-clipboard',
+      '--no-etag',
+      '--listen',
+      'tcp://127.0.0.1:4173',
+      '.local/build/qa',
+    ],
+    { stdio: ['ignore', 'ignore', 'inherit'] },
   );
 
   try {
     for (let attempt = 0; ; attempt += 1) {
       try {
         const response = await fetch('http://127.0.0.1:4173/');
+
+        await response.arrayBuffer();
 
         if (response.ok) {
           break;
@@ -263,6 +271,7 @@ try {
     case 'preview':
       await command('serve', [
         '--no-clipboard',
+        '--no-etag',
         '--listen',
         'tcp://0.0.0.0:4173',
         '.local/build/site',

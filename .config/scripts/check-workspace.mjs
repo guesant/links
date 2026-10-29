@@ -70,6 +70,44 @@ test('asset catalogs point to existing files in website', async () => {
   }
 });
 
+test('preview and audit servers avoid the cached-response stream leak', async () => {
+  const typescript = requireWebsite('typescript');
+
+  const source = typescript.createSourceFile(
+    'tasks.mjs',
+    await readFile(
+      resolve(repositoryRoot, '.config/scripts/tasks.mjs'),
+      'utf8',
+    ),
+    typescript.ScriptTarget.Latest,
+    true,
+  );
+
+  const commands = [];
+
+  function inspect(node) {
+    if (
+      typescript.isCallExpression(node) &&
+      node.arguments[0]?.text === 'serve'
+    ) {
+      commands.push(
+        node.arguments[1].elements.map((argument) => {
+          return argument.text;
+        }),
+      );
+    }
+
+    typescript.forEachChild(node, inspect);
+  }
+
+  inspect(source);
+  assert.equal(commands.length, 2);
+
+  for (const argumentsList of commands) {
+    assert.ok(argumentsList.includes('--no-etag'));
+  }
+});
+
 test('style policy accepts relative tokens and equal grid tracks with intrinsic controls', async () => {
   const { default: stylelint } = await import(
     requireWebsite.resolve('stylelint')
