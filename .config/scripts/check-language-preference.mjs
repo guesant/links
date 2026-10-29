@@ -1,117 +1,106 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { runInNewContext } from 'node:vm';
 import test from 'node:test';
+import {
+  createLanguageNavigation,
+  languageStorageKey,
+} from '../../website/src/lib/language-navigation.ts';
+import { languageDestination } from '../../website/src/lib/language-preference.ts';
 
-const script = await readFile('src/assets/js/language-switcher.js', 'utf8');
-
-function harness({
+async function harness({
   current = '',
   languages = ['pt-BR', 'en-US'],
-  saved,
+  saved = null,
   blocked = false,
   unavailable = [],
   prefix = '/',
   page = '',
   suffix = '',
+  failure = false,
 } = {}) {
   const routes = ['pt-br', 'zh', 'fr', 'es', 'it', 'en'].map((id) => {
     const home = `${prefix}${id}/`;
 
-    return { id, home, url: unavailable.includes(id) ? '' : `${home}${page}` };
+    const resolveUrl = () => {
+      if (unavailable.includes(id)) {
+        return '';
+      }
+
+      return `${home}${page}`;
+    };
+
+    return { id, home, url: resolveUrl() };
   });
 
-  let url = new URL(
-    `https://example.test${current ? routes.find((r) => r.id === current).url : prefix}${suffix}`,
-  );
+  const context = { current, default: 'pt-br', neutral: !current, routes };
+
+  const resolveUrl1 = () => {
+    if (current) {
+      return routes.find((route) => {
+        return route.id === current;
+      }).url;
+    }
+
+    return prefix;
+  };
+
+  let url = new URL(`https://example.test${resolveUrl1()}${suffix}`);
 
   const state = {
     saved,
     writes: [],
     replacements: [],
-    assignments: [],
     cleanups: [],
+    fallbacks: [],
   };
 
-  const listeners = new Map();
-
-  class HTMLSelectElement {
-    constructor(id) {
-      this.selectedOptions = [{ dataset: { language: id } }];
-    }
-
-    matches() {
-      return true;
-    }
-  }
-
-  runInNewContext(script, {
-    URL,
-    HTMLSelectElement,
-    navigator: { languages },
-    document: {
-      currentScript: {
-        dataset: {
-          languageConfig: JSON.stringify({
-            current,
-            default: 'pt-br',
-            neutral: !current,
-            routes,
-          }),
-        },
-      },
-      addEventListener(name, callback) {
-        listeners.set(name, callback);
-      },
+  const controller = createLanguageNavigation({
+    page: () => {
+      return { context, url };
     },
-    window: {
-      localStorage: {
-        getItem() {
-          if (blocked) throw new Error('Storage blocked');
+    languages: () => {
+      return languages;
+    },
+    storage: () => {
+      if (blocked) {
+        throw new Error('Storage blocked');
+      }
 
+      return {
+        getItem: () => {
           return state.saved;
         },
-        setItem(key, value) {
-          if (blocked) throw new Error('Storage blocked');
-
-          assert.equal(key, 'guesant-links-language');
+        setItem: (key, value) => {
+          assert.equal(key, languageStorageKey);
           state.saved = value;
           state.writes.push(value);
         },
-      },
-      location: {
-        get href() {
-          return url.href;
-        },
-        get origin() {
-          return url.origin;
-        },
-        get pathname() {
-          return url.pathname;
-        },
-        replace(value) {
-          state.replacements.push(value);
-          url = new URL(value);
-        },
-        assign(value) {
-          state.assignments.push(value);
-          url = new URL(value);
-        },
-      },
-      history: {
-        replaceState(_state, _title, value) {
-          state.cleanups.push(value);
-          url = new URL(value);
-        },
-      },
+      };
+    },
+    navigate: async (target) => {
+      if (failure) {
+        throw new Error('Navigation failed');
+      }
+
+      state.replacements.push(target.href);
+      url = new URL(target);
+      context.current =
+        routes.find((route) => {
+          return url.pathname.startsWith(route.home);
+        })?.id || '';
+      context.neutral = false;
+    },
+    replaceURL: (target) => {
+      state.cleanups.push(target.href);
+      url = new URL(target);
+    },
+    fallback: (target) => {
+      state.fallbacks.push(target.href);
     },
   });
 
-  return {
-    state,
-    select: (id) =>
-      listeners.get('change')({ target: new HTMLSelectElement(id) }),
-  };
+  await controller.normalize();
+
+  return { state, controller };
 }
 
 for (const [tag, expected] of [
@@ -122,122 +111,162 @@ for (const [tag, expected] of [
   ['it-IT', 'it'],
   ['en-US', 'en'],
 ]) {
-  test(`browser preference ${tag} resolves a supported locale`, () => {
-    const { state } = harness({ languages: [tag] });
+  test(`browser preference ${tag} resolves a supported locale`, async () => {
+    const { state, controller } = await harness({ languages: [tag] });
 
     assert.deepEqual(state.replacements, [`https://example.test/${expected}/`]);
     assert.deepEqual(state.writes, []);
+    await controller.normalize();
+    assert.equal(state.replacements.length, 1);
   });
 }
 
-test('unsupported and absent preferences default to Portuguese', () => {
+test('unsupported and absent preferences default to Portuguese', async () => {
   for (const languages of [['de-DE', 'ru-RU'], []]) {
-    assert.deepEqual(harness({ languages }).state.replacements, [
+    assert.deepEqual((await harness({ languages })).state.replacements, [
       'https://example.test/pt-br/',
     ]);
   }
 });
-test('ordered browser preferences skip unsupported languages', () => {
+test('ordered browser preferences skip unsupported languages', async () => {
   assert.deepEqual(
-    harness({ languages: ['de-DE', 'en-US', 'pt-BR'] }).state.replacements,
+    (await harness({ languages: ['de-DE', 'en-US', 'pt-BR'] })).state
+      .replacements,
     ['https://example.test/en/'],
   );
 });
-test('first visits respect explicit locale prefixes', () => {
-  for (const current of ['pt-br', 'zh', 'fr', 'es', 'it', 'en'])
-    assert.deepEqual(harness({ current }).state.replacements, []);
+test('first visits respect explicit locale prefixes', async () => {
+  for (const current of ['pt-br', 'zh', 'fr', 'es', 'it', 'en']) {
+    assert.deepEqual((await harness({ current })).state.replacements, []);
+  }
 });
-test('a manual preference overrides browser language and URL locale', () => {
+test('a manual preference overrides browser language and URL locale', async () => {
   for (const current of ['en', 'fr']) {
     assert.deepEqual(
-      harness({ current, page: 'code/', languages: ['en-US'], saved: 'pt-br' })
-        .state.replacements,
+      (
+        await harness({
+          current,
+          page: 'code/',
+          languages: ['en-US'],
+          saved: 'pt-br',
+        })
+      ).state.replacements,
       ['https://example.test/pt-br/code/'],
     );
   }
 });
-test('invalid saved preferences cannot create arbitrary redirects', () => {
+test('invalid saved preferences cannot create arbitrary redirects', async () => {
   assert.deepEqual(
-    harness({ saved: 'https://evil.test/', languages: ['en'] }).state
+    (await harness({ saved: 'https://evil.test/', languages: ['en'] })).state
       .replacements,
     ['https://example.test/en/'],
   );
 });
-test('matching locales never redirect again', () => {
+test('matching locales never redirect again', async () => {
   assert.deepEqual(
-    harness({ current: 'pt-br', saved: 'pt-br' }).state.replacements,
+    (await harness({ current: 'pt-br', saved: 'pt-br' })).state.replacements,
     [],
   );
 });
-test('automatic redirects preserve query, fragment and installation prefix', () => {
+test('automatic redirects preserve query, fragment and installation prefix', async () => {
   assert.deepEqual(
-    harness({ prefix: '/prefix/', suffix: '?source=link#details' }).state
-      .replacements,
+    (await harness({ prefix: '/prefix/', suffix: '?source=link#details' }))
+      .state.replacements,
     ['https://example.test/prefix/pt-br/?source=link#details'],
   );
 });
-test('missing page translations do not redirect visitors away from their content', () => {
+test('missing page translations do not redirect visitors away from their content', async () => {
   assert.deepEqual(
-    harness({ current: 'en', page: 'now/', saved: 'fr', unavailable: ['fr'] })
-      .state.replacements,
+    (
+      await harness({
+        current: 'en',
+        page: 'now/',
+        saved: 'fr',
+        unavailable: ['fr'],
+      })
+    ).state.replacements,
     [],
   );
 });
-test('manual selection persists a locale and the equivalent page', () => {
-  const { state, select } = harness({
+test('manual selection persists a locale and replaces the equivalent page', async () => {
+  const { state, controller } = await harness({
     current: 'pt-br',
     page: 'code/',
     suffix: '?source=link#details',
   });
 
-  select('fr');
+  await controller.select('fr');
   assert.equal(state.saved, 'fr');
-  assert.deepEqual(state.assignments, [
+  assert.deepEqual(state.replacements, [
     'https://example.test/fr/code/?source=link#details',
   ]);
 });
-test('manual fallback to a locale home drops an unavailable page fragment', () => {
-  const { state, select } = harness({
+test('manual fallback to a locale home drops an unavailable page fragment', async () => {
+  const { state, controller } = await harness({
     current: 'pt-br',
     unavailable: ['fr'],
     suffix: '#now-context',
   });
 
-  select('fr');
-  assert.deepEqual(state.assignments, ['https://example.test/fr/']);
+  await controller.select('fr');
+  assert.deepEqual(state.replacements, ['https://example.test/fr/']);
 });
-test('blocked storage keeps manual English selection explicit in the URL', () => {
-  const { state, select } = harness({
+test('blocked storage keeps a manual selection explicit in the URL', async () => {
+  const { state, controller } = await harness({
     current: 'pt-br',
     page: 'code/',
     blocked: true,
   });
 
-  select('en');
-  assert.deepEqual(state.assignments, [
+  await controller.select('en');
+  assert.deepEqual(state.replacements, [
     'https://example.test/en/code/?lang=en',
   ]);
   assert.deepEqual(
-    harness({ current: 'en', page: 'code/', blocked: true, suffix: '?lang=en' })
-      .state.replacements,
+    (
+      await harness({
+        current: 'en',
+        page: 'code/',
+        blocked: true,
+        suffix: '?lang=en',
+      })
+    ).state.replacements,
     [],
   );
 });
-test('explicit query preferences are persisted and removed from the address', () => {
-  const { state } = harness({ suffix: '?lang=en&source=link#details' });
+test('explicit query preferences are persisted and cleaned in the final URL', async () => {
+  const { state } = await harness({ suffix: '?lang=en&source=link#details' });
 
   assert.equal(state.saved, 'en');
-  assert.deepEqual(state.cleanups, [
-    'https://example.test/?source=link#details',
-  ]);
+  assert.deepEqual(state.cleanups, []);
   assert.deepEqual(state.replacements, [
     'https://example.test/en/?source=link#details',
   ]);
+  assert.deepEqual(
+    (await harness({ current: 'en', suffix: '?lang=en&x=1' })).state.cleanups,
+    ['https://example.test/en/?x=1'],
+  );
 });
-test('unknown manual selections are ignored', () => {
-  const { state, select } = harness({ current: 'pt-br' });
+test('unknown manual selections and cross-origin routes are ignored', async () => {
+  const { state, controller } = await harness({ current: 'pt-br' });
 
-  select('unknown');
-  assert.deepEqual(state.assignments, []);
+  await controller.select('unknown');
+  assert.deepEqual(state.replacements, []);
   assert.deepEqual(state.writes, []);
+
+  for (const path of ['https://evil.test/', '//evil.test/', '/\\evil.test/']) {
+    assert.equal(
+      languageDestination(
+        { id: 'en', url: path, home: path },
+        new URL('https://example.test/'),
+      ),
+      null,
+    );
+  }
+});
+test('a failed SPA transition falls back only once', async () => {
+  const { state, controller } = await harness({ failure: true });
+
+  await controller.normalize();
+  assert.deepEqual(state.fallbacks, ['https://example.test/pt-br/']);
 });

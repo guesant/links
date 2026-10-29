@@ -2,6 +2,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { resolve } = require('node:path');
 const { createRequire } = require('node:module');
+const { requireWebsite } = require('./paths.cjs');
+const {
+  waitForLandscape,
+  checkProgressiveScene,
+} = require('./check-progressive-scene.cjs');
 const {
   readConfiguration,
   visibleLinks,
@@ -15,11 +20,14 @@ const puppeteer = createRequire(
 
 const config = readConfiguration(
   process.env.QA_LINKS_CONFIG ||
-    resolve(__dirname, '../../src/data/links.yaml'),
+    resolve(__dirname, '../../website/src/data/links.yaml'),
 );
 
-const snapshots = require('yaml').parse(
-  fs.readFileSync(resolve(__dirname, '../../src/data/statistics.yaml'), 'utf8'),
+const snapshots = requireWebsite('yaml').parse(
+  fs.readFileSync(
+    resolve(__dirname, '../../website/src/data/statistics.yaml'),
+    'utf8',
+  ),
 );
 
 const reportDirectory = process.env.QA_REPORT_DIR || resolve('.local/reports');
@@ -28,18 +36,25 @@ const base = new URL(
   (process.env.QA_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '') + '/',
 );
 
-const href = (path) =>
-  /^(https?:|mailto:|tel:)/.test(path)
-    ? new URL(path).href
-    : new URL(path.replace(/^\/+/, ''), base).href;
+const href = (path) => {
+  if (/^(https?:|mailto:|tel:)/.test(path)) {
+    return new URL(path).href;
+  }
+
+  return new URL(path.replace(/^\/+/, ''), base).href;
+};
 
 const widths = [320, 390, 768, 1024, 1440];
 
-const routes = config.language_options.flatMap(({ id }) =>
-  pagesFor(config, id)
-    .filter((page) => !page.fallback)
-    .map((page) => ({ ...page, language: id })),
-);
+const routes = config.language_options.flatMap(({ id }) => {
+  return pagesFor(config, id)
+    .filter((page) => {
+      return !page.fallback;
+    })
+    .map((page) => {
+      return { ...page, language: id };
+    });
+});
 
 const checks = [];
 
@@ -56,33 +71,40 @@ const checks = [];
 
   const errors = [];
 
-  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('pageerror', (error) => {
+    return errors.push(error.message);
+  });
   page.on('response', (response) => {
-    if (response.url().startsWith(base.origin) && response.status() >= 400)
+    if (response.url().startsWith(base.origin) && response.status() >= 400) {
       errors.push(`${response.status()} ${response.url()}`);
+    }
   });
 
   const represented = new Set();
 
   try {
+    await checkProgressiveScene(browser, base.href);
+
     for (const route of routes) {
       const response = await page.goto(href(route.url), {
         waitUntil: 'networkidle2',
       });
 
       assert.equal(response.status(), 200, route.url);
-      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => {
+        return document.fonts.ready;
+      });
 
       const typography = await page.evaluate(async () => {
         const weights = [400, 600, 700];
 
         const loaded = await Promise.all(
-          weights.map((weight) =>
-            document.fonts.load(
+          weights.map((weight) => {
+            return document.fonts.load(
               `${weight} 16px "Oxanium"`,
               'Gabriel, música, aplicações, Ā, Ș',
-            ),
-          ),
+            );
+          }),
         );
 
         return {
@@ -91,85 +113,114 @@ const checks = [];
             document.querySelector('.section-switcher-trigger'),
           ).fontFamily,
           heading: getComputedStyle(document.querySelector('h1')).fontFamily,
-          loaded: loaded.every(
-            (faces) =>
+          loaded: loaded.every((faces) => {
+            return (
               faces.length > 0 &&
-              faces.every((face) => face.status === 'loaded'),
-          ),
+              faces.every((face) => {
+                return face.status === 'loaded';
+              })
+            );
+          }),
         };
       });
 
       assert.match(typography.body, /^"?Oxanium"?,/);
       assert.match(typography.control, /^"?Oxanium"?,/);
-      assert.match(
-        typography.heading,
-        route.id === 'home' ? /press start 2p/ : /^"?Oxanium"?,/,
-      );
+
+      const resolveValue = () => {
+        if (route.id === 'home') {
+          return /press start 2p/;
+        }
+
+        return /^"?Oxanium"?,/;
+      };
+
+      assert.match(typography.heading, resolveValue());
       assert(typography.loaded, `Oxanium failed to load on ${route.url}`);
 
       const expectedNavigation = pagesFor(config, route.language)
-        .filter((entry) => ['home', 'links-page'].includes(entry.type))
-        .map((entry) => ({
-          title: entry.title,
-          url: href(entry.url),
-          current: entry.id === route.id,
-          icon: entry.icon,
-        }));
+        .filter((entry) => {
+          return ['home', 'links-page'].includes(entry.type);
+        })
+        .map((entry) => {
+          return {
+            title: entry.title,
+            url: href(entry.url),
+            current: entry.id === route.id,
+            icon: entry.icon,
+          };
+        });
 
       const expectedLinks = (route.links || [])
-        .map((entry) => href(localizedURL(entry, route.language)))
+        .map((entry) => {
+          return href(localizedURL(entry, route.language));
+        })
         .sort();
 
-      for (const entry of route.links || []) represented.add(entry.id);
+      for (const entry of route.links || []) {
+        represented.add(entry.id);
+      }
 
-      if (config.navigation.links.includes(route.id)) represented.add(route.id);
+      if (config.navigation.links.includes(route.id)) {
+        represented.add(route.id);
+      }
 
       assert.deepEqual(
-        await page.$$eval('.section-menu-list a', (tabs) =>
-          tabs.map((tab) => ({
-            title: tab.textContent.trim(),
-            url: tab.href,
-            current: tab.getAttribute('aria-current') === 'page',
-            icon: tab.querySelector('[data-platform]').dataset.platform,
-          })),
-        ),
+        await page.$$eval('.section-menu-list a', (tabs) => {
+          return tabs.map((tab) => {
+            return {
+              title: tab.textContent.trim(),
+              url: tab.href,
+              current: tab.getAttribute('aria-current') === 'page',
+              icon: tab.querySelector('[data-platform]').dataset.platform,
+            };
+          });
+        }),
         expectedNavigation,
       );
 
-      const nowPage = pagesFor(config, route.language).find(
-        (entry) => entry.id === 'now',
-      );
+      const nowPage = pagesFor(config, route.language).find((entry) => {
+        return entry.id === 'now';
+      });
 
       assert.deepEqual(
-        await page.$$eval('[data-now-shortcut]', (links) =>
-          links.map((link) => ({
-            href: link.href,
-            current: link.getAttribute('aria-current') === 'page',
-          })),
-        ),
-        Array.from({ length: 2 }, () => ({
-          href: href(nowPage.url),
-          current: route.id === 'now',
-        })),
+        await page.$$eval('[data-now-shortcut]', (links) => {
+          return links.map((link) => {
+            return {
+              href: link.href,
+              current: link.getAttribute('aria-current') === 'page',
+            };
+          });
+        }),
+        Array.from({ length: 2 }, () => {
+          return {
+            href: href(nowPage.url),
+            current: route.id === 'now',
+          };
+        }),
       );
       assert.equal(
         await page.$$eval(
           '.quick-contacts [data-platform="linkedin"]',
-          (icons) => icons.length,
+          (icons) => {
+            return icons.length;
+          },
         ),
         1,
       );
       assert.deepEqual(
-        await page.$$eval('.language-select option', (options) =>
-          options.map((option) => ({
-            href: new URL(option.value, location.href).href,
-            selected: option.selected,
-          })),
-        ),
+        await page.$$eval('.language-select option', (options) => {
+          return options.map((option) => {
+            return {
+              href: new URL(option.value, location.href).href,
+              selected: option.selected,
+            };
+          });
+        }),
         config.language_options.map((language) => {
-          const translated = pagesFor(config, language.id).find(
-            (entry) => entry.id === route.id && !entry.fallback,
-          );
+          const translated = pagesFor(config, language.id).find((entry) => {
+            return entry.id === route.id && !entry.fallback;
+          });
 
           return {
             href: href(translated?.url || language.path),
@@ -178,32 +229,47 @@ const checks = [];
         }),
       );
       assert.deepEqual(
-        await page.$$eval('.link-section .link-button', (links) =>
-          links.map((link) => link.href).sort(),
-        ),
+        await page.$$eval('.link-section .link-button', (links) => {
+          return links
+            .map((link) => {
+              return link.href;
+            })
+            .sort();
+        }),
         expectedLinks,
       );
-      assert.equal(await page.$$eval('h1', (headings) => headings.length), 1);
+      assert.equal(
+        await page.$$eval('h1', (headings) => {
+          return headings.length;
+        }),
+        1,
+      );
 
       if (route.id === 'home') {
         const expected = config.locales[route.language].presentation;
 
         assert.deepEqual(
-          await page.$eval('.home-introduction', (panel) => ({
-            title: document
-              .getElementById(panel.getAttribute('aria-labelledby'))
-              .textContent.trim(),
-            facts: [...panel.querySelectorAll('.about-fact')].map((fact) => ({
-              icon: fact.querySelector('[data-platform]').dataset.platform,
-              text: fact.textContent.trim(),
-            })),
-            site_title: panel
-              .querySelector('.about-site-title')
-              .textContent.trim(),
-            topics: [...panel.querySelectorAll('.about-topics > li')].map(
-              (topic) => topic.textContent.trim(),
-            ),
-          })),
+          await page.$eval('.home-introduction', (panel) => {
+            return {
+              title: document
+                .getElementById(panel.getAttribute('aria-labelledby'))
+                .textContent.trim(),
+              facts: [...panel.querySelectorAll('.about-fact')].map((fact) => {
+                return {
+                  icon: fact.querySelector('[data-platform]').dataset.platform,
+                  text: fact.textContent.trim(),
+                };
+              }),
+              site_title: panel
+                .querySelector('.about-site-title')
+                .textContent.trim(),
+              topics: [...panel.querySelectorAll('.about-topics > li')].map(
+                (topic) => {
+                  return topic.textContent.trim();
+                },
+              ),
+            };
+          }),
           expected,
         );
       }
@@ -211,17 +277,23 @@ const checks = [];
       const expectedCanonical = `https://${config.site.first_party_domains[0]}${route.url}`;
 
       assert.equal(
-        await page.$eval('link[rel="canonical"]', (link) => link.href),
+        await page.$eval('link[rel="canonical"]', (link) => {
+          return link.href;
+        }),
         expectedCanonical,
       );
       assert.equal(
-        await page.$eval('html', (element) => element.lang),
+        await page.$eval('html', (element) => {
+          return element.lang;
+        }),
         config.locales[route.language].ui.html_lang,
       );
 
       for (const theme of ['dark', 'light']) {
         await page.click('[data-settings-open]');
-        await page.$eval(`#theme-${theme}`, (option) => option.click());
+        await page.$eval(`#theme-${theme}`, (option) => {
+          return option.click();
+        });
         await page.click('#settings-dialog [data-dialog-close]');
 
         if (
@@ -271,27 +343,30 @@ const checks = [];
               canvas.height,
             ).data;
 
-            const luminance = (rgb) =>
-              rgb
+            const luminance = (rgb) => {
+              return rgb
                 .slice(0, 3)
                 .map((value) => {
                   value /= 255;
 
-                  return value <= 0.04045
-                    ? value / 12.92
-                    : ((value + 0.055) / 1.055) ** 2.4;
-                })
-                .reduce(
-                  (sum, value, index) =>
-                    sum + value * [0.2126, 0.7152, 0.0722][index],
-                  0,
-                );
+                  if (value <= 0.04045) {
+                    return value / 12.92;
+                  }
 
-            const blend = (under, over) =>
-              under.map(
-                (value, index) =>
-                  value * (1 - (over[3] ?? 1)) + over[index] * (over[3] ?? 1),
-              );
+                  return ((value + 0.055) / 1.055) ** 2.4;
+                })
+                .reduce((sum, value, index) => {
+                  return sum + value * [0.2126, 0.7152, 0.0722][index];
+                }, 0);
+            };
+
+            const blend = (under, over) => {
+              return under.map((value, index) => {
+                return (
+                  value * (1 - (over[3] ?? 1)) + over[index] * (over[3] ?? 1)
+                );
+              });
+            };
 
             const ratio = (one, two) => {
               const a = luminance(one),
@@ -320,8 +395,9 @@ const checks = [];
             for (let index = 0; index < pixels.length; index += 4) {
               const pixel = [...pixels.slice(index, index + 3)];
 
-              if (pixels[index + 3] !== 255)
+              if (pixels[index + 3] !== 255) {
                 throw new Error('Material must be opaque');
+              }
 
               const panelPixel = blend(pixel, panelWash);
 
@@ -330,11 +406,13 @@ const checks = [];
                 warmth,
               );
 
-              for (const foreground of panelText)
+              for (const foreground of panelText) {
                 panel = Math.min(panel, ratio(foreground, panelPixel));
+              }
 
-              for (const foreground of woodText)
+              for (const foreground of woodText) {
                 wood = Math.min(wood, ratio(foreground, woodPixel));
+              }
             }
 
             return { panel, wood };
@@ -354,18 +432,13 @@ const checks = [];
 
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
-          await page.evaluate(
-            () =>
-              new Promise((resolve) =>
-                requestAnimationFrame(() => requestAnimationFrame(resolve)),
-              ),
-          );
+          await waitForLandscape(page);
 
           const layout = await page.evaluate(() => {
             const cards = [...document.querySelectorAll('.link-button')];
 
-            const rowAligned = (elements) =>
-              elements.every((element) => {
+            const rowAligned = (elements) => {
+              return elements.every((element) => {
                 const rect = element.getBoundingClientRect();
 
                 return elements.every((other) => {
@@ -378,6 +451,17 @@ const checks = [];
                   );
                 });
               });
+            };
+
+            const resolveGalleryColumns = () => {
+              if (document.querySelector('.category-grid')) {
+                return getComputedStyle(
+                  document.querySelector('.category-grid'),
+                ).gridTemplateColumns.split(' ').length;
+              }
+
+              return 0;
+            };
 
             return {
               regionsAligned: (() => {
@@ -413,20 +497,22 @@ const checks = [];
 
                 const insetEnd = parseFloat(suspendedStyle.paddingRight);
 
-                const outerAligned = [profile, footer].every(
-                  (rect) =>
+                const outerAligned = [profile, footer].every((rect) => {
+                  return (
                     Math.abs(rect.width - shell.width) < 1 &&
                     Math.abs(rect.left - shell.left) < 1 &&
-                    Math.abs(rect.right - shell.right) < 1,
-                );
+                    Math.abs(rect.right - shell.right) < 1
+                  );
+                });
 
                 const aligned =
                   outerAligned &&
-                  [navigation, content].every(
-                    (rect) =>
+                  [navigation, content].every((rect) => {
+                    return (
                       Math.abs(rect.left - shell.left - insetStart) < 1 &&
-                      Math.abs(shell.right - rect.right - insetEnd) < 1,
-                  );
+                      Math.abs(shell.right - rect.right - insetEnd) < 1
+                    );
+                  });
 
                 return (
                   aligned &&
@@ -490,8 +576,8 @@ const checks = [];
 
                 return (
                   innerWidth < 896 ||
-                  statistics.every((entry) =>
-                    statistics.every((other) => {
+                  statistics.every((entry) => {
+                    return statistics.every((other) => {
                       const rect = entry.getBoundingClientRect();
 
                       const compared = other.getBoundingClientRect();
@@ -500,8 +586,8 @@ const checks = [];
                         Math.abs(rect.top - compared.top) < 1 &&
                         Math.abs(rect.bottom - compared.bottom) < 1
                       );
-                    }),
-                  )
+                    });
+                  })
                 );
               }),
               navigationCompact:
@@ -514,15 +600,20 @@ const checks = [];
                   '.navigation-home,.section-switcher-trigger,.ui-button,.site-footer-content > *',
                 ),
               ]
-                .filter((element) => element.getClientRects().length)
-                .every(
-                  (element) =>
+                .filter((element) => {
+                  return element.getClientRects().length;
+                })
+                .every((element) => {
+                  return (
                     element.scrollWidth <= element.clientWidth &&
-                    element.getBoundingClientRect().height >= 44,
-                ),
+                    element.getBoundingClientRect().height >= 44
+                  );
+                }),
               columns: [...document.querySelectorAll('.link-row')].map(
-                (list) =>
-                  getComputedStyle(list).gridTemplateColumns.split(' ').length,
+                (list) => {
+                  return getComputedStyle(list).gridTemplateColumns.split(' ')
+                    .length;
+                },
               ),
               languageControls:
                 document.querySelectorAll('.language-select').length,
@@ -530,20 +621,24 @@ const checks = [];
                 ...document.querySelectorAll(
                   '.link-button,.quick-contact-link,.navigation-home,.section-switcher-trigger,.toggle-button,.language-select,.site-footer-content > *',
                 ),
-              ].every(
-                (element) =>
+              ].every((element) => {
+                return (
                   getComputedStyle(element).transform === 'none' &&
                   getComputedStyle(element)
                     .transitionDuration.split(', ')
-                    .every((duration) => duration === '0s'),
-              ),
+                    .every((duration) => {
+                      return duration === '0s';
+                    })
+                );
+              }),
               railConnections: [
                 ...document.querySelectorAll('.suspension-rail'),
               ].every((rail) => {
                 const frame = rail.getBoundingClientRect();
 
-                if (getComputedStyle(rail).display === 'none')
+                if (getComputedStyle(rail).display === 'none') {
                   return frame.width === 0;
+                }
 
                 const terminals = [
                   ...rail.querySelectorAll('.suspension-terminal'),
@@ -601,13 +696,25 @@ const checks = [];
 
                 const center = frame.left + frame.width / 2;
 
-                const headerJoint = atStart
-                  ? headerRect.left + headerBorder / 2
-                  : headerRect.right - headerBorder / 2;
+                const resolveHeaderJoint = () => {
+                  if (atStart) {
+                    return headerRect.left + headerBorder / 2;
+                  }
 
-                const footerJoint = atStart
-                  ? footerRect.left + footerBorder / 2
-                  : footerRect.right - footerBorder / 2;
+                  return headerRect.right - headerBorder / 2;
+                };
+
+                const headerJoint = resolveHeaderJoint();
+
+                const resolveFooterJoint = () => {
+                  if (atStart) {
+                    return footerRect.left + footerBorder / 2;
+                  }
+
+                  return footerRect.right - footerBorder / 2;
+                };
+
+                const footerJoint = resolveFooterJoint();
 
                 return (
                   Math.abs(
@@ -641,9 +748,11 @@ const checks = [];
                   (!lanternRect ||
                     (lanternRect.top < upper.bottom &&
                       lanternRect.bottom > lower.top)) &&
-                  chains.every((chain) =>
-                    getComputedStyle(chain).backgroundSize.endsWith('auto'),
-                  ) &&
+                  chains.every((chain) => {
+                    return getComputedStyle(chain).backgroundSize.endsWith(
+                      'auto',
+                    );
+                  }) &&
                   [...rail.querySelectorAll('img')].every((image) => {
                     const rect = image.getBoundingClientRect();
 
@@ -669,14 +778,15 @@ const checks = [];
                 ];
 
                 if (
-                  rails.every(
-                    (rail) => getComputedStyle(rail).display === 'none',
-                  )
-                )
+                  rails.every((rail) => {
+                    return getComputedStyle(rail).display === 'none';
+                  })
+                ) {
                   return (
                     parseFloat(style.paddingLeft) === 0 &&
                     parseFloat(style.paddingRight) === 0
                   );
+                }
 
                 const gap =
                   parseFloat(style.paddingLeft) -
@@ -690,10 +800,9 @@ const checks = [];
                 return (
                   gap > 0 &&
                   [...suspended.children]
-                    .filter(
-                      (element) =>
-                        !element.classList.contains('suspension-rail'),
-                    )
+                    .filter((element) => {
+                      return !element.classList.contains('suspension-rail');
+                    })
                     .every((element) => {
                       const rect = element.getBoundingClientRect();
 
@@ -709,7 +818,9 @@ const checks = [];
                   ...document.querySelectorAll('[data-rail-anchor]'),
                 ];
 
-                if (!anchors.length) return true;
+                if (!anchors.length) {
+                  return false;
+                }
 
                 const content = document.querySelector('.suspended-content');
 
@@ -717,7 +828,9 @@ const checks = [];
 
                 return [...content.querySelectorAll('.suspension-body')].every(
                   (body) => {
-                    if (!body.getClientRects().length) return true;
+                    if (!body.getClientRects().length) {
+                      return true;
+                    }
 
                     const frame = body.getBoundingClientRect();
 
@@ -759,16 +872,17 @@ const checks = [];
                 ...document.querySelectorAll(
                   '.profile,.quick-contact-link,.presentation,.category-card,.link-sections,.site-footer,.presentation-eyebrow,.section-label,.presentation-art,.app-dialog',
                 ),
-              ].every(
-                (element) =>
-                  getComputedStyle(element).borderImageRepeat === 'repeat',
-              ),
+              ].every((element) => {
+                return getComputedStyle(element).borderImageRepeat === 'repeat';
+              }),
               iconBoxes: [
                 ...document.querySelectorAll(
                   '.button-icon,.link-icon,.quick-contact-icon,.category-icon,.external-link-icon',
                 ),
               ]
-                .filter((icon) => icon.getClientRects().length)
+                .filter((icon) => {
+                  return icon.getClientRects().length;
+                })
                 .every((icon) => {
                   const rect = icon.getBoundingClientRect();
 
@@ -793,15 +907,72 @@ const checks = [];
                     ) < 1
                   );
                 }),
+              opticalIcons: [...document.querySelectorAll('.site-icon-optical')]
+                .filter((icon) => {
+                  return icon.getClientRects().length;
+                })
+                .every((icon) => {
+                  const scale = Number(
+                    getComputedStyle(icon).getPropertyValue(
+                      '--icon-optical-scale',
+                    ),
+                  );
+
+                  const transform = getComputedStyle(
+                    icon.querySelector('.site-icon-face'),
+                  ).transform;
+
+                  const matrix = new DOMMatrix(transform);
+
+                  return (
+                    Number.isFinite(scale) &&
+                    scale > 0 &&
+                    Math.abs(matrix.a - scale) < 0.001 &&
+                    Math.abs(matrix.d - scale) < 0.001
+                  );
+                }),
+              quickContactsTransparent: [
+                ...document.querySelectorAll(
+                  '.page-navigation .quick-contact-link',
+                ),
+              ].every((link) => {
+                return (
+                  getComputedStyle(link).backgroundColor === 'rgba(0, 0, 0, 0)'
+                );
+              }),
+              thirdPartyBadges: [
+                ...document.querySelectorAll('.link-third-party-badge'),
+              ].every((badge) => {
+                const fontSize = parseFloat(getComputedStyle(badge).fontSize);
+
+                const title = badge
+                  .closest('.link-heading')
+                  ?.querySelector('.link-title');
+
+                const resolveTitleSize = () => {
+                  if (title) {
+                    return parseFloat(getComputedStyle(title).fontSize);
+                  }
+
+                  return fontSize;
+                };
+
+                const titleSize = resolveTitleSize();
+
+                return (
+                  fontSize >= 12 &&
+                  fontSize / titleSize >= 0.75 &&
+                  getComputedStyle(badge).whiteSpace === 'nowrap'
+                );
+              }),
               coloredIcons: (() => {
                 const icons = [...document.querySelectorAll('.site-icon')];
 
                 return (
                   icons.length > 0 &&
-                  icons.every(
-                    (icon) =>
-                      !getComputedStyle(icon).filter.includes('grayscale'),
-                  )
+                  icons.every((icon) => {
+                    return !getComputedStyle(icon).filter.includes('grayscale');
+                  })
                 );
               })(),
               beveledIcons: [...document.querySelectorAll('.site-icon')].every(
@@ -829,10 +1000,15 @@ const checks = [];
                     icon.querySelector('.site-icon-face'),
                   );
 
-                  const source =
-                    style.maskImage !== 'none'
-                      ? style.maskImage
-                      : style.backgroundImage;
+                  const resolveSource = () => {
+                    if (style.maskImage !== 'none') {
+                      return style.maskImage;
+                    }
+
+                    return style.backgroundImage;
+                  };
+
+                  const source = resolveSource();
 
                   return (
                     new URL(source.slice(5, -2), location.href).origin ===
@@ -844,27 +1020,36 @@ const checks = [];
                 ...document.querySelectorAll(
                   '.link-button[href^="http"],.quick-contact-link[href^="http"]',
                 ),
-              ].every(
-                (link) =>
+              ].every((link) => {
+                const resolveValue1 = () => {
+                  if (link.classList.contains('quick-contact-link')) {
+                    return !link.querySelector('.external-link-icon');
+                  }
+
+                  return Boolean(link.querySelector('.external-link-icon'));
+                };
+
+                return (
                   link.target === '_blank' &&
                   link.relList.contains('noopener') &&
                   link.relList.contains('noreferrer') &&
-                  (link.classList.contains('quick-contact-link')
-                    ? !link.querySelector('.external-link-icon')
-                    : Boolean(link.querySelector('.external-link-icon'))),
-              ),
+                  resolveValue1()
+                );
+              }),
               footerDisclaimer:
                 document.querySelectorAll('.brand-disclaimer').length === 1 &&
                 Boolean(document.querySelector('footer .brand-disclaimer')),
               calendarUptime: [
                 ...document.querySelectorAll('[data-uptime]'),
-              ].every(
-                (element) => element.textContent.split(', ').length === 3,
-              ),
+              ].every((element) => {
+                return element.textContent.split(', ').length === 3;
+              }),
               statisticsImages:
                 document.querySelectorAll('.statistics img').length,
               numericValuesFit: [...document.querySelectorAll('.statistic dd')]
-                .filter((value) => value.getClientRects().length)
+                .filter((value) => {
+                  return value.getClientRects().length;
+                })
                 .every((value) => {
                   const range = document.createRange();
 
@@ -872,33 +1057,32 @@ const checks = [];
 
                   return range.getClientRects().length === 1;
                 }),
-              brokenImages: [...document.images].filter(
-                (image) =>
+              brokenImages: [...document.images].filter((image) => {
+                return (
                   image.src.startsWith(location.origin) &&
                   image.complete &&
-                  !image.naturalWidth,
-              ).length,
+                  !image.naturalWidth
+                );
+              }).length,
               uniformMedia: [
                 ...document.querySelectorAll('.link-visual img'),
-              ].every(
-                (image) =>
+              ].every((image) => {
+                return (
                   getComputedStyle(image).objectFit === 'contain' &&
                   image.hasAttribute('width') &&
                   image.hasAttribute('height') &&
-                  image.loading === 'lazy',
-              ),
-              galleryColumns: document.querySelector('.category-grid')
-                ? getComputedStyle(
-                    document.querySelector('.category-grid'),
-                  ).gridTemplateColumns.split(' ').length
-                : 0,
+                  image.loading === 'lazy'
+                );
+              }),
+              galleryColumns: resolveGalleryColumns(),
               categoryPreviewColumns: [
                 ...document.querySelectorAll('.category-preview'),
-              ].every(
-                (preview) =>
+              ].every((preview) => {
+                return (
                   getComputedStyle(preview).gridTemplateColumns.split(' ')
-                    .length === 1,
-              ),
+                    .length === 1
+                );
+              }),
               rusticGeometry: (() => {
                 const sections = [
                   ...document.querySelectorAll('.category-card'),
@@ -959,12 +1143,28 @@ const checks = [];
 
                     const itemStyle = getComputedStyle(item);
 
+                    const resolveValue2 = () => {
+                      if (
+                        document.querySelector('.page-content').clientWidth >=
+                          448 &&
+                        !matchMedia('(pointer: coarse)').matches
+                      ) {
+                        return 32;
+                      }
+
+                      return 44;
+                    };
+
+                    const resolveValue3 = () => {
+                      if (index) {
+                        return 1;
+                      }
+
+                      return 0;
+                    };
+
                     return (
-                      row.height >=
-                        (document.querySelector('.page-content').clientWidth >=
-                          448 && !matchMedia('(pointer: coarse)').matches
-                          ? 32
-                          : 44) &&
+                      row.height >= resolveValue2() &&
                       getComputedStyle(
                         link.querySelector('.link-summary'),
                       ).gridTemplateColumns.split(' ').length === 3 &&
@@ -974,7 +1174,7 @@ const checks = [];
                         parseFloat(rowStyle.paddingTop) &&
                       rowStyle.paddingLeft === rowStyle.paddingRight &&
                       parseFloat(itemStyle.borderTopWidth) ===
-                        (index ? 1 : 0) &&
+                        resolveValue3() &&
                       (!index ||
                         Math.abs(
                           item.getBoundingClientRect().top -
@@ -992,12 +1192,19 @@ const checks = [];
                 const columns =
                   getComputedStyle(grid).gridTemplateColumns.split(' ').length;
 
+                const resolveValue4 = () => {
+                  if (
+                    document.querySelector('.site-shell').clientWidth >= 576
+                  ) {
+                    return 8;
+                  }
+
+                  return 4;
+                };
+
                 return (
                   buttons.length === 8 &&
-                  columns ===
-                    (document.querySelector('.site-shell').clientWidth >= 576
-                      ? 8
-                      : 4) &&
+                  columns === resolveValue4() &&
                   buttons.every((button) => {
                     const rect = button.getBoundingClientRect();
 
@@ -1013,10 +1220,16 @@ const checks = [];
                 );
               })(),
               layeredBackground: (() => {
+                const root = document.documentElement;
+
                 const world = document.querySelector('.world-scene');
 
                 const landscape = getComputedStyle(
                   document.querySelector('.world-landscape'),
+                );
+
+                const preview = getComputedStyle(
+                  document.querySelector('.world-landscape-preview'),
                 );
 
                 const dim = document
@@ -1026,6 +1239,9 @@ const checks = [];
                 return (
                   getComputedStyle(world).position === 'fixed' &&
                   landscape.filter.includes('blur(8px)') &&
+                  root.dataset.landscapeReady === 'true' &&
+                  Number(landscape.opacity) === 1 &&
+                  Number(preview.opacity) === 0 &&
                   dim.top === 0 &&
                   dim.left === 0 &&
                   dim.height === innerHeight &&
@@ -1033,11 +1249,32 @@ const checks = [];
                     .filter === 'none'
                 );
               })(),
+              deferredOrnaments:
+                [...document.querySelectorAll('.suspension-lantern')].every(
+                  (image) => {
+                    return (
+                      image.loading === 'lazy' &&
+                      image.decoding === 'async' &&
+                      image.fetchPriority === 'low'
+                    );
+                  },
+                ) &&
+                [
+                  ...document.querySelectorAll('.suspension-terminal-lower'),
+                ].every((image) => {
+                  return (
+                    image.loading === 'lazy' &&
+                    image.decoding === 'async' &&
+                    image.fetchPriority === 'low'
+                  );
+                }),
               minimalContext: (() => {
                 const introduction =
                   document.querySelector('.home-introduction');
 
-                if (!introduction) return true;
+                if (!introduction) {
+                  return true;
+                }
 
                 const grid = introduction.querySelector('.about-context-grid');
 
@@ -1052,6 +1289,29 @@ const checks = [];
 
                 const navigation = document.querySelector('.footer-navigation');
 
+                const resolveValue5 = () => {
+                  if (wide) {
+                    return 2;
+                  }
+
+                  return 1;
+                };
+
+                const resolveValue6 = () => {
+                  if (wide) {
+                    return (
+                      parseFloat(siteStyle.borderInlineStartWidth) === 1 &&
+                      parseFloat(siteStyle.borderBlockStartWidth) === 0 &&
+                      rect.height < rect.width
+                    );
+                  }
+
+                  return (
+                    parseFloat(siteStyle.borderBlockStartWidth) === 1 &&
+                    parseFloat(siteStyle.borderInlineStartWidth) === 0
+                  );
+                };
+
                 return (
                   introduction.querySelectorAll('.about-fact').length === 3 &&
                   introduction.querySelectorAll('.about-topics > li').length ===
@@ -1060,13 +1320,8 @@ const checks = [];
                     'a,button,details,.presentation-title,.presentation-intro,.presentation-focus',
                   ) &&
                   getComputedStyle(grid).gridTemplateColumns.split(' ')
-                    .length === (wide ? 2 : 1) &&
-                  (wide
-                    ? parseFloat(siteStyle.borderInlineStartWidth) === 1 &&
-                      parseFloat(siteStyle.borderBlockStartWidth) === 0 &&
-                      rect.height < rect.width
-                    : parseFloat(siteStyle.borderBlockStartWidth) === 1 &&
-                      parseFloat(siteStyle.borderInlineStartWidth) === 0) &&
+                    .length === resolveValue5() &&
+                  resolveValue6() &&
                   [
                     ...introduction.querySelectorAll(
                       '.about-fact-icon,.about-topic-check',
@@ -1099,11 +1354,12 @@ const checks = [];
                   Math.abs(rect.width - grid.width) < 1 &&
                   !card.querySelector('.category-main-link') &&
                   !card.querySelector('.category-title a') &&
-                  cards.every(
-                    (other) =>
+                  cards.every((other) => {
+                    return (
                       Math.abs(other.getBoundingClientRect().left - grid.left) <
-                      1,
-                  )
+                      1
+                    );
+                  })
                 );
               }),
               galleryLinksAccessible: [
@@ -1121,7 +1377,9 @@ const checks = [];
               settingsClosed: !document.querySelector('#settings-dialog').open,
               isolatedPreferences: [
                 ...document.querySelectorAll('.toggle-group'),
-              ].every((group) => group.closest('#settings-dialog')),
+              ].every((group) => {
+                return group.closest('#settings-dialog');
+              }),
             };
           });
 
@@ -1141,6 +1399,9 @@ const checks = [];
             'controlsFit',
             'noControlMotion',
             'iconBoxes',
+            'opticalIcons',
+            'quickContactsTransparent',
+            'thirdPartyBadges',
             'repeatingFrames',
             'railConnections',
             'railContentClearance',
@@ -1158,19 +1419,25 @@ const checks = [];
             'contiguousLists',
             'squareQuickAccess',
             'layeredBackground',
+            'deferredOrnaments',
             'minimalContext',
             'galleryLinksAccessible',
             'footerAligned',
             'settingsClosed',
             'isolatedPreferences',
-          ])
+          ]) {
             assert.equal(
               Boolean(layout[key]),
               true,
               `${route.url} ${key} at ${width}/${theme}`,
             );
+          }
 
-          assert(layout.columns.every((columns) => columns === 1));
+          assert(
+            layout.columns.every((columns) => {
+              return columns === 1;
+            }),
+          );
           assert.equal(layout.languageControls, 1);
 
           if (route.id === 'home') {
@@ -1200,48 +1467,71 @@ const checks = [];
       if (route.id === 'home') {
         const categories = await page.$$eval(
           '.home-categories [data-category]',
-          (cards) =>
-            cards.map((card) => ({
-              id: card.dataset.category,
-              previews: [...card.querySelectorAll('[data-preview-id]')].map(
-                (link) => ({ id: link.dataset.previewId, href: link.href }),
-              ),
-            })),
+          (cards) => {
+            return cards.map((card) => {
+              return {
+                id: card.dataset.category,
+                previews: [...card.querySelectorAll('[data-preview-id]')].map(
+                  (link) => {
+                    return { id: link.dataset.previewId, href: link.href };
+                  },
+                ),
+              };
+            });
+          },
         );
 
         const expectedCategories = pagesFor(config, route.language)
-          .filter((entry) => entry.type === 'links-page')
-          .map((entry) => ({
-            id: entry.id,
-            previews:
-              entry.type === 'links-page'
-                ? entry.links.map((link) => ({
+          .filter((entry) => {
+            return entry.type === 'links-page';
+          })
+          .map((entry) => {
+            const resolvePreviews = () => {
+              if (entry.type === 'links-page') {
+                return entry.links.map((link) => {
+                  return {
                     id: link.id,
                     href: href(localizedURL(link, route.language)),
-                  }))
-                : (config.now[route.language] || config.now.en).sections.map(
-                    (section) => ({
-                      id: `now-${section.id}`,
-                      href: `${href(entry.url)}#now-${section.id}`,
-                    }),
-                  ),
-          }));
+                  };
+                });
+              }
+
+              return (config.now[route.language] || config.now.en).sections.map(
+                (section) => {
+                  return {
+                    id: `now-${section.id}`,
+                    href: `${href(entry.url)}#now-${section.id}`,
+                  };
+                },
+              );
+            };
+
+            return {
+              id: entry.id,
+              previews: resolvePreviews(),
+            };
+          });
 
         assert.deepEqual(categories, expectedCategories);
         assert.deepEqual(
           await page.$$eval(
             '[data-home-update="now"] [data-preview-id]',
-            (links) =>
-              links.map((link) => ({
-                id: link.dataset.previewId,
-                href: link.href,
-              })),
+            (links) => {
+              return links.map((link) => {
+                return {
+                  id: link.dataset.previewId,
+                  href: link.href,
+                };
+              });
+            },
           ),
           (config.now[route.language] || config.now.en).sections.map(
-            (section) => ({
-              id: `now-${section.id}`,
-              href: `${href(nowPage.url)}#now-${section.id}`,
-            }),
+            (section) => {
+              return {
+                id: `now-${section.id}`,
+                href: `${href(nowPage.url)}#now-${section.id}`,
+              };
+            },
           ),
         );
 
@@ -1251,7 +1541,9 @@ const checks = [];
             document.addEventListener('click', (event) => {
               const anchor = event.target.closest('a');
 
-              if (!anchor) return;
+              if (!anchor) {
+                return;
+              }
 
               event.preventDefault();
               window.linkClicks.push(anchor.href);
@@ -1259,46 +1551,59 @@ const checks = [];
           });
 
           for (const anchor of await page.$$('.category-preview-link')) {
-            const expected = await anchor.evaluate((link) => link.href);
+            const expected = await anchor.evaluate((link) => {
+              return link.href;
+            });
 
             await anchor.click();
             assert.equal(
-              await page.evaluate(() => window.linkClicks.at(-1)),
+              await page.evaluate(() => {
+                return window.linkClicks.at(-1);
+              }),
               expected,
             );
           }
 
           for (const card of await page.$$('.category-card')) {
-            await card.evaluate((element) =>
-              element.scrollIntoView({ block: 'center', behavior: 'instant' }),
-            );
+            await card.evaluate((element) => {
+              return element.scrollIntoView({
+                block: 'center',
+                behavior: 'instant',
+              });
+            });
 
-            const previousClickCount = await page.evaluate(
-              () => window.linkClicks.length,
-            );
+            const previousClickCount = await page.evaluate(() => {
+              return window.linkClicks.length;
+            });
 
             const rect = await card.boundingBox();
 
             await page.mouse.click(rect.x + 12, rect.y + 12);
             assert.equal(
-              await page.evaluate(() => window.linkClicks.length),
+              await page.evaluate(() => {
+                return window.linkClicks.length;
+              }),
               previousClickCount,
             );
           }
 
           await page.focus('.category-preview-link');
           assert.equal(
-            await page.$eval(':focus', (link) =>
-              link.classList.contains('category-preview-link'),
-            ),
+            await page.$eval(':focus', (link) => {
+              return link.classList.contains('category-preview-link');
+            }),
             true,
           );
 
-          const expected = await page.$eval(':focus', (link) => link.href);
+          const expected = await page.$eval(':focus', (link) => {
+            return link.href;
+          });
 
           await page.keyboard.press('Enter');
           assert.equal(
-            await page.evaluate(() => window.linkClicks.at(-1)),
+            await page.evaluate(() => {
+              return window.linkClicks.at(-1);
+            }),
             expected,
           );
           await page.reload({ waitUntil: 'networkidle2' });
@@ -1306,7 +1611,9 @@ const checks = [];
       }
 
       for (const entry of route.links || []) {
-        if (!entry.stats) continue;
+        if (!entry.stats) {
+          continue;
+        }
 
         const snapshot = snapshots[entry.id];
 
@@ -1317,21 +1624,26 @@ const checks = [];
 
         const actual = await page.$$eval(
           `[data-statistics="${entry.id}"] .statistic`,
-          (statistics) =>
-            statistics.map((statistic) => ({
-              label: statistic.querySelector('dt').textContent.trim(),
-              value: statistic
-                .querySelector('dd')
-                .firstChild.textContent.trim(),
-            })),
+          (statistics) => {
+            return statistics.map((statistic) => {
+              return {
+                label: statistic.querySelector('dt').textContent.trim(),
+                value: statistic
+                  .querySelector('dd')
+                  .firstChild.textContent.trim(),
+              };
+            });
+          },
         );
 
         assert.deepEqual(
           actual,
-          entry.stats.metrics.map((metric) => ({
-            label: config.statistics.metrics[metric].labels[route.language],
-            value: String(snapshot.metrics[metric]),
-          })),
+          entry.stats.metrics.map((metric) => {
+            return {
+              label: config.statistics.metrics[metric].labels[route.language],
+              value: String(snapshot.metrics[metric]),
+            };
+          }),
         );
       }
 
@@ -1339,8 +1651,8 @@ const checks = [];
         route.language === config.language_options[0].id &&
         ['home', ...config.navigation.sections, 'now'].includes(route.id)
       ) {
-        const original = await page.evaluate(() =>
-          [
+        const original = await page.evaluate(() => {
+          return [
             '.category-title a',
             '.category-description',
             '.category-preview-link .link-title',
@@ -1349,22 +1661,24 @@ const checks = [];
           ].flatMap((selector) => {
             const element = document.querySelector(selector);
 
-            if (!element) return [];
+            if (!element) {
+              return [];
+            }
 
             const text = element.textContent;
 
             element.textContent = text.repeat(6);
 
             return [{ selector, text }];
-          }),
-        );
+          });
+        });
 
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
           assert.equal(
-            await page.evaluate(
-              () => document.documentElement.scrollWidth > innerWidth,
-            ),
+            await page.evaluate(() => {
+              return document.documentElement.scrollWidth > innerWidth;
+            }),
             false,
           );
           checks.push({
@@ -1376,26 +1690,29 @@ const checks = [];
         }
 
         await page.evaluate((original) => {
-          for (const { selector, text } of original)
+          for (const { selector, text } of original) {
             document.querySelector(selector).textContent = text;
+          }
         }, original);
-        await page.evaluate(
-          () => (document.documentElement.style.fontSize = '200%'),
-        );
+        await page.evaluate(() => {
+          return (document.documentElement.style.fontSize = '200%');
+        });
 
         for (const width of widths) {
           await page.setViewport({ width, height: 900 });
 
-          const enlarged = await page.evaluate(() => ({
-            overflow: document.documentElement.scrollWidth > innerWidth,
-            contentFits: [
-              ...document.querySelectorAll(
-                '.category-summary,.category-preview-link,.link-button,.presentation-copy,.presentation-focus',
-              ),
-            ].every(
-              (element) => element.scrollWidth <= element.clientWidth + 1,
-            ),
-          }));
+          const enlarged = await page.evaluate(() => {
+            return {
+              overflow: document.documentElement.scrollWidth > innerWidth,
+              contentFits: [
+                ...document.querySelectorAll(
+                  '.category-summary,.category-preview-link,.link-button,.presentation-copy,.presentation-focus',
+                ),
+              ].every((element) => {
+                return element.scrollWidth <= element.clientWidth + 1;
+              }),
+            };
+          });
 
           assert.equal(
             enlarged.overflow,
@@ -1415,18 +1732,18 @@ const checks = [];
           });
         }
 
-        await page.evaluate(() =>
-          document.documentElement.style.removeProperty('font-size'),
-        );
+        await page.evaluate(() => {
+          return document.documentElement.style.removeProperty('font-size');
+        });
       }
 
       const control =
         (await page.$('.link-button')) ||
         (await page.$('.section-switcher-trigger'));
 
-      await control.evaluate((element) =>
-        element.scrollIntoView({ block: 'center', behavior: 'instant' }),
-      );
+      await control.evaluate((element) => {
+        return element.scrollIntoView({ block: 'center', behavior: 'instant' });
+      });
 
       const before = await control.boundingBox();
 
@@ -1437,9 +1754,9 @@ const checks = [];
       assert.deepEqual(hovered, before, 'hover must not displace controls');
       await page.mouse.down();
       assert.equal(
-        await control.evaluate(
-          (element) => getComputedStyle(element).transform,
-        ),
+        await control.evaluate((element) => {
+          return getComputedStyle(element).transform;
+        }),
         'none',
       );
       await page.mouse.move(0, 0);
@@ -1470,11 +1787,12 @@ const checks = [];
           noOverflow: dialog.scrollWidth <= dialog.clientWidth,
           controlsFit: [
             ...dialog.querySelectorAll('.toggle-button,.language-select'),
-          ].every(
-            (control) =>
+          ].every((control) => {
+            return (
               control.scrollWidth <= control.clientWidth &&
-              control.getBoundingClientRect().height >= 44,
-          ),
+              control.getBoundingClientRect().height >= 44
+            );
+          }),
         };
       });
 
@@ -1497,22 +1815,24 @@ const checks = [];
       );
       await page.keyboard.press('Escape');
       assert.equal(
-        await page.$eval(':focus', (element) =>
-          element.hasAttribute('data-settings-open'),
-        ),
+        await page.$eval(':focus', (element) => {
+          return element.hasAttribute('data-settings-open');
+        }),
         true,
       );
       await page.click('[data-credits-open]');
 
-      const dialog = await page.$eval('#credits-dialog', (dialog) => ({
-        open: dialog.open,
-        top: dialog.getBoundingClientRect().top,
-        bottom: dialog.getBoundingClientRect().bottom,
-        height: innerHeight,
-        scrolls:
-          getComputedStyle(dialog.querySelector('.credits-dialog-content'))
-            .overflowY === 'auto',
-      }));
+      const dialog = await page.$eval('#credits-dialog', (dialog) => {
+        return {
+          open: dialog.open,
+          top: dialog.getBoundingClientRect().top,
+          bottom: dialog.getBoundingClientRect().bottom,
+          height: innerHeight,
+          scrolls:
+            getComputedStyle(dialog.querySelector('.credits-dialog-content'))
+              .overflowY === 'auto',
+        };
+      });
 
       assert(
         dialog.open &&
@@ -1522,7 +1842,9 @@ const checks = [];
       );
       await page.keyboard.press('Escape');
       assert.equal(
-        await page.$eval('#credits-dialog', (dialog) => dialog.open),
+        await page.$eval('#credits-dialog', (dialog) => {
+          return dialog.open;
+        }),
         false,
       );
       console.log(JSON.stringify({ path: route.url, layout: 'passed' }));
@@ -1531,7 +1853,9 @@ const checks = [];
     assert.deepEqual(
       [...represented].sort(),
       visibleLinks(config)
-        .map((entry) => entry.id)
+        .map((entry) => {
+          return entry.id;
+        })
         .sort(),
       'Every public entry must have a page or tab',
     );
@@ -1539,33 +1863,55 @@ const checks = [];
 
     for (const route of routes) {
       await page.goto(href(route.url), { waitUntil: 'networkidle2' });
+
+      if (!route.url.includes('/terminal/')) {
+        assert.equal(
+          await page.$eval('.world-landscape', (landscape) => {
+            const root = document.documentElement;
+
+            const preview = getComputedStyle(
+              document.querySelector('.world-landscape-preview'),
+            );
+
+            return (
+              !root.hasAttribute('data-js-enabled') &&
+              getComputedStyle(landscape).backgroundImage !== 'none' &&
+              Number(preview.opacity) === 0
+            );
+          }),
+          true,
+          `${route.url} progressive scene fallback without JavaScript`,
+        );
+      }
+
       await page.focus('.section-switcher-trigger');
       await page.keyboard.press('Enter');
       assert.equal(
-        await page.$eval('.section-switcher', (details) => details.open),
+        await page.$eval('.section-switcher', (details) => {
+          return details.open;
+        }),
         true,
       );
       assert.equal(
-        await page.$eval(
-          '.section-menu-link',
-          (tab) => tab.getBoundingClientRect().height >= 44,
-        ),
+        await page.$eval('.section-menu-link', (tab) => {
+          return tab.getBoundingClientRect().height >= 44;
+        }),
         true,
       );
 
-      const destination = pagesFor(config, route.language).find(
-        (entry) =>
-          entry.id !== route.id && ['home', 'links-page'].includes(entry.type),
-      );
+      const destination = pagesFor(config, route.language).find((entry) => {
+        return (
+          entry.id !== route.id && ['home', 'links-page'].includes(entry.type)
+        );
+      });
 
       await page.focus(
         `.section-menu-link[href="${new URL(href(destination.url)).pathname}"]`,
       );
       assert.equal(
-        await page.$eval(
-          ':focus',
-          (element) => getComputedStyle(element).outlineStyle,
-        ),
+        await page.$eval(':focus', (element) => {
+          return getComputedStyle(element).outlineStyle;
+        }),
         'solid',
       );
       await Promise.all([
@@ -1602,27 +1948,39 @@ const checks = [];
       waitUntil: 'networkidle2',
     });
     await page.click('[data-settings-open]');
-    await page.$eval('#motion-off', (option) => option.click());
+    await page.$eval('#motion-off', (option) => {
+      return option.click();
+    });
     await page.reload({ waitUntil: 'networkidle2' });
     assert.equal(
-      await page.$eval('html', (root) => root.dataset.motion),
+      await page.$eval('html', (root) => {
+        return root.dataset.motion;
+      }),
       'off',
     );
     await page.click('[data-settings-open]');
     await page.emulateMediaFeatures([
       { name: 'prefers-reduced-motion', value: 'reduce' },
     ]);
-    await page.$eval('#motion-on', (option) => option.click());
+    await page.$eval('#motion-on', (option) => {
+      return option.click();
+    });
     assert.equal(
-      await page.$eval('html', (root) => root.dataset.motion),
+      await page.$eval('html', (root) => {
+        return root.dataset.motion;
+      }),
       'off',
     );
     await page.emulateMediaFeatures([
       { name: 'prefers-color-scheme', value: 'light' },
     ]);
-    await page.$eval('#theme-system', (option) => option.click());
+    await page.$eval('#theme-system', (option) => {
+      return option.click();
+    });
     assert.equal(
-      await page.$eval('html', (root) => getComputedStyle(root).colorScheme),
+      await page.$eval('html', (root) => {
+        return getComputedStyle(root).colorScheme;
+      }),
       'light',
     );
     assert.deepEqual(errors, []);
@@ -1632,6 +1990,11 @@ const checks = [];
       reportDirectory,
     );
     await require('./check-language-browser.cjs')(browser, base.href);
+    await require('./check-component-parity.cjs')(
+      browser,
+      base.href,
+      reportDirectory,
+    );
     await require('./check-link-view-browser.cjs')(
       browser,
       base.href,

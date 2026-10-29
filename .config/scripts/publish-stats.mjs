@@ -15,16 +15,19 @@ const git = (...args) => {
     { stdio: 'inherit' },
   );
 
-  if (result.error) throw new Error('Git could not run');
+  if (result.error) {
+    throw new Error('Git could not run');
+  }
 
   return result.status;
 };
 
-if (git('diff', '--quiet', '--', 'src/data/statistics.yaml') === 0)
+if (git('diff', '--quiet', '--', 'website/src/data/statistics.yaml') === 0) {
   process.exit(0);
+}
 
 for (const args of [
-  ['add', '--', 'src/data/statistics.yaml'],
+  ['add', '--', 'website/src/data/statistics.yaml'],
   [
     '-c',
     'user.name=github-actions[bot]',
@@ -34,7 +37,7 @@ for (const args of [
     '-m',
     'chore(stats): refresh public statistics',
     '--',
-    'src/data/statistics.yaml',
+    'website/src/data/statistics.yaml',
   ],
   [
     '-c',
@@ -46,7 +49,9 @@ for (const args of [
     'HEAD:main',
   ],
 ]) {
-  if (git(...args) !== 0) throw new Error('Statistics publication failed');
+  if (git(...args) !== 0) {
+    throw new Error('Statistics publication failed');
+  }
 }
 
 const response = await fetch(
@@ -64,5 +69,6 @@ const response = await fetch(
   },
 );
 
-if (!response.ok)
+if (!response.ok) {
   throw new Error(`Pages dispatch failed: HTTP ${response.status}`);
+}

@@ -4,40 +4,40 @@ browser_size: 24
 padding: 1
 assets:
   - id: default
-    source: src/assets/cursors/default.png
-    file: src/static/cursors/default.png
+    source: website/src/assets/cursors/default.png
+    file: website/src/static/cursors/default.png
     hotspot: [2, 2]
     prompt: >-
       Use case: precise-object-edit. Asset type: production transparent PNG mouse cursor, one standalone sprite. Input image: the user's SIX-CURSOR reference sheet, not an edit target for the whole sheet. Recreate ONLY the UPPER-LEFT DEFAULT ARROW, as faithfully as possible, as a single isolated cursor. Keep its exact silhouette: vertical left edge, sharp upper-left pointing tip, diagonal cream staircase rim descending to the right, short tail bending toward lower right, warm dark-oak brown interior, pale sandstone bevel, very dark thin outer outline, tiny moss patches along the left edge and lower notch, small golden rivets at the lower-left and right corner. Match the reference's chunky pixel geometry, material shading, warm palette and level of detail. Do not redesign as a generic arrow or a flat vector icon. Front-facing 2D pixel-art game UI sprite. Square transparent canvas, cursor centered with a small even transparent margin, complete silhouette not clipped. Strong readable shape suitable for a 48x48 CSS cursor. Real alpha transparency everywhere outside the cursor, including notches. No black background, no checkerboard pattern painted into image, no sheet, no other cursors, no labels, letters, watermark, scenes or drop shadow outside its close dark outline.
   - id: pointer
-    source: src/assets/cursors/pointer.png
-    file: src/static/cursors/pointer.png
+    source: website/src/assets/cursors/pointer.png
+    file: website/src/static/cursors/pointer.png
     hotspot: [8, 2]
     prompt: >-
       Use case: precise-object-edit. Asset type: one standalone transparent PNG mouse cursor for the SAME coherent six-piece cursor set. Input images: the user's sheet with six cursors is the SHAPE AND STYLE REFERENCE; the isolated newly generated default arrow is the PALETTE AND MATERIAL ANCHOR. Match the requested cursor in that six-cursor sheet faithfully, not a generic operating-system icon. Exact same chunky stepped pixel grid, sandstone/cream illuminated bevel, near-black short outer outline, warm dark-oak interior with subtle square shading, restrained moss-green patches and tiny gold hardware as the anchor arrow. Front-facing 2D game UI sprite, readable when exported to 48x48. Only ONE cursor centered in a square canvas, whole silhouette with transparent margins. Genuine alpha transparency outside and inside openings. No background color, no black rectangle, no checkerboard painted in, no scene, no text, no watermark, no extra cursor, no sheet. Recreate the UPPER-MIDDLE pointing hand. One tall extended index finger at the top, the other three fingers bent to the right, thumb toward lower left, dark wood palm, pale stone bevel on the stepped outer silhouette and finger edges. Green wrist cuff with pale trim and ONE centered square golden clasp. Sparse moss at the thumb/palm seam. Preserve the reference proportions and anatomy, with one index finger only, three shorter bent fingers and one thumb.
   - id: text
-    source: src/assets/cursors/text.png
-    file: src/static/cursors/text.png
+    source: website/src/assets/cursors/text.png
+    file: website/src/static/cursors/text.png
     hotspot: [12, 12]
     prompt: >-
       Use case: precise-object-edit. Asset type: one standalone transparent PNG mouse cursor for the SAME coherent six-piece cursor set. Input images: the user's sheet with six cursors is the SHAPE AND STYLE REFERENCE; the isolated newly generated default arrow is the PALETTE AND MATERIAL ANCHOR. Match the requested cursor in that six-cursor sheet faithfully, not a generic operating-system icon. Exact same chunky stepped pixel grid, sandstone/cream illuminated bevel, near-black short outer outline, warm dark-oak interior with subtle square shading, restrained moss-green patches and tiny gold hardware as the anchor arrow. Front-facing 2D game UI sprite, readable when exported to 48x48. Only ONE cursor centered in a square canvas, whole silhouette with transparent margins. Genuine alpha transparency outside and inside openings. No background color, no black rectangle, no checkerboard painted in, no scene, no text, no watermark, no extra cursor, no sheet. Recreate the UPPER-RIGHT I-BEAM text cursor. Tall straight narrow dark-oak stem, symmetric horizontal top and bottom crossbars with pale stone beveled edges, one small centered golden square on each crossbar, small moss-green corners connecting the bars and stem. Very clear capital-I silhouette, hollow outside regions transparent, no lettering or additional object.
   - id: grab
-    source: src/assets/cursors/grab.png
-    file: src/static/cursors/grab.png
+    source: website/src/assets/cursors/grab.png
+    file: website/src/static/cursors/grab.png
     hotspot: [12, 14]
     prompt: >-
       Use case: precise-object-edit. Asset type: one standalone transparent PNG mouse cursor for the SAME coherent six-piece cursor set. Input images: the user's sheet with six cursors is the SHAPE AND STYLE REFERENCE; the isolated newly generated default arrow is the PALETTE AND MATERIAL ANCHOR. Match the requested cursor in that six-cursor sheet faithfully, not a generic operating-system icon. Exact same chunky stepped pixel grid, sandstone/cream illuminated bevel, near-black short outer outline, warm dark-oak interior with subtle square shading, restrained moss-green patches and tiny gold hardware as the anchor arrow. Front-facing 2D game UI sprite, readable when exported to 48x48. Only ONE cursor centered in a square canvas, whole silhouette with transparent margins. Genuine alpha transparency outside and inside openings. No background color, no black rectangle, no checkerboard painted in, no scene, no text, no watermark, no extra cursor, no sheet. Recreate the LOWER-LEFT open palm hand. Four separated upright fingers of subtly different heights and one thumb angled to the left, dark-oak palm and fingers, pale sandstone stepped perimeter and finger edges, green wrist cuff with pale trim and ONE centered gold square clasp. Sparse moss near the base of the palm. Keep the same scale and anatomy as the pointing hand.
     revision: >-
       Use case: precise-object-edit. Image 1 is the OPEN HAND cursor edit target; Image 2 is a matching pointing-hand material/anatomy reference. Correct ONLY the anatomy of Image 1: it is missing a finger. The final open palm must have FIVE digits total: one thumb pointing left PLUS FOUR separate upright fingers, index, middle, ring and little finger. Add the missing little finger on the right, slightly shorter than the ring finger. Keep the existing thumb, dark-oak palm, moss diagonal, green cuff, ONE gold clasp, cream sandstone bevel, dark stepped outline, square pixel grid and shading style unchanged. Make all four upright fingers clearly countable with transparent narrow gaps between them above the palm. Do not fold any finger, do not merge fingers, do not add a sixth digit. Preserve the original reference visual language and full transparent canvas with the complete silhouette.
   - id: click
-    source: src/assets/cursors/click.png
-    file: src/static/cursors/click.png
+    source: website/src/assets/cursors/click.png
+    file: website/src/static/cursors/click.png
     hotspot: [2, 2]
     prompt: >-
       Use case: precise-object-edit. Asset type: one standalone transparent PNG mouse cursor for the SAME coherent six-piece cursor set. Input images: the user's sheet with six cursors is the SHAPE AND STYLE REFERENCE; the isolated newly generated default arrow is the PALETTE AND MATERIAL ANCHOR. Match the requested cursor in that six-cursor sheet faithfully, not a generic operating-system icon. Exact same chunky stepped pixel grid, sandstone/cream illuminated bevel, near-black short outer outline, warm dark-oak interior with subtle square shading, restrained moss-green patches and tiny gold hardware as the anchor arrow. Front-facing 2D game UI sprite, readable when exported to 48x48. Only ONE cursor centered in a square canvas, whole silhouette with transparent margins. Genuine alpha transparency outside and inside openings. No background color, no black rectangle, no checkerboard painted in, no scene, no text, no watermark, no extra cursor, no sheet. Recreate the LOWER-MIDDLE clicked arrow. Use the exact same default arrow design as the isolated arrow anchor, with the same notch, hooked tail, cream rim, brown wood, moss at left edge, and small golden rivets. Add ONLY the three short detached gold click rays near the upper-right side as in the six-cursor sheet: a small upright bar, a diagonal bar and a horizontal bar. Do not turn it into lightning, a star, a hand or a second arrow.
   - id: wait
-    source: src/assets/cursors/wait.png
-    file: src/static/cursors/wait.png
+    source: website/src/assets/cursors/wait.png
+    file: website/src/static/cursors/wait.png
     hotspot: [12, 12]
     prompt: >-
       Use case: precise-object-edit. Asset type: one standalone transparent PNG mouse cursor for the SAME coherent six-piece cursor set. Input images: the user's sheet with six cursors is the SHAPE AND STYLE REFERENCE; the isolated newly generated default arrow is the PALETTE AND MATERIAL ANCHOR. Match the requested cursor in that six-cursor sheet faithfully, not a generic operating-system icon. Exact same chunky stepped pixel grid, sandstone/cream illuminated bevel, near-black short outer outline, warm dark-oak interior with subtle square shading, restrained moss-green patches and tiny gold hardware as the anchor arrow. Front-facing 2D game UI sprite, readable when exported to 48x48. Only ONE cursor centered in a square canvas, whole silhouette with transparent margins. Genuine alpha transparency outside and inside openings. No background color, no black rectangle, no checkerboard painted in, no scene, no text, no watermark, no extra cursor, no sheet. Recreate the LOWER-RIGHT loading ring. A compact circular loop made from eight detached chunky square stone/wood-and-moss segments, with three warm golden illuminated segments on the upper-right/right side. Clean transparent hollow center. Restrained same sandstone, dark oak, moss and gold palette, crisp stepped circular silhouette. Static sprite, no animation frames or extra rings.

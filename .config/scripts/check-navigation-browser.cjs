@@ -7,7 +7,9 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
 
   const base = new URL(baseURL);
 
-  const href = (path) => new URL(path.replace(/^\//, ''), base).href;
+  const href = (path) => {
+    return new URL(path.replace(/^\//, ''), base).href;
+  };
 
   const context = await browser.createBrowserContext();
 
@@ -20,75 +22,95 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
   try {
     const page = await context.newPage();
 
-    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('pageerror', (error) => {
+      return errors.push(error.message);
+    });
     await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
+      Object.defineProperty(navigator, 'languages', {
+        get: () => {
+          return ['en-US'];
+        },
+      });
     });
 
     for (const language of config.language_options) {
       const pages = pagesFor(config, language.id);
 
-      const expected = pages.filter((entry) =>
-        ['home', 'links-page'].includes(entry.type),
-      );
+      const expected = pages.filter((entry) => {
+        return ['home', 'links-page'].includes(entry.type);
+      });
 
-      const now = pages.find((entry) => entry.id === 'now');
+      const now = pages.find((entry) => {
+        return entry.id === 'now';
+      });
 
-      for (const route of pages.filter((entry) => !entry.fallback)) {
+      for (const route of pages.filter((entry) => {
+        return !entry.fallback;
+      })) {
         await page.goto(href(route.url), { waitUntil: 'networkidle0' });
-        await page.evaluate(() => document.fonts.ready);
-
-        const normalize = (entry) => ({
-          title: entry.title,
-          href: href(entry.url),
-          current: entry.id === route.id,
+        await page.evaluate(() => {
+          return document.fonts.ready;
         });
+
+        const normalize = (entry) => {
+          return {
+            title: entry.title,
+            href: href(entry.url),
+            current: entry.id === route.id,
+          };
+        };
 
         for (const [selector, entries] of [
           ['.section-menu-list a', expected],
           ['.footer-navigation-links a', [...expected, now]],
         ]) {
           assert.deepEqual(
-            await page.$$eval(selector, (links) =>
-              links.map((link) => ({
-                title: link.textContent.trim(),
-                href: link.href,
-                current: link.getAttribute('aria-current') === 'page',
-              })),
-            ),
+            await page.$$eval(selector, (links) => {
+              return links.map((link) => {
+                return {
+                  title: link.textContent.trim(),
+                  href: link.href,
+                  current: link.getAttribute('aria-current') === 'page',
+                };
+              });
+            }),
             entries.map(normalize),
           );
         }
 
         assert.deepEqual(
-          await page.$$eval('[data-now-shortcut]', (links) =>
-            links.map((link) => ({
-              href: link.href,
-              current: link.getAttribute('aria-current') === 'page',
-            })),
-          ),
-          Array.from({ length: 2 }, () => ({
-            href: href(now.url),
-            current: route.id === 'now',
-          })),
+          await page.$$eval('[data-now-shortcut]', (links) => {
+            return links.map((link) => {
+              return {
+                href: link.href,
+                current: link.getAttribute('aria-current') === 'page',
+              };
+            });
+          }),
+          Array.from({ length: 2 }, () => {
+            return {
+              href: href(now.url),
+              current: route.id === 'now',
+            };
+          }),
         );
         assert.equal(
-          await page.$eval('.footer-navigation-title', (title) =>
-            title.textContent.trim(),
-          ),
+          await page.$eval('.footer-navigation-title', (title) => {
+            return title.textContent.trim();
+          }),
           config.locales[language.id].ui.navigation_label,
         );
         assert.equal(
-          await page.$eval('.section-switcher-trigger', (trigger) =>
-            trigger.textContent.trim(),
-          ),
+          await page.$eval('.section-switcher-trigger', (trigger) => {
+            return trigger.textContent.trim();
+          }),
           config.locales[language.id].ui.navigation_sections,
         );
         assert.equal(await page.$('.navigation-current'), null);
         assert.equal(
-          await page.$eval('.quick-contacts', (group) =>
-            Boolean(group.closest('.page-navigation')),
-          ),
+          await page.$eval('.quick-contacts', (group) => {
+            return Boolean(group.closest('.page-navigation'));
+          }),
           true,
         );
 
@@ -99,30 +121,34 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
 
           for (const width of [320, 390, 768, 1024, 1440]) {
             await page.setViewport({ width, height: 900 });
-            await page.$eval('.page-navigation', (bar) =>
-              bar.scrollIntoView({ block: 'center', behavior: 'instant' }),
-            );
+            await page.$eval('.page-navigation', (bar) => {
+              return bar.scrollIntoView({
+                block: 'center',
+                behavior: 'instant',
+              });
+            });
 
-            const before = await page.$eval(
-              '.page-content',
-              (content) => content.getBoundingClientRect().top,
-            );
+            const before = await page.$eval('.page-content', (content) => {
+              return content.getBoundingClientRect().top;
+            });
 
             await page.focus('.section-switcher-trigger');
             await page.keyboard.press('Enter');
-            await page.waitForFunction(
-              () =>
+            await page.waitForFunction(() => {
+              return (
                 document.querySelector('.section-switcher').open &&
                 document
                   .querySelector('.section-switcher')
-                  .style.getPropertyValue('--navigation-available-height'),
-            );
-            await page.evaluate(
-              () =>
-                new Promise((done) =>
-                  requestAnimationFrame(() => requestAnimationFrame(done)),
-                ),
-            );
+                  .style.getPropertyValue('--navigation-available-height')
+              );
+            });
+            await page.evaluate(() => {
+              return new Promise((done) => {
+                return requestAnimationFrame(() => {
+                  return requestAnimationFrame(done);
+                });
+              });
+            });
 
             const actual = await page.evaluate(() => {
               const bar = document.querySelector('.page-navigation');
@@ -143,16 +169,18 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                   rect.bottom <= innerHeight,
                 overflow: document.documentElement.scrollWidth > innerWidth,
                 panelContentFits: panel.scrollWidth <= panel.clientWidth + 1,
-                linksFit: links.every(
-                  (link) =>
+                linksFit: links.every((link) => {
+                  return (
                     link.scrollWidth <= link.clientWidth + 1 &&
-                    link.getBoundingClientRect().height >= 44,
-                ),
-                footerFits: [...footer.querySelectorAll('a')].every(
-                  (link) =>
+                    link.getBoundingClientRect().height >= 44
+                  );
+                }),
+                footerFits: [...footer.querySelectorAll('a')].every((link) => {
+                  return (
                     link.scrollWidth <= link.clientWidth + 1 &&
-                    link.getBoundingClientRect().height >= 44,
-                ),
+                    link.getBoundingClientRect().height >= 44
+                  );
+                }),
                 sameWidth:
                   Math.abs(
                     bar.getBoundingClientRect().width -
@@ -170,11 +198,12 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
                 contentTop: document
                   .querySelector('.page-content')
                   .getBoundingClientRect().top,
-                noMotion: links.every(
-                  (link) =>
+                noMotion: links.every((link) => {
+                  return (
                     getComputedStyle(link).transform === 'none' &&
-                    getComputedStyle(link).transitionDuration === '0s',
-                ),
+                    getComputedStyle(link).transitionDuration === '0s'
+                  );
+                }),
               };
             });
 
@@ -192,11 +221,12 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
               'sameWidth',
               'layered',
               'noMotion',
-            ])
+            ]) {
               assert(
                 actual[key],
                 `${route.url} ${width} ${theme} ${key}: ${JSON.stringify(actual)}`,
               );
+            }
 
             assert(
               Math.abs(before - actual.contentTop) < 1,
@@ -217,12 +247,12 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
             );
             await page.keyboard.press('Escape');
             assert(
-              await page.$eval(
-                '.section-switcher-trigger',
-                (trigger) =>
+              await page.$eval('.section-switcher-trigger', (trigger) => {
+                return (
                   document.activeElement === trigger &&
-                  !trigger.parentElement.open,
-              ),
+                  !trigger.parentElement.open
+                );
+              }),
             );
 
             const screenshot =
@@ -239,16 +269,20 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
               const prefix = `${reportDirectory}/navigation-${route.id}-${theme}-${width}`;
 
               await page.screenshot({ path: `${prefix}.png`, fullPage: true });
-              await page.$eval('.page-navigation', (bar) =>
-                bar.scrollIntoView({ block: 'start', behavior: 'instant' }),
-              );
+              await page.$eval('.page-navigation', (bar) => {
+                return bar.scrollIntoView({
+                  block: 'start',
+                  behavior: 'instant',
+                });
+              });
               await page.click('.section-switcher-trigger');
-              await page.evaluate(
-                () =>
-                  new Promise((done) =>
-                    requestAnimationFrame(() => requestAnimationFrame(done)),
-                  ),
-              );
+              await page.evaluate(() => {
+                return new Promise((done) => {
+                  return requestAnimationFrame(() => {
+                    return requestAnimationFrame(done);
+                  });
+                });
+              });
               await page.screenshot({ path: `${prefix}-open.png` });
               await page.keyboard.press('Escape');
             }
@@ -265,24 +299,27 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
     await page.keyboard.press('Space');
     await page.keyboard.press('Tab');
     assert(
-      await page.$eval(
-        '.section-menu-list a',
-        (link) => link === document.activeElement,
-      ),
+      await page.$eval('.section-menu-list a', (link) => {
+        return link === document.activeElement;
+      }),
     );
     await page.keyboard.down('Shift');
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
     await page.keyboard.up('Shift');
     assert.equal(
-      await page.$eval('.section-switcher', (details) => details.open),
+      await page.$eval('.section-switcher', (details) => {
+        return details.open;
+      }),
       false,
       'Leaving the menu closes it',
     );
     await page.click('.section-switcher-trigger');
     await page.mouse.click(1, 1);
     assert.equal(
-      await page.$eval('.section-switcher', (details) => details.open),
+      await page.$eval('.section-switcher', (details) => {
+        return details.open;
+      }),
       false,
       'Outside pointerdown closes menu',
     );
@@ -305,9 +342,9 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
       await page.setViewport({ width, height: 900 });
       await page.click('.section-switcher-trigger');
       assert.equal(
-        await page.evaluate(
-          () => document.documentElement.scrollWidth > innerWidth,
-        ),
+        await page.evaluate(() => {
+          return document.documentElement.scrollWidth > innerWidth;
+        }),
         false,
         `Navigation at 200% text: ${width}`,
       );

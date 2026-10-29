@@ -17,7 +17,11 @@ module.exports = async function checkCompactControls(
     const page = await context.newPage();
 
     await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
+      Object.defineProperty(navigator, 'languages', {
+        get: () => {
+          return ['en-US'];
+        },
+      });
     });
 
     for (const language of config.language_options) {
@@ -72,6 +76,16 @@ module.exports = async function checkCompactControls(
                 ) *
                 parseFloat(getComputedStyle(document.documentElement).fontSize);
 
+              const resolveSymmetricPadding = () => {
+                if (
+                  document.querySelector('.page-content > .link-view-control')
+                ) {
+                  return parseFloat(toolbarStyle.paddingLeft) > 0;
+                }
+
+                return parseFloat(toolbarStyle.paddingLeft) === 0;
+              };
+
               return {
                 count: buttons.length,
                 centered:
@@ -89,19 +103,24 @@ module.exports = async function checkCompactControls(
                       parseFloat(toolbarStyle.borderRightWidth),
                   ) < 1,
                 symmetricPadding:
-                  parseFloat(toolbarStyle.paddingLeft) > 0 &&
+                  resolveSymmetricPadding() &&
                   toolbarStyle.paddingLeft === toolbarStyle.paddingRight,
                 intrinsicGroup: group.width < footer.width,
-                squareTargets: controls.every(
-                  (control) =>
+                squareTargets: controls.every((control) => {
+                  return (
                     Math.abs(control.offsetWidth - size) < 1 &&
-                    Math.abs(control.offsetHeight - size) < 1,
-                ),
-                iconOnly: controls.every((control) =>
-                  [...control.childNodes]
-                    .filter((node) => node.nodeType === Node.TEXT_NODE)
-                    .every((node) => !node.textContent.trim()),
-                ),
+                    Math.abs(control.offsetHeight - size) < 1
+                  );
+                }),
+                iconOnly: controls.every((control) => {
+                  return [...control.childNodes]
+                    .filter((node) => {
+                      return node.nodeType === Node.TEXT_NODE;
+                    })
+                    .every((node) => {
+                      return !node.textContent.trim();
+                    });
+                }),
                 metadataSeparate:
                   !document.querySelector(
                     '.site-footer-content .site-footer-commit,.site-footer-content .site-footer-build',
@@ -117,18 +136,18 @@ module.exports = async function checkCompactControls(
                     ),
                   ),
                 named:
-                  buttons.every((button) =>
-                    Boolean(button.getAttribute('aria-label')),
-                  ) &&
+                  buttons.every((button) => {
+                    return Boolean(button.getAttribute('aria-label'));
+                  }) &&
                   [
                     ...document.querySelectorAll('.link-view-options label'),
-                  ].every((label) =>
-                    Boolean(
+                  ].every((label) => {
+                    return Boolean(
                       label
                         .querySelector('.visually-hidden')
                         .textContent.trim(),
-                    ),
-                  ),
+                    );
+                  }),
                 overflow: document.documentElement.scrollWidth > innerWidth,
                 compactHeight: toolbar.height < size * 1.5,
               };
@@ -142,8 +161,9 @@ module.exports = async function checkCompactControls(
             );
 
             for (const [key, value] of Object.entries(actual)) {
-              if (!['count', 'overflow'].includes(key))
+              if (!['count', 'overflow'].includes(key)) {
                 assert.equal(value, true, `${url} ${theme} ${width} ${key}`);
+              }
             }
 
             checks.push({ language: language.id, suffix, theme, width });
@@ -203,10 +223,9 @@ module.exports = async function checkCompactControls(
         const tooltip = `${selector} .control-tooltip`;
 
         assert.equal(
-          await page.$eval(
-            tooltip,
-            (element) => getComputedStyle(element).visibility,
-          ),
+          await page.$eval(tooltip, (element) => {
+            return getComputedStyle(element).visibility;
+          }),
           'visible',
         );
 
@@ -222,25 +241,33 @@ module.exports = async function checkCompactControls(
         );
         await page.hover(tooltip);
         assert.equal(
-          await page.$eval(
-            tooltip,
-            (element) => getComputedStyle(element).visibility,
-          ),
+          await page.$eval(tooltip, (element) => {
+            return getComputedStyle(element).visibility;
+          }),
           'visible',
         );
         await page.keyboard.press('Escape');
         assert.equal(
-          await page.$eval(
-            tooltip,
-            (element) => getComputedStyle(element).visibility,
-          ),
+          await page.$eval(tooltip, (element) => {
+            return getComputedStyle(element).visibility;
+          }),
           'hidden',
         );
         await page.mouse.move(0, 0);
 
-        const focus = selector.startsWith('label')
-          ? `#${selector.includes('detailed') ? 'link-view-detailed' : 'link-view-compact'}`
-          : selector;
+        const resolveFocus = () => {
+          if (selector.startsWith('label')) {
+            if (selector.includes('detailed')) {
+              return '#link-view-detailed';
+            }
+
+            return '#link-view-compact';
+          }
+
+          return selector;
+        };
+
+        const focus = resolveFocus();
 
         await page.focus(focus);
         await page.keyboard.press('Tab');
@@ -248,25 +275,29 @@ module.exports = async function checkCompactControls(
         await page.keyboard.press('Tab');
         await page.keyboard.up('Shift');
 
-        if (!selector.startsWith('label'))
+        if (!selector.startsWith('label')) {
           assert.equal(
-            await page.$eval(
-              tooltip,
-              (element) => getComputedStyle(element).visibility,
-            ),
+            await page.$eval(tooltip, (element) => {
+              return getComputedStyle(element).visibility;
+            }),
             'visible',
           );
+        }
       }
 
       await page.click('[data-credits-open]');
       assert.equal(
-        await page.$eval('#credits-dialog', (dialog) => dialog.open),
+        await page.$eval('#credits-dialog', (dialog) => {
+          return dialog.open;
+        }),
         true,
       );
       await page.keyboard.press('Escape');
       await page.click('[data-settings-open]');
       assert.equal(
-        await page.$eval('#settings-dialog', (dialog) => dialog.open),
+        await page.$eval('#settings-dialog', (dialog) => {
+          return dialog.open;
+        }),
         true,
       );
       await page.keyboard.press('Escape');
@@ -275,17 +306,23 @@ module.exports = async function checkCompactControls(
       assert.equal(
         await page.$eval(
           'label[for=link-view-detailed] .control-tooltip',
-          (element) => getComputedStyle(element).visibility,
+          (element) => {
+            return getComputedStyle(element).visibility;
+          },
         ),
         'visible',
       );
       assert.equal(
-        await page.$eval('#link-view-detailed', (input) => input.checked),
+        await page.$eval('#link-view-detailed', (input) => {
+          return input.checked;
+        }),
         true,
       );
       await page.keyboard.press('ArrowLeft');
       assert.equal(
-        await page.$eval('#link-view-compact', (input) => input.checked),
+        await page.$eval('#link-view-compact', (input) => {
+          return input.checked;
+        }),
         true,
       );
       await page.evaluate(() => {

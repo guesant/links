@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
+import { clientScript } from './client-source.mjs';
 
-const script = await readFile('src/assets/js/link-view.js', 'utf8');
+const script = await clientScript('link-view');
 
 function harness({ saved, blocked = false } = {}) {
   const root = { dataset: {} };
@@ -31,18 +31,26 @@ function harness({ saved, blocked = false } = {}) {
     HTMLInputElement,
     document: {
       documentElement: root,
-      querySelectorAll: () => controls,
-      addEventListener: (name, callback) => listeners.set(name, callback),
+      querySelectorAll: () => {
+        return controls;
+      },
+      addEventListener: (name, callback) => {
+        return listeners.set(name, callback);
+      },
     },
     window: {
       localStorage: {
         getItem() {
-          if (blocked) throw new Error('Storage blocked');
+          if (blocked) {
+            throw new Error('Storage blocked');
+          }
 
           return saved;
         },
         setItem(key, value) {
-          if (blocked) throw new Error('Storage blocked');
+          if (blocked) {
+            throw new Error('Storage blocked');
+          }
 
           writes.push({ key, value });
         },
@@ -63,7 +71,9 @@ function harness({ saved, blocked = false } = {}) {
         ),
       });
     },
-    ready: () => listeners.get('DOMContentLoaded')(),
+    ready: () => {
+      return listeners.get('DOMContentLoaded')();
+    },
   };
 }
 
@@ -74,7 +84,9 @@ test('link display defaults to compact and ignores invalid saved values', () => 
     assert.equal(root.dataset.linkView, 'compact');
     assert.equal(root.dataset.linkViewReady, 'true');
     assert.deepEqual(
-      controls.map((entry) => entry.checked),
+      controls.map((entry) => {
+        return entry.checked;
+      }),
       [true, false],
     );
     assert.deepEqual(writes, []);
@@ -87,7 +99,9 @@ test('saved detailed mode is applied before DOM readiness', () => {
   controls[1].checked = false;
   ready();
   assert.deepEqual(
-    controls.map((entry) => entry.checked),
+    controls.map((entry) => {
+      return entry.checked;
+    }),
     [false, true],
   );
 });
@@ -97,7 +111,9 @@ test('switching link display persists one global preference', () => {
   select('detailed');
   assert.equal(root.dataset.linkView, 'detailed');
   assert.deepEqual(
-    controls.map((entry) => entry.checked),
+    controls.map((entry) => {
+      return entry.checked;
+    }),
     [false, true],
   );
   select('compact');

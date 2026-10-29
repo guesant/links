@@ -15,11 +15,19 @@ export default async function accessibilityViewports(audits, defaults) {
     await page.setViewport(defaults.viewport);
 
     for (const audit of audits) {
-      const view = audit.actions?.includes(
-        'click element label[for="link-view-detailed"]',
-      )
-        ? 'detailed'
-        : 'compact';
+      const resolveView = () => {
+        if (
+          audit.actions?.includes(
+            'click element label[for="link-view-detailed"]',
+          )
+        ) {
+          return 'detailed';
+        }
+
+        return 'compact';
+      };
+
+      const view = resolveView();
 
       const key = `${audit.url}:${view}`;
 
@@ -28,10 +36,14 @@ export default async function accessibilityViewports(audits, defaults) {
         await page.evaluate((view) => {
           document.documentElement.dataset.linkView = view;
         }, view);
-        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(() => {
+          return document.fonts.ready;
+        });
         heights.set(
           key,
-          await page.evaluate(() => document.documentElement.scrollHeight),
+          await page.evaluate(() => {
+            return document.documentElement.scrollHeight;
+          }),
         );
       }
 

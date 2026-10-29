@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
+import { clientScript } from './client-source.mjs';
 
-const context = { document: { querySelector: () => null } };
+const context = {
+  document: {
+    querySelector: () => {
+      return null;
+    },
+  },
+};
 
-runInNewContext(await readFile('src/assets/js/search.js', 'utf8'), context);
+runInNewContext(await clientScript('search'), context);
 
 const items = [
   {
@@ -19,14 +25,17 @@ const items = [
 ];
 
 test('search matches accents, case, tags, metadata and multiple terms', () => {
-  for (const query of ['FORMACAO', 'backend', 'computacao', 'public backend'])
+  for (const query of ['FORMACAO', 'backend', 'computacao', 'public backend']) {
     assert.equal(context.lobbySearchItems(items, query)[0].id, 'one');
+  }
 
   assert.equal(context.lobbySearchItems(items, 'backend missing').length, 0);
   assert.equal(context.lobbySearchItems(items, ' ').length, 0);
 });
 test('search returns every match without changing source records', () => {
-  const many = Array.from({ length: 150 }, (_, id) => ({ ...items[0], id }));
+  const many = Array.from({ length: 150 }, (_, id) => {
+    return { ...items[0], id };
+  });
 
   assert.equal(context.lobbySearchItems(many, 'backend').length, 150);
   assert.equal(many.length, 150);
@@ -46,8 +55,11 @@ test('explicit list limits preserve totals and reject invalid limits', () => {
     assert.equal(complete.partial, false);
   }
 
-  for (const limit of [-1, 1.5, 'invalid'])
-    assert.throws(() => context.lobbySelectList(items, limit), /List limit/);
+  for (const limit of [-1, 1.5, 'invalid']) {
+    assert.throws(() => {
+      return context.lobbySelectList(items, limit);
+    }, /List limit/);
+  }
 });
 
 function searchHarness() {
@@ -86,6 +98,14 @@ function searchHarness() {
     showModal() {
       this.open = true;
     }
+
+    closest(selector) {
+      if (selector === '[data-search-open]') {
+        return this;
+      }
+
+      return null;
+    }
   }
 
   const query = new Element();
@@ -112,17 +132,21 @@ function searchHarness() {
     searchLanguage: 'Language',
     searchPartial: 'Showing {shown} of {total}',
   };
-  dialog.querySelector = (selector) =>
-    ({
+  dialog.querySelector = (selector) => {
+    return {
       input: query,
       '#search-results': results,
       '#search-status': status,
       '[data-search-retry]': retry,
-    })[selector];
+    }[selector];
+  };
 
   const requests = [];
 
   runInNewContext(script, {
+    Element,
+    URL,
+    location: new URL('https://guesant.net/pt-br/'),
     AbortSignal: {
       timeout(duration) {
         assert.equal(duration, 10000);
@@ -131,13 +155,22 @@ function searchHarness() {
       },
     },
     document: {
-      querySelector: (selector) =>
-        selector === '#search-dialog' ||
-        (selector === 'dialog[open]' && dialog.open)
-          ? dialog
-          : null,
-      querySelectorAll: () => [button],
-      createElement: () => new Element(),
+      querySelector: (selector) => {
+        if (
+          selector === '#search-dialog' ||
+          (selector === 'dialog[open]' && dialog.open)
+        ) {
+          return dialog;
+        }
+
+        return null;
+      },
+      querySelectorAll: () => {
+        return [button];
+      },
+      createElement: () => {
+        return new Element();
+      },
       addEventListener(name, listener) {
         documentListeners.set(name, listener);
       },
@@ -149,14 +182,16 @@ function searchHarness() {
       assert.equal(url, dialog.dataset.searchIndex);
       assert.equal(options.signal, 'timeout-signal');
 
-      return new Promise((resolve, reject) =>
-        requests.push({ resolve, reject }),
-      );
+      return new Promise((resolve, reject) => {
+        return requests.push({ resolve, reject });
+      });
     },
   });
 
   const flush = async () => {
-    for (let i = 0; i < 20; i++) await Promise.resolve();
+    for (let i = 0; i < 20; i++) {
+      await Promise.resolve();
+    }
   };
 
   return {
@@ -169,7 +204,7 @@ function searchHarness() {
     flush,
     open() {
       documentListeners.get('click')({
-        target: { closest: (selector) => selector === '[data-search-open]' },
+        target: new Element(),
       });
     },
     input(value) {
@@ -180,12 +215,17 @@ function searchHarness() {
       retry.listeners.get('click')();
     },
     resolve(value, ok = true) {
-      requests.at(-1).resolve({ ok, json: async () => value });
+      requests.at(-1).resolve({
+        ok,
+        json: async () => {
+          return value;
+        },
+      });
     },
   };
 }
 
-const script = await readFile('src/assets/js/search.js', 'utf8');
+const script = await clientScript('search');
 
 const searchEntry = {
   ...items[0],
@@ -193,6 +233,7 @@ const searchEntry = {
   group: 'Pages',
   source: 'lobby',
   language: 'pt-br',
+  type: 'link',
 };
 
 test('search renders and counts more than one hundred matches', async () => {
@@ -200,10 +241,21 @@ test('search renders and counts more than one hundred matches', async () => {
 
   h.open();
   h.input('backend');
-  h.resolve(Array.from({ length: 150 }, (_, id) => ({ ...searchEntry, id })));
+  h.resolve(
+    Array.from({ length: 150 }, (_, id) => {
+      return {
+        ...searchEntry,
+        id: String(id),
+      };
+    }),
+  );
   await h.flush();
   assert.equal(h.status.textContent, '150');
   assert.equal(h.results.children[1].children.length, 150);
+  assert.notEqual(
+    h.results.children[1].children[0].children[0].target,
+    '_blank',
+  );
 });
 test('an explicit search limit reports the full matching count', async () => {
   const h = searchHarness();
@@ -212,7 +264,12 @@ test('an explicit search limit reports the full matching count', async () => {
   h.open();
   h.input('backend');
   h.resolve([
-    ...Array.from({ length: 3 }, (_, id) => ({ ...searchEntry, id })),
+    ...Array.from({ length: 3 }, (_, id) => {
+      return {
+        ...searchEntry,
+        id: String(id),
+      };
+    }),
     { ...searchEntry, title: 'Other', summary: '', tags: [], metadata: {} },
   ]);
   await h.flush();
@@ -240,6 +297,10 @@ test('project search results keep the repository and curriculum as independent l
     row.children[0].href,
     'https://curriculum.guesant.net/en/#project-one',
   );
+  assert.equal(row.children[0].target, '_blank');
+  assert.equal(row.children[0].rel, 'noopener noreferrer');
+  assert.equal(row.children[0].children[0].attributes['aria-hidden'], 'true');
+  assert.equal(row.children[0].children[0].textContent, ' ↗');
   assert.equal(row.children[2].href, 'https://github.com/guesant/ava-pro');
   assert.equal(row.children[2].textContent, 'View on GitHub');
   assert.equal(row.children[2].target, '_blank');

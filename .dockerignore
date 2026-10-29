@@ -2,4 +2,6 @@
 .github
 .local
 .cache
+website/.svelte-kit
+website/node_modules
 .DS_Store

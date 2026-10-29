@@ -1,0 +1,59 @@
+{
+  "eslint": {
+    ".config/scripts/check-compact-controls.cjs": {
+      "sonarjs/cognitive-complexity": 1,
+      "max-depth": 3
+    },
+    ".config/scripts/check-layout.cjs": {
+      "sonarjs/cognitive-complexity": 1,
+      "complexity": 2,
+      "max-lines": 1,
+      "max-depth": 5
+    },
+    ".config/scripts/check-link-view-browser.cjs": {
+      "sonarjs/cognitive-complexity": 1,
+      "max-depth": 3
+    },
+    ".config/scripts/check-navigation-browser.cjs": {
+      "sonarjs/cognitive-complexity": 1,
+      "max-depth": 3
+    },
+    ".config/scripts/check-raster.mjs": {
+      "sonarjs/cognitive-complexity": 1
+    },
+    ".config/scripts/check-terminal-browser.cjs": {
+      "complexity": 1,
+      "sonarjs/cognitive-complexity": 1,
+      "max-depth": 7
+    },
+    ".config/scripts/federation.mjs": {
+      "sonarjs/cognitive-complexity": 1,
+      "complexity": 1
+    },
+    ".config/scripts/update-stats.mjs": {
+      "complexity": 3,
+      "sonarjs/cognitive-complexity": 2
+    },
+    "website/src/assets/js/search.ts": {
+      "complexity": 2
+    },
+    "website/src/hooks.server.ts": {
+      "complexity": 1
+    },
+    "website/src/lib/data-validation.ts": {
+      "complexity": 2,
+      "max-lines": 1,
+      "sonarjs/cognitive-complexity": 3
+    },
+    "website/src/lib/MinecraftPage.svelte": {
+      "max-lines": 1
+    },
+    "website/src/lib/site-data.ts": {
+      "complexity": 3
+    },
+    "website/src/lib/page-data.server.ts": {
+      "complexity": 2,
+      "sonarjs/cognitive-complexity": 1
+    }
+  }
+}

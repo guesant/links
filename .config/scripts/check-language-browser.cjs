@@ -1,9 +1,14 @@
 const assert = require('node:assert/strict');
+const checkLanguageSPA = require('./check-language-spa.cjs');
+const checkLanguageContinuity = require('./check-language-continuity.cjs');
+const withBrowserErrors = require('./check-browser-errors.cjs');
 
-module.exports = async function checkLanguageBrowser(browser, baseURL) {
+async function checkLanguageBrowser(browser, baseURL) {
   const origin = new URL(baseURL);
 
-  const href = (path) => new URL(path.replace(/^\//, ''), origin).href;
+  const href = (path) => {
+    return new URL(path.replace(/^\//, ''), origin).href;
+  };
 
   const key = 'guesant-links-language';
 
@@ -19,6 +24,25 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
       languages: ['de-DE'],
     },
     { from: '/', to: '/es/', languages: ['de-DE', 'es-MX'] },
+    {
+      from: '/?lang=es&source=query#main-content',
+      to: '/es/?source=query#main-content',
+      languages: ['fr'],
+      saved: 'it',
+      expectedSaved: 'es',
+    },
+    {
+      from: '/fr/code/?lang=en',
+      to: '/en/code/',
+      languages: ['pt-BR'],
+      expectedSaved: 'en',
+    },
+    {
+      from: '/en/code/?lang=en&source=query',
+      to: '/en/code/?source=query',
+      languages: ['fr'],
+      expectedSaved: 'en',
+    },
     { from: '/en/code/', to: '/en/code/', languages: ['pt-BR'] },
     { from: '/fr/code/', to: '/fr/code/', languages: ['pt-BR'] },
     {
@@ -37,10 +61,14 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
       await page.evaluateOnNewDocument(
         ({ languages, saved, key }) => {
           Object.defineProperty(navigator, 'languages', {
-            get: () => languages,
+            get: () => {
+              return languages;
+            },
           });
 
-          if (saved) localStorage.setItem(key, saved);
+          if (saved) {
+            localStorage.setItem(key, saved);
+          }
         },
         { ...scenario, key },
       );
@@ -51,19 +79,28 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
         if (
           request.isNavigationRequest() &&
           request.frame() === page.mainFrame()
-        )
+        ) {
           navigations++;
+        }
       });
       await page.goto(href(scenario.from), { waitUntil: 'networkidle0' });
       await page.waitForFunction(
-        (expected) => location.href === expected,
+        (expected) => {
+          return location.href === expected;
+        },
         {},
         href(scenario.to),
       );
-      assert(navigations <= 2, 'language redirect loop');
       assert.equal(
-        await page.evaluate((key) => localStorage.getItem(key), key),
-        scenario.saved || null,
+        navigations,
+        1,
+        'language resolution must stay in the initial document',
+      );
+      assert.equal(
+        await page.evaluate((key) => {
+          return localStorage.getItem(key);
+        }, key),
+        scenario.expectedSaved || scenario.saved || null,
       );
       passed++;
     } finally {
@@ -77,7 +114,11 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
     const page = await context.newPage();
 
     await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
+      Object.defineProperty(navigator, 'languages', {
+        get: () => {
+          return ['en-US'];
+        },
+      });
     });
     await page.goto(href('/en/code/?source=link#details'), {
       waitUntil: 'networkidle0',
@@ -92,7 +133,15 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
     ]);
     assert.equal(page.url(), href('/pt-br/code/?source=link#details'));
     assert.equal(
-      await page.evaluate((key) => localStorage.getItem(key), key),
+      await page.$eval('#settings-dialog', (dialog) => {
+        return dialog.open;
+      }),
+      true,
+    );
+    assert.equal(
+      await page.evaluate((key) => {
+        return localStorage.getItem(key);
+      }, key),
       'pt-br',
     );
     await page.goto(href('/en/writing/'), { waitUntil: 'networkidle0' });
@@ -107,4 +156,12 @@ module.exports = async function checkLanguageBrowser(browser, baseURL) {
   console.log(
     JSON.stringify({ languageBrowserScenarios: passed, failures: [] }),
   );
+  await checkLanguageSPA(browser, baseURL);
+  await checkLanguageContinuity(browser, baseURL);
+}
+
+module.exports = async (browser, baseURL) => {
+  await withBrowserErrors(browser, async () => {
+    await checkLanguageBrowser(browser, baseURL);
+  });
 };

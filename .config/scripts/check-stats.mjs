@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
+import { requireWebsite } from './paths.cjs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -10,56 +10,73 @@ import {
   updateStats,
 } from './update-stats.mjs';
 
-const { parse, stringify } = createRequire(import.meta.url)('yaml');
+const { parse, stringify } = requireWebsite('yaml');
 
-const source = parse(await readFile('src/data/links.yaml', 'utf8'));
+const source = parse(await readFile('website/src/data/links.yaml', 'utf8'));
 
-const entries = source.sections.flatMap((section) => section.links);
-
-const github = entries.find((entry) => entry.stats?.provider === 'github');
-
-const leetcode = entries.find((entry) => entry.stats?.provider === 'leetcode');
-
-const username = (entry) =>
-  new URL(entry.url).pathname.split('/').filter(Boolean).at(-1);
-
-const response = (data, status = 200) =>
-  new Response(JSON.stringify(data), { status });
-
-const repository = (id) => ({
-  id,
-  private: false,
-  owner: { login: username(github) },
-  stargazers_count: 2,
-  forks_count: 1,
+const entries = source.sections.flatMap((section) => {
+  return section.links;
 });
 
-const leetData = () => ({
-  data: {
-    matchedUser: {
-      username: username(leetcode),
-      profile: { ranking: 7 },
-      submitStatsGlobal: {
-        acSubmissionNum: [
-          { difficulty: 'All', count: 6 },
-          { difficulty: 'Easy', count: 3 },
-          { difficulty: 'Medium', count: 2 },
-          { difficulty: 'Hard', count: 1 },
-        ],
+const github = entries.find((entry) => {
+  return entry.stats?.provider === 'github';
+});
+
+const leetcode = entries.find((entry) => {
+  return entry.stats?.provider === 'leetcode';
+});
+
+const username = (entry) => {
+  return new URL(entry.url).pathname.split('/').filter(Boolean).at(-1);
+};
+
+const response = (data, status = 200) => {
+  return new Response(JSON.stringify(data), { status });
+};
+
+const repository = (id) => {
+  return {
+    id,
+    private: false,
+    owner: { login: username(github) },
+    stargazers_count: 2,
+    forks_count: 1,
+  };
+};
+
+const leetData = () => {
+  return {
+    data: {
+      matchedUser: {
+        username: username(leetcode),
+        profile: { ranking: 7 },
+        submitStatsGlobal: {
+          acSubmissionNum: [
+            { difficulty: 'All', count: 6 },
+            { difficulty: 'Easy', count: 3 },
+            { difficulty: 'Medium', count: 2 },
+            { difficulty: 'Hard', count: 1 },
+          ],
+        },
       },
+      allQuestionsCount: ['All', 'Easy', 'Medium', 'Hard'].map((difficulty) => {
+        return {
+          difficulty,
+          count: 100,
+        };
+      }),
     },
-    allQuestionsCount: ['All', 'Easy', 'Medium', 'Hard'].map((difficulty) => ({
-      difficulty,
-      count: 100,
-    })),
-  },
-});
+  };
+};
 
 const fetcher = async (url) => {
-  if (String(url).startsWith('https://leetcode.com/'))
+  if (String(url).startsWith('https://leetcode.com/')) {
     return response(leetData());
+  }
 
-  if (String(url).includes('/repos?')) return response([repository(1)]);
+  if (String(url).includes('/repos?')) {
+    return response([repository(1)]);
+  }
 
   return response({ login: username(github), followers: 4, public_repos: 1 });
 };
@@ -80,23 +97,32 @@ test('public GitHub statistics and request boundaries', async () => {
     forks: 1,
   });
   assert(
-    requests.every(
-      ({ url, options }) =>
+    requests.every(({ url, options }) => {
+      return (
         new URL(url).hostname === 'api.github.com' &&
         options.signal &&
-        options.redirect === 'error',
-    ),
+        options.redirect === 'error'
+      );
+    }),
   );
 });
 test('GitHub pagination does not duplicate repositories', async () => {
   const result = await collectGitHub(github, async (url) => {
-    if (!String(url).includes('/repos?')) return fetcher(url);
+    if (!String(url).includes('/repos?')) {
+      return fetcher(url);
+    }
 
-    return response(
-      String(url).includes('page=2')
-        ? [repository(100), repository(101)]
-        : Array.from({ length: 100 }, (_, index) => repository(index + 1)),
-    );
+    const resolveValue = () => {
+      if (String(url).includes('page=2')) {
+        return [repository(100), repository(101)];
+      }
+
+      return Array.from({ length: 100 }, (_, index) => {
+        return repository(index + 1);
+      });
+    };
+
+    return response(resolveValue());
   });
 
   assert.equal(result.metrics.stars, 202);
@@ -133,9 +159,13 @@ for (const [name, mutation] of [
 
     mutation(item);
     await assert.rejects(
-      collectGitHub(github, async (url) =>
-        String(url).includes('/repos?') ? response([item]) : fetcher(url),
-      ),
+      collectGitHub(github, async (url) => {
+        if (String(url).includes('/repos?')) {
+          return response([item]);
+        }
+
+        return fetcher(url);
+      }),
     );
   });
 }
@@ -202,7 +232,11 @@ for (const [name, mutate] of [
     const data = leetData();
 
     mutate(data);
-    await assert.rejects(collectLeetCode(leetcode, async () => response(data)));
+    await assert.rejects(
+      collectLeetCode(leetcode, async () => {
+        return response(data);
+      }),
+    );
   });
 }
 
@@ -220,12 +254,18 @@ test('atomic cache updates and failure retention', async () => {
       outputPath,
       configurationPath,
       fetcher,
-      now: () => new Date('2026-01-01T00:00:00Z'),
+      now: () => {
+        return new Date('2026-01-01T00:00:00Z');
+      },
     };
 
     const results = await updateStats(options);
 
-    assert(results.every((result) => result.status === 'updated'));
+    assert(
+      results.every((result) => {
+        return result.status === 'updated';
+      }),
+    );
 
     const valid = await readFile(outputPath, 'utf8');
 
@@ -234,23 +274,38 @@ test('atomic cache updates and failure retention', async () => {
     assert.equal(cached[github.id].profile_url, github.url);
 
     for (const failure of [
-      async () => response({}, 429),
+      async () => {
+        return response({}, 429);
+      },
       async () => {
         throw new Error('fixture-timeout');
       },
-      async () => new Response('invalid JSON'),
+      async () => {
+        return new Response('invalid JSON');
+      },
     ]) {
       const result = await updateStats({ ...options, fetcher: failure });
 
-      assert(result.every((item) => item.status === 'cached'));
+      assert(
+        result.every((item) => {
+          return item.status === 'cached';
+        }),
+      );
       assert.equal(await readFile(outputPath, 'utf8'), valid);
     }
 
     await updateStats({
       ...options,
-      fetcher: async (url) =>
-        String(url).includes('leetcode.com') ? response({}, 503) : fetcher(url),
-      now: () => new Date('2026-01-02T00:00:00Z'),
+      fetcher: async (url) => {
+        if (String(url).includes('leetcode.com')) {
+          return response({}, 503);
+        }
+
+        return fetcher(url);
+      },
+      now: () => {
+        return new Date('2026-01-02T00:00:00Z');
+      },
     });
 
     const partial = parse(await readFile(outputPath, 'utf8'));
@@ -264,18 +319,25 @@ test('atomic cache updates and failure retention', async () => {
     const changed = structuredClone(source);
 
     changed.sections
-      .flatMap((section) => section.links)
-      .find((entry) => entry.id === github.id).url =
-      'https://github.com/fixture-account';
+      .flatMap((section) => {
+        return section.links;
+      })
+      .find((entry) => {
+        return entry.id === github.id;
+      }).url = 'https://github.com/fixture-account';
     await writeFile(configurationPath, stringify(changed));
 
     const changedResults = await updateStats({
       ...options,
-      fetcher: async () => response({}, 503),
+      fetcher: async () => {
+        return response({}, 503);
+      },
     });
 
     assert.equal(
-      changedResults.find((item) => item.id === github.id).status,
+      changedResults.find((item) => {
+        return item.id === github.id;
+      }).status,
       'unavailable',
     );
   } finally {
@@ -290,10 +352,16 @@ test('first failed collection does not fabricate a cache', async () => {
 
     const results = await updateStats({
       outputPath,
-      fetcher: async () => response({}, 503),
+      fetcher: async () => {
+        return response({}, 503);
+      },
     });
 
-    assert(results.every((item) => item.status === 'unavailable'));
+    assert(
+      results.every((item) => {
+        return item.status === 'unavailable';
+      }),
+    );
     await assert.rejects(readFile(outputPath), { code: 'ENOENT' });
   } finally {
     await rm(directory, { recursive: true, force: true });

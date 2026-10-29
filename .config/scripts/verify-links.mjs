@@ -7,21 +7,31 @@ import { pathToFileURL } from 'node:url';
 export async function verifyTransientFailures(report, request = fetch) {
   const failures = Object.values(report.error_map || {}).flat();
 
-  if (!failures.length && !report.errors) return [];
+  if (!failures.length && !report.errors) {
+    return [];
+  }
 
   const transient = new Set([429, 500, 502, 503, 504]);
 
   if (
     !failures.length ||
-    failures.some((entry) => !transient.has(entry.status.code))
+    failures.some((entry) => {
+      return !transient.has(entry.status.code);
+    })
   ) {
     throw new Error('Link validation contains non-retriable errors');
   }
 
   const verified = [];
 
-  for (const url of new Set(failures.map((entry) => entry.url))) {
-    if (!/^https?:\/\//i.test(url)) throw new Error('Invalid retry URL');
+  for (const url of new Set(
+    failures.map((entry) => {
+      return entry.url;
+    }),
+  )) {
+    if (!/^https?:\/\//i.test(url)) {
+      throw new Error('Invalid retry URL');
+    }
 
     const response = await request(url, {
       method: 'GET',
@@ -70,7 +80,9 @@ async function main() {
     { cwd: cacheDirectory, stdio: 'inherit' },
   );
 
-  if (result.error) throw result.error;
+  if (result.error) {
+    throw result.error;
+  }
 
   if (result.status !== 0 && result.status !== 2) {
     throw new Error(`Link checker failed: ${result.status}`);

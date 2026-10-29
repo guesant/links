@@ -8,7 +8,7 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "mounts": [
-    "source=links-node-modules,target=/workspace/node_modules,type=volume"
+    "source=links-node-modules,target=/workspace/website/node_modules,type=volume"
   ],
   "forwardPorts": [4173],
   "portsAttributes": {

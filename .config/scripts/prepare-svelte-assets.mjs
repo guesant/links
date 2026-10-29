@@ -1,24 +1,93 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import {
+  cp,
+  mkdir,
+  readdir,
+  readFile,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
 import { resolve } from 'node:path';
-import sharp from 'sharp';
+import { requireWebsite, websiteRoot } from './paths.cjs';
+import { editorialItems } from '../../website/src/lib/site-data.ts';
 import {
   getSiteData,
-  editorialItems,
   pagesFor,
   routeEntries,
   sectionLinks,
-} from '../../src/lib/site-data.js';
+} from '../../website/src/lib/site-data.server.ts';
+
+const sharp = requireWebsite('sharp');
+
+const ts = requireWebsite('typescript');
 
 const output = resolve('.local/svelte-static');
 
-const assets = resolve('src/assets');
+const assets = resolve('website/src/assets');
 
 const generated = resolve(output, 'assets/generated');
 
 await rm(output, { recursive: true, force: true });
 await mkdir(generated, { recursive: true });
-await cp(resolve('src/static'), output, { recursive: true });
-await cp(assets, resolve(output, 'assets'), { recursive: true });
+await cp(resolve('website/src/static'), output, { recursive: true });
+
+const runtimeAssets = resolve(output, 'assets');
+
+await mkdir(runtimeAssets, { recursive: true });
+
+for (const directory of ['css', 'fonts']) {
+  await cp(resolve(assets, directory), resolve(runtimeAssets, directory), {
+    recursive: true,
+  });
+}
+
+const runtimeScripts = resolve(runtimeAssets, 'js');
+
+await mkdir(runtimeScripts, { recursive: true });
+
+for (const entry of await readdir(resolve(assets, 'js'))) {
+  if (!entry.endsWith('.ts')) {
+    continue;
+  }
+
+  const source = await readFile(resolve(assets, 'js', entry), 'utf8');
+
+  const output = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.None,
+      target: ts.ScriptTarget.ES2022,
+    },
+  }).outputText;
+
+  await writeFile(
+    resolve(runtimeScripts, entry.replace(/\.ts$/, '.js')),
+    output,
+  );
+}
+
+await mkdir(resolve(runtimeAssets, 'audio'), { recursive: true });
+
+for (const sound of ['mouse-press.wav', 'mouse-release.wav']) {
+  await cp(
+    resolve(assets, 'audio', sound),
+    resolve(runtimeAssets, 'audio', sound),
+  );
+}
+
+await mkdir(resolve(runtimeAssets, 'icons'), { recursive: true });
+
+for (const icon of ['pixel.png', 'pixel-compact.png']) {
+  await cp(
+    resolve(assets, 'icons', icon),
+    resolve(runtimeAssets, 'icons', icon),
+  );
+}
+
+await mkdir(resolve(runtimeAssets, 'images', 'ui'), { recursive: true });
+await cp(
+  resolve(assets, 'images', 'ui', 'clouds.png'),
+  resolve(runtimeAssets, 'images', 'ui', 'clouds.png'),
+);
 
 const images = resolve(assets, 'images');
 
@@ -48,9 +117,46 @@ for (const [name, slice] of Object.entries(geometry.slices)) {
       width: geometry.width,
       height: slice.height,
     })
-    .png()
+    .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toFile(path);
   slices[name] = `/assets/generated/rail-${name}.png`;
+}
+
+for (const name of ['coupling', 'lantern']) {
+  const pngPath = resolve(generated, `rail-${name}.png`);
+
+  const webpPath = resolve(generated, `rail-${name}.webp`);
+
+  await sharp(pngPath).webp({ lossless: true, effort: 6 }).toFile(webpPath);
+
+  const png = await sharp(pngPath)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const webp = await sharp(webpPath)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  for (let index = 0; index < png.data.length; index += 4) {
+    if (png.data[index + 3] === 0 && webp.data[index + 3] === 0) {
+      png.data.fill(0, index, index + 3);
+      webp.data.fill(0, index, index + 3);
+    }
+  }
+
+  if (
+    png.info.width !== webp.info.width ||
+    png.info.height !== webp.info.height ||
+    !png.data.equals(webp.data)
+  ) {
+    throw new Error(`Lossless rail WebP changed pixels: ${name}`);
+  }
+
+  if ((await stat(webpPath)).size >= (await stat(pngPath)).size) {
+    throw new Error(`Lossless rail WebP is not smaller: ${name}`);
+  }
 }
 
 const imagesToGenerate = [
@@ -117,7 +223,9 @@ const imagesToGenerate = [
 for (const [name, path, options] of imagesToGenerate) {
   let image = sharp(path);
 
-  if (options.extract) image = image.extract(options.extract);
+  if (options.extract) {
+    image = image.extract(options.extract);
+  }
 
   await image
     .resize(options.resize)
@@ -145,6 +253,30 @@ for (const [name, path, resize] of [
     .toFile(resolve(generated, name));
 }
 
+for (const [name, path, resize] of [
+  [
+    'night-desktop-preview.webp',
+    resolve(scenery, 'night-canyon.png'),
+    { width: 384 },
+  ],
+  [
+    'night-mobile-preview.webp',
+    resolve(scenery, 'night-canyon.png'),
+    { width: 96, height: 144, fit: 'cover' },
+  ],
+  ['day-desktop-preview.webp', resolve(scenery, 'day.png'), { width: 384 }],
+  [
+    'day-mobile-preview.webp',
+    resolve(scenery, 'day.png'),
+    { width: 96, height: 144, fit: 'cover' },
+  ],
+]) {
+  await sharp(path)
+    .resize(resize)
+    .webp({ quality: 48, effort: 4 })
+    .toFile(resolve(generated, name));
+}
+
 const substitutions = {
   fontLatin: '/assets/fonts/press-start-2p-latin.woff2',
   fontLatinExt: '/assets/fonts/press-start-2p-latin-ext.woff2',
@@ -164,22 +296,49 @@ const substitutions = {
   agedOakSurface: '/assets/generated/aged-oak.webp',
   nightDesktop: '/assets/generated/night-desktop.webp',
   nightMobile: '/assets/generated/night-mobile.webp',
+  nightDesktopPreview: '/assets/generated/night-desktop-preview.webp',
+  nightMobilePreview: '/assets/generated/night-mobile-preview.webp',
   dayDesktop: '/assets/generated/day-desktop.webp',
   dayMobile: '/assets/generated/day-mobile.webp',
+  dayDesktopPreview: '/assets/generated/day-desktop-preview.webp',
+  dayMobilePreview: '/assets/generated/day-mobile-preview.webp',
 };
+
+const preparedStylesheets = {};
 
 for (const file of ['main.css', 'terminal.css']) {
   let css = await readFile(resolve(assets, 'css', file), 'utf8');
 
-  for (const [key, value] of Object.entries(substitutions))
+  for (const [key, value] of Object.entries(substitutions)) {
     css = css.replaceAll(`{{ .${key} }}`, value);
+  }
 
-  if (css.includes('{{ .')) throw new Error(`Unresolved CSS asset in ${file}`);
+  if (css.includes('{{ .')) {
+    throw new Error(`Unresolved CSS asset in ${file}`);
+  }
 
   await writeFile(resolve(output, 'assets/css', file), css);
+  preparedStylesheets[file] = css;
 }
 
-const data = await getSiteData();
+const resetStylesheet = await readFile(
+  resolve(assets, 'css', 'reset.css'),
+  'utf8',
+);
+
+const editorialStylesheet = await readFile(
+  resolve(assets, 'css', 'editorial.css'),
+  'utf8',
+);
+
+await writeFile(
+  resolve(output, 'assets/css', 'minecraft.css'),
+  [resetStylesheet, preparedStylesheets['main.css'], editorialStylesheet].join(
+    '\n',
+  ),
+);
+
+const data = await getSiteData(websiteRoot);
 
 const searchDirectory = resolve(output, 'search');
 
@@ -187,15 +346,17 @@ await mkdir(searchDirectory, { recursive: true });
 
 for (const language of data.links.language_options) {
   for (const interfaceName of ['minecraft', 'terminal']) {
-    const pages = pagesFor(data, language.id, interfaceName).filter(
-      (page) => !page.fallback,
-    );
+    const pages = pagesFor(data, language.id, interfaceName).filter((page) => {
+      return !page.fallback;
+    });
 
     const ui = data.editorial.ui[language.id];
 
     const entries = [];
 
-    const add = (entry) => entries.push(entry);
+    const add = (entry) => {
+      return entries.push(entry);
+    };
 
     for (const page of pages) {
       add({
@@ -210,7 +371,9 @@ for (const language of data.links.language_options) {
         tags: [],
       });
 
-      if (page.type !== 'links-page') continue;
+      if (page.type !== 'links-page') {
+        continue;
+      }
 
       for (const item of sectionLinks(data, page.section, language.id)) {
         add({
@@ -244,11 +407,22 @@ for (const language of data.links.language_options) {
       }
     }
 
-    const nowPage = pages.find((page) => page.id === 'now') || pages[0];
+    const nowPage =
+      pages.find((page) => {
+        return page.id === 'now';
+      }) || pages[0];
 
     const now = data.links.now[language.id] || data.links.now.en;
 
     for (const section of now.sections || []) {
+      const resolveLanguage = () => {
+        if (data.links.now[language.id]) {
+          return language.id;
+        }
+
+        return 'en';
+      };
+
       add({
         id: `now-${section.id}`,
         title: section.title,
@@ -257,16 +431,24 @@ for (const language of data.links.language_options) {
         type: 'page',
         group: ui.page,
         source: 'lobby',
-        language: data.links.now[language.id] ? language.id : 'en',
+        language: resolveLanguage(),
         tags: [],
       });
     }
 
     const activity = data.editorial.now[language.id] || {};
 
-    const activityPage = data.editorial.now[language.id]
-      ? nowPage
-      : pages.find((page) => page.id === 'home');
+    const resolveActivityPage = () => {
+      if (data.editorial.now[language.id]) {
+        return nowPage;
+      }
+
+      return pages.find((page) => {
+        return page.id === 'home';
+      });
+    };
+
+    const activityPage = resolveActivityPage();
 
     for (const key of [
       'working',
@@ -276,7 +458,9 @@ for (const language of data.links.language_options) {
       'listening',
       'watching',
     ]) {
-      if (!activity[key]) continue;
+      if (!activity[key]) {
+        continue;
+      }
 
       add({
         id: `now-activity-${key}`,
@@ -300,7 +484,15 @@ for (const language of data.links.language_options) {
 
 for (const language of data.links.language_options) {
   for (const interfaceName of ['minecraft', 'terminal']) {
-    const start = `/${language.id}/${interfaceName === 'terminal' ? 'terminal/' : ''}`;
+    const resolveStart = () => {
+      if (interfaceName === 'terminal') {
+        return 'terminal/';
+      }
+
+      return '';
+    };
+
+    const start = `/${language.id}/${resolveStart()}`;
 
     await mkdir(resolve(output, 'manifests'), { recursive: true });
     await writeFile(
@@ -339,7 +531,9 @@ for (const language of data.links.language_options) {
 }
 
 const sitemap = routeEntries(data)
-  .map((path) => `<url><loc>https://guesant.net/${path}/</loc></url>`)
+  .map((path) => {
+    return `<url><loc>https://guesant.net/${path}/</loc></url>`;
+  })
   .join('');
 
 const sitemapContent = `<?xml version="1.0" encoding="utf-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap}</urlset>`;

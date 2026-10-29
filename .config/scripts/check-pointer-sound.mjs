@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
+import { clientScript } from './client-source.mjs';
 
-const script = await readFile('src/assets/js/pointer-sound.js', 'utf8');
+const script = await clientScript('pointer-sound');
 
 function harness({
   unsupported = false,
@@ -36,11 +37,17 @@ function harness({
     }
   };
 
-  const pending = delayed
-    ? new Promise((resolve) => {
+  const resolvePending = () => {
+    if (delayed) {
+      return new Promise((resolve) => {
         finish = resolve;
-      })
-    : Promise.resolve();
+      });
+    }
+
+    return Promise.resolve();
+  };
+
+  const pending = resolvePending();
 
   class AudioContext {
     constructor() {
@@ -58,7 +65,9 @@ function harness({
     }
 
     async resume() {
-      if (failedResume) throw new Error('Blocked');
+      if (failedResume) {
+        throw new Error('Blocked');
+      }
 
       await Promise.resolve();
       this.state = 'running';
@@ -98,8 +107,20 @@ function harness({
     },
   };
 
+  const resolveWindow = () => {
+    if (unsupported) {
+      return {};
+    }
+
+    return { AudioContext };
+  };
+
   runInNewContext(script, {
-    performance: { now: () => now },
+    performance: {
+      now: () => {
+        return now;
+      },
+    },
     setTimeout(callback, delay) {
       const id = ++timerId;
 
@@ -112,7 +133,7 @@ function harness({
     },
     document,
     window: {
-      ...(unsupported ? {} : { AudioContext }),
+      ...resolveWindow(),
       addEventListener(name, listener) {
         listeners.set(name, { listener });
       },
@@ -122,7 +143,9 @@ function harness({
       assert.equal(options.priority, 'low');
       await pending;
 
-      if (failedFetch) throw new Error('Offline');
+      if (failedFetch) {
+        throw new Error('Offline');
+      }
 
       return {
         ok: true,
@@ -146,7 +169,9 @@ function harness({
   };
 
   const flush = async () => {
-    for (let i = 0; i < 16; i++) await Promise.resolve();
+    for (let i = 0; i < 16; i++) {
+      await Promise.resolve();
+    }
   };
 
   return {
@@ -160,7 +185,9 @@ function harness({
     ready: async () => {
       await flush();
 
-      if (context) context.state = 'running';
+      if (context) {
+        context.state = 'running';
+      }
     },
   };
 }
@@ -307,7 +334,9 @@ for (const options of [
 test('WAV cuts have short distinct PCM recordings', async () => {
   const recordings = await Promise.all(
     ['press', 'release'].map(async (name) => {
-      const bytes = await readFile('src/assets/audio/mouse-' + name + '.wav');
+      const bytes = await readFile(
+        'website/src/assets/audio/mouse-' + name + '.wav',
+      );
 
       assert.equal(bytes.toString('ascii', 0, 4), 'RIFF');
       assert.equal(bytes.toString('ascii', 8, 12), 'WAVE');

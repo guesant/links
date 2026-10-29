@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import test from 'node:test';
+import { clientScript } from './client-source.mjs';
 
-const script = await readFile('src/assets/js/interface.js', 'utf8');
+const script = await clientScript('interface');
 
 function harness({
   current = 'minecraft',
@@ -25,10 +25,12 @@ function harness({
     },
   };
 
-  const postLines = [1, 4, 8, 11, 13, 15, 17].map((biosStep) => ({
-    dataset: { biosStep: String(biosStep) },
-    hidden: true,
-  }));
+  const postLines = [1, 4, 8, 11, 13, 15, 17].map((biosStep) => {
+    return {
+      dataset: { biosStep: String(biosStep) },
+      hidden: true,
+    };
+  });
 
   const bootLine = { hidden: true };
 
@@ -44,17 +46,35 @@ function harness({
     constructor(value) {
       this.value = value;
       this.checked = true;
+
+      const resolveInterfaceUrl = () => {
+        if (value === 'terminal') {
+          return 'https://guesant.net/pt-br/terminal/career/';
+        }
+
+        return 'https://guesant.net/pt-br/career/';
+      };
+
       this.dataset = {
-        interfaceUrl:
-          value === 'terminal'
-            ? 'https://guesant.net/pt-br/terminal/career/'
-            : 'https://guesant.net/pt-br/career/',
+        interfaceUrl: resolveInterfaceUrl(),
       };
     }
 
     matches(selector) {
       return selector === '[data-interface-option]';
     }
+  }
+
+  class HTMLElement {
+    constructor() {
+      this.isConnected = true;
+    }
+
+    closest() {
+      return null;
+    }
+
+    focus() {}
   }
 
   const bios = {
@@ -67,18 +87,30 @@ function harness({
       this.open = false;
     },
     querySelector(selector) {
-      if (selector === '[data-bios-interface]') return { textContent: '' };
+      if (selector === '[data-bios-interface]') {
+        return { textContent: '' };
+      }
 
-      if (selector === '[data-bios-boot-line]') return bootLine;
+      if (selector === '[data-bios-boot-line]') {
+        return bootLine;
+      }
 
-      if (selector === '[data-bios-progress]') return progress;
+      if (selector === '[data-bios-progress]') {
+        return progress;
+      }
 
       return {
-        addEventListener: (_, callback) => biosEvents.set('skip', callback),
+        addEventListener: (_, callback) => {
+          return biosEvents.set('skip', callback);
+        },
       };
     },
     querySelectorAll(selector) {
-      return selector === '[data-bios-step]' ? postLines : [];
+      if (selector === '[data-bios-step]') {
+        return postLines;
+      }
+
+      return [];
     },
     addEventListener(name, callback) {
       biosEvents.set(name, callback);
@@ -89,10 +121,18 @@ function harness({
     documentElement: root,
     activeElement: null,
     querySelector(selector) {
-      return selector === '#bios-dialog' ? bios : null;
+      if (selector === '#bios-dialog') {
+        return bios;
+      }
+
+      return null;
     },
     querySelectorAll(selector) {
-      return selector === 'dialog[open]' && bios.open ? [bios] : [];
+      if (selector === 'dialog[open]' && bios.open) {
+        return [bios];
+      }
+
+      return [];
     },
     addEventListener(name, callback) {
       events.set(name, [...(events.get(name) || []), callback]);
@@ -102,6 +142,8 @@ function harness({
   runInNewContext(script, {
     document,
     HTMLInputElement,
+    HTMLElement,
+    Element: HTMLElement,
     URL,
     location: browserLocation,
     history: {
@@ -109,7 +151,9 @@ function harness({
         state.replaced.push(value);
       },
     },
-    matchMedia: () => ({ matches: reduced }),
+    matchMedia: () => {
+      return { matches: reduced };
+    },
     setTimeout(callback, delay) {
       assert.equal(delay, 80);
 
@@ -125,7 +169,9 @@ function harness({
   });
 
   const emit = (name, event = {}) => {
-    for (const callback of events.get(name) || []) callback(event);
+    for (const callback of events.get(name) || []) {
+      callback(event);
+    }
   };
 
   emit('DOMContentLoaded');
@@ -229,7 +275,7 @@ test('Reboot consumes its marker once and preserves Terminal route, query and ha
   );
 });
 
-for (const method of ['skip', 'escape'])
+for (const method of ['skip', 'escape']) {
   test(`BIOS ${method} cancels its timer`, () => {
     const h = harness({
       current: 'terminal',
@@ -241,6 +287,7 @@ for (const method of ['skip', 'escape'])
     h.finish();
     assert.equal(h.bios.open, false);
   });
+}
 
 test('reduced motion skips BIOS waiting on a Terminal route', () => {
   const h = harness({

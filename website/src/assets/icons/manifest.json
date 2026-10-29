@@ -1,0 +1,262 @@
+{
+  "count": 51,
+  "tileSize": 96,
+  "compactTileSize": 48,
+  "icons": {
+    "book": {
+      "colored": true,
+      "position": 0,
+      "opticalScale": 1
+    },
+    "document": {
+      "colored": true,
+      "position": 2,
+      "opticalScale": 1
+    },
+    "map": {
+      "colored": true,
+      "position": 4,
+      "opticalScale": 1
+    },
+    "email": {
+      "colored": false,
+      "position": 6,
+      "opticalScale": 1
+    },
+    "github": {
+      "colored": false,
+      "position": 8,
+      "opticalScale": 1
+    },
+    "gitlab": {
+      "colored": true,
+      "position": 10,
+      "opticalScale": 1
+    },
+    "youtube": {
+      "colored": true,
+      "position": 12,
+      "opticalScale": 1
+    },
+    "linkedin": {
+      "colored": true,
+      "position": 14.000000000000002,
+      "opticalScale": 0.909
+    },
+    "instagram": {
+      "colored": true,
+      "position": 16,
+      "opticalScale": 0.909
+    },
+    "spotify": {
+      "colored": true,
+      "position": 18,
+      "opticalScale": 1
+    },
+    "lastfm": {
+      "colored": true,
+      "position": 20,
+      "opticalScale": 1
+    },
+    "playstation": {
+      "colored": false,
+      "position": 22,
+      "opticalScale": 1
+    },
+    "steam": {
+      "colored": false,
+      "position": 24,
+      "opticalScale": 1
+    },
+    "xbox": {
+      "colored": true,
+      "position": 26,
+      "opticalScale": 1
+    },
+    "minecraft": {
+      "colored": true,
+      "position": 28.000000000000004,
+      "opticalScale": 1
+    },
+    "academic": {
+      "colored": true,
+      "position": 30,
+      "opticalScale": 1
+    },
+    "orcid": {
+      "colored": true,
+      "position": 32,
+      "opticalScale": 1
+    },
+    "leetcode": {
+      "colored": true,
+      "position": 34,
+      "opticalScale": 1
+    },
+    "hyperskill": {
+      "colored": true,
+      "position": 36,
+      "opticalScale": 1
+    },
+    "devto": {
+      "colored": false,
+      "position": 38,
+      "opticalScale": 1
+    },
+    "medium": {
+      "colored": false,
+      "position": 40,
+      "opticalScale": 1.143
+    },
+    "house": {
+      "colored": false,
+      "position": 42,
+      "opticalScale": 1
+    },
+    "clock": {
+      "colored": false,
+      "position": 44,
+      "opticalScale": 1
+    },
+    "link": {
+      "colored": false,
+      "position": 46,
+      "opticalScale": 1
+    },
+    "external-link": {
+      "colored": false,
+      "position": 48,
+      "opticalScale": 1.111
+    },
+    "code": {
+      "colored": false,
+      "position": 50,
+      "opticalScale": 0.909
+    },
+    "code-commit": {
+      "colored": false,
+      "position": 52,
+      "opticalScale": 0.833
+    },
+    "git-alt": {
+      "colored": true,
+      "position": 54,
+      "opticalScale": 1
+    },
+    "githubactions": {
+      "colored": false,
+      "position": 56.00000000000001,
+      "opticalScale": 1
+    },
+    "scale-balanced": {
+      "colored": false,
+      "position": 57.99999999999999,
+      "opticalScale": 1
+    },
+    "users": {
+      "colored": false,
+      "position": 60,
+      "opticalScale": 0.833
+    },
+    "star": {
+      "colored": false,
+      "position": 62,
+      "opticalScale": 1
+    },
+    "fork": {
+      "colored": false,
+      "position": 64,
+      "opticalScale": 1
+    },
+    "trophy": {
+      "colored": true,
+      "position": 66,
+      "opticalScale": 1
+    },
+    "check": {
+      "colored": false,
+      "position": 68,
+      "opticalScale": 1.25
+    },
+    "language": {
+      "colored": false,
+      "position": 70,
+      "opticalScale": 1
+    },
+    "desktop": {
+      "colored": false,
+      "position": 72,
+      "opticalScale": 1
+    },
+    "moon": {
+      "colored": false,
+      "position": 74,
+      "opticalScale": 1
+    },
+    "sun": {
+      "colored": true,
+      "position": 76,
+      "opticalScale": 1
+    },
+    "play": {
+      "colored": false,
+      "position": 78,
+      "opticalScale": 1.111
+    },
+    "pause": {
+      "colored": false,
+      "position": 80,
+      "opticalScale": 1.25
+    },
+    "xmark": {
+      "colored": false,
+      "position": 82,
+      "opticalScale": 1.429
+    },
+    "website": {
+      "colored": false,
+      "position": 84,
+      "opticalScale": 1
+    },
+    "education": {
+      "colored": true,
+      "position": 86,
+      "opticalScale": 1
+    },
+    "gear": {
+      "colored": false,
+      "position": 88,
+      "opticalScale": 0.909
+    },
+    "chevron-right": {
+      "colored": false,
+      "position": 90,
+      "opticalScale": 1.429
+    },
+    "user": {
+      "colored": false,
+      "position": 92,
+      "opticalScale": 1.111
+    },
+    "gamepad": {
+      "colored": false,
+      "position": 94,
+      "opticalScale": 0.909
+    },
+    "target": {
+      "colored": false,
+      "position": 96,
+      "opticalScale": 0.909
+    },
+    "view-compact": {
+      "colored": false,
+      "position": 98,
+      "opticalScale": 1.111
+    },
+    "view-detailed": {
+      "colored": false,
+      "position": 100,
+      "opticalScale": 1.111
+    }
+  }
+}

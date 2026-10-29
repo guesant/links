@@ -8,13 +8,16 @@ default:
     @just --list
 
 dependencies:
-    {{ runner }} npm ci
+    {{ runner }} npm --prefix website ci
 
 dev: dependencies
     {{ server }} node .config/scripts/tasks.mjs dev
 
 build: dependencies
     {{ runner }} node .config/scripts/tasks.mjs build
+
+lighthouse-baseline: dependencies
+    {{ runner }} node .config/scripts/tasks.mjs lighthouse-baseline
 
 check: dependencies
     {{ runner }} node .config/scripts/tasks.mjs check
@@ -29,10 +32,16 @@ test: dependencies
     {{ runner }} node .config/scripts/tasks.mjs test
 
 lint: dependencies
-    {{ runner }} npm run lint
+    {{ runner }} npm --prefix website run lint
+
+lint-fix: dependencies
+    {{ runner }} npm --prefix website run lint:fix
+
+lint-baseline: dependencies
+    {{ runner }} npm --prefix website run lint:baseline
 
 typecheck: dependencies
-    {{ runner }} npm run check
+    {{ runner }} npm --prefix website run check
 
 stats: dependencies
     {{ runner }} node .config/scripts/update-stats.mjs

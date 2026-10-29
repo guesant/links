@@ -22,7 +22,9 @@ const entry = {
   metadata: { date: '2026-01-01' },
 };
 
-const feed = (items = [entry]) => ({ version: 1, source: 'blog', items });
+const feed = (items = [entry]) => {
+  return { version: 1, source: 'blog', items };
+};
 
 test('federation keeps only public allowlisted fields', () => {
   const result = validateFeed(
@@ -64,20 +66,27 @@ test('resume projects retain only safe declared public platform URLs', () => {
     'https://github.com.evil.test/guesant/ava-pro',
     'https://user:secret@github.com/guesant/ava-pro',
     'https://github.com:444/guesant/ava-pro',
-  ])
-    assert.throws(() =>
-      validateFeed(
+  ]) {
+    assert.throws(() => {
+      return validateFeed(
         { ...input, items: [{ ...project, metadata: { content_url: url } }] },
         resume,
-      ),
-    );
+      );
+    });
+  }
 
-  assert.throws(() =>
-    validateFeed({ ...input, items: [{ ...project, type: 'case' }] }, resume),
-  );
-  assert.throws(() =>
-    validateFeed(feed([{ ...entry, metadata: project.metadata }]), source),
-  );
+  assert.throws(() => {
+    return validateFeed(
+      { ...input, items: [{ ...project, type: 'case' }] },
+      resume,
+    );
+  });
+  assert.throws(() => {
+    return validateFeed(
+      feed([{ ...entry, metadata: project.metadata }]),
+      source,
+    );
+  });
 });
 
 for (const [name, modify] of [
@@ -158,7 +167,9 @@ for (const [name, modify] of [
     const value = structuredClone(feed());
 
     modify(value);
-    assert.throws(() => validateFeed(value, source));
+    assert.throws(() => {
+      return validateFeed(value, source);
+    });
   });
 }
 
@@ -170,15 +181,21 @@ test('federation uses valid cache only for network failures', async () => {
 
     const options = {
       cacheDirectory: directory,
-      warn: (message) => messages.push(message),
+      warn: (message) => {
+        return messages.push(message);
+      },
     };
 
     await loadFeed(source, {
       ...options,
-      fetcher: async () => ({
-        ok: true,
-        text: async () => JSON.stringify(feed()),
-      }),
+      fetcher: async () => {
+        return {
+          ok: true,
+          text: async () => {
+            return JSON.stringify(feed());
+          },
+        };
+      },
     });
 
     const result = await loadFeed(source, {
@@ -193,10 +210,14 @@ test('federation uses valid cache only for network failures', async () => {
     await assert.rejects(
       loadFeed(source, {
         ...options,
-        fetcher: async () => ({
-          ok: true,
-          text: async () => JSON.stringify({ ...feed(), version: 9 }),
-        }),
+        fetcher: async () => {
+          return {
+            ok: true,
+            text: async () => {
+              return JSON.stringify({ ...feed(), version: 9 });
+            },
+          };
+        },
       }),
     );
     assert.equal(

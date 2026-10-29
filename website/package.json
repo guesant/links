@@ -1,0 +1,43 @@
+{
+  "name": "guesant-lobby",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --host 0.0.0.0",
+    "build": "vite build",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "lint": "cd .. && website/node_modules/.bin/eslint --config website/eslint.config.js . && node .config/scripts/check-quality-baseline.mjs && website/node_modules/.bin/jscpd --min-tokens 50 --min-lines 5 --skip-comments --format javascript,svelte,typescript --ignore '**/*.test.*,**/fixtures/**' --reporters console --baseline .config/jscpd-baseline.json --fail-on-new-clones=0 website/src/lib website/src/routes website/src/assets/js .config/scripts && website/node_modules/.bin/stylelint --config website/.stylelintrc.json 'website/src/assets/css/*.css'",
+    "lint:fix": "cd .. && website/node_modules/.bin/eslint --config website/eslint.config.js . --fix",
+    "lint:baseline": "cd .. && node .config/scripts/check-quality-baseline.mjs --update-baseline && website/node_modules/.bin/jscpd --min-tokens 50 --min-lines 5 --skip-comments --format javascript,svelte,typescript --ignore '**/*.test.*,**/fixtures/**' --reporters console --baseline .config/jscpd-baseline.json --fail-on-new-clones=0 website/src/lib website/src/routes website/src/assets/js .config/scripts && website/node_modules/.bin/jscpd --min-tokens 50 --min-lines 5 --skip-comments --format javascript,svelte,typescript --ignore '**/*.test.*,**/fixtures/**' --reporters console --baseline .config/jscpd-baseline.json --update-baseline website/src/lib website/src/routes website/src/assets/js .config/scripts",
+    "lighthouse:baseline": "cd .. && node .config/scripts/lighthouse-baseline.mjs",
+    "format": "cd .. && website/node_modules/.bin/prettier --config website/prettier.config.js --ignore-path website/.prettierignore --check . && website/node_modules/.bin/eslint --config website/eslint.config.js .",
+    "format-fix": "cd .. && website/node_modules/.bin/prettier --config website/prettier.config.js --ignore-path website/.prettierignore --write . --log-level warn && website/node_modules/.bin/eslint --config website/eslint.config.js . --fix --fix-type layout && website/node_modules/.bin/prettier --config website/prettier.config.js --ignore-path website/.prettierignore --write .",
+    "test:quality": "cd .. && node --test .config/scripts/check-quality-baseline.test.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@sveltejs/adapter-static": "^3.0.9",
+    "@sveltejs/kit": "^2.43.5",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@types/node": "^24.5.2",
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^9.35.0",
+    "eslint-plugin-sonarjs": "^4.2.2",
+    "eslint-plugin-svelte": "^3.12.2",
+    "globals": "^16.4.0",
+    "jscpd": "^5.4.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-svelte": "^3.4.0",
+    "sharp": "^0.34.3",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard": "^39.0.0",
+    "svelte": "^5.38.7",
+    "svelte-check": "^4.3.1",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.6"
+  }
+}

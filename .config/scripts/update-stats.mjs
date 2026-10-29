@@ -1,9 +1,9 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
+import { requireWebsite } from './paths.cjs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const { parse, stringify } = createRequire(import.meta.url)('yaml');
+const { parse, stringify } = requireWebsite('yaml');
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
@@ -22,7 +22,9 @@ async function request(url, options, fetcher) {
     signal: AbortSignal.timeout(20000),
   });
 
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
 
   return response.json();
 }
@@ -58,7 +60,9 @@ export async function collectGitHub(entry, fetcher = fetch) {
   const repositories = new Map();
 
   for (let page = 1; ; page += 1) {
-    if (page > 100) throw new Error('GitHub pagination exceeded safety limit');
+    if (page > 100) {
+      throw new Error('GitHub pagination exceeded safety limit');
+    }
 
     const entries = await request(
       `${endpoint}/repos?type=owner&per_page=100&page=${page}`,
@@ -66,7 +70,9 @@ export async function collectGitHub(entry, fetcher = fetch) {
       fetcher,
     );
 
-    if (!Array.isArray(entries)) throw new Error('Invalid repository response');
+    if (!Array.isArray(entries)) {
+      throw new Error('Invalid repository response');
+    }
 
     for (const repository of entries) {
       if (repository.private !== false || !repository.id) {
@@ -80,7 +86,9 @@ export async function collectGitHub(entry, fetcher = fetch) {
       repositories.set(repository.id, repository);
     }
 
-    if (entries.length < 100) break;
+    if (entries.length < 100) {
+      break;
+    }
   }
 
   const publicRepositories = [...repositories.values()];
@@ -90,14 +98,12 @@ export async function collectGitHub(entry, fetcher = fetch) {
     metrics: {
       followers: integer(user.followers),
       repositories: integer(user.public_repos),
-      stars: publicRepositories.reduce(
-        (sum, item) => sum + integer(item.stargazers_count),
-        0,
-      ),
-      forks: publicRepositories.reduce(
-        (sum, item) => sum + integer(item.forks_count),
-        0,
-      ),
+      stars: publicRepositories.reduce((sum, item) => {
+        return sum + integer(item.stargazers_count);
+      }, 0),
+      forks: publicRepositories.reduce((sum, item) => {
+        return sum + integer(item.forks_count);
+      }, 0),
     },
   };
 }
@@ -156,17 +162,30 @@ export async function collectLeetCode(entry, fetcher = fetch) {
   const available = {};
 
   for (const difficulty of ['All', 'Easy', 'Medium', 'Hard']) {
-    const key = difficulty === 'All' ? 'solved' : difficulty.toLowerCase();
+    const resolveKey = () => {
+      if (difficulty === 'All') {
+        return 'solved';
+      }
+
+      return difficulty.toLowerCase();
+    };
+
+    const key = resolveKey();
 
     metrics[key] = integer(
-      solved.find((item) => item.difficulty === difficulty)?.count,
+      solved.find((item) => {
+        return item.difficulty === difficulty;
+      })?.count,
     );
     available[key] = integer(
-      totals.find((item) => item.difficulty === difficulty)?.count,
+      totals.find((item) => {
+        return item.difficulty === difficulty;
+      })?.count,
     );
 
-    if (metrics[key] > available[key])
+    if (metrics[key] > available[key]) {
       throw new Error('Solved count exceeds total');
+    }
   }
 
   if (metrics.easy + metrics.medium + metrics.hard !== metrics.solved) {
@@ -177,10 +196,12 @@ export async function collectLeetCode(entry, fetcher = fetch) {
 }
 
 export async function updateStats({
-  configurationPath = resolve(root, 'src/data/links.yaml'),
-  outputPath = resolve(root, 'src/data/statistics.yaml'),
+  configurationPath = resolve(root, 'website/src/data/links.yaml'),
+  outputPath = resolve(root, 'website/src/data/statistics.yaml'),
   fetcher = fetch,
-  now = () => new Date(),
+  now = () => {
+    return new Date();
+  },
 } = {}) {
   const configuration = parse(await readFile(configurationPath, 'utf8'));
 
@@ -189,10 +210,20 @@ export async function updateStats({
   try {
     previousText = await readFile(outputPath, 'utf8');
   } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
   }
 
-  const previous = previousText ? parse(previousText) : {};
+  const resolvePrevious = () => {
+    if (previousText) {
+      return parse(previousText);
+    }
+
+    return {};
+  };
+
+  const previous = resolvePrevious();
 
   if (!previous || typeof previous !== 'object' || Array.isArray(previous)) {
     throw new Error('Invalid statistics cache');
@@ -205,12 +236,15 @@ export async function updateStats({
   const results = [];
 
   const entries = configuration.sections
-    .filter((section) => section.enabled !== false && section.public !== false)
-    .flatMap((section) => section.links)
-    .filter(
-      (entry) =>
-        entry.enabled !== false && entry.public !== false && entry.stats,
-    );
+    .filter((section) => {
+      return section.enabled !== false && section.public !== false;
+    })
+    .flatMap((section) => {
+      return section.links;
+    })
+    .filter((entry) => {
+      return entry.enabled !== false && entry.public !== false && entry.stats;
+    });
 
   const ids = new Set();
 
@@ -237,7 +271,9 @@ export async function updateStats({
         updated_at: now().toISOString(),
       };
 
-      for (const key of entry.stats.metrics) integer(snapshot.metrics[key]);
+      for (const key of entry.stats.metrics) {
+        integer(snapshot.metrics[key]);
+      }
 
       next[entry.id] = snapshot;
       results.push({ id: entry.id, status: 'updated' });
@@ -246,15 +282,27 @@ export async function updateStats({
         previous[entry.id]?.profile_url === entry.url &&
         previous[entry.id]?.provider === entry.stats.provider;
 
+      const resolveStatus = () => {
+        if (cached) {
+          return 'cached';
+        }
+
+        return 'unavailable';
+      };
+
       results.push({
         id: entry.id,
-        status: cached ? 'cached' : 'unavailable',
+        status: resolveStatus(),
         reason: error.message,
       });
     }
   }
 
-  if (results.some((entry) => entry.status === 'updated')) {
+  if (
+    results.some((entry) => {
+      return entry.status === 'updated';
+    })
+  ) {
     await mkdir(dirname(outputPath), { recursive: true });
 
     const temporary = `${outputPath}.${process.pid}.tmp`;

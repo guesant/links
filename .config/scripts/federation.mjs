@@ -1,8 +1,8 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { createRequire } from 'node:module';
+import { requireWebsite } from './paths.cjs';
 
-const { parse } = createRequire(import.meta.url)('yaml');
+const { parse } = requireWebsite('yaml');
 
 const types = new Set([
   'post',
@@ -26,8 +26,9 @@ const metadataKeys = new Set([
 ]);
 
 const text = (value, max = 12000) => {
-  if (typeof value !== 'string' || value.length > max)
+  if (typeof value !== 'string' || value.length > max) {
     throw new Error('Invalid federation text');
+  }
 
   return value;
 };
@@ -38,8 +39,9 @@ export function validateFeed(feed, source) {
     feed.source !== source.id ||
     !Array.isArray(feed.items) ||
     feed.items.length > 10000
-  )
+  ) {
     throw new Error(`Invalid feed: ${source.id}`);
+  }
 
   const ids = new Set();
 
@@ -48,19 +50,23 @@ export function validateFeed(feed, source) {
       typeof entry.id !== 'string' ||
       !/^[a-z0-9][a-z0-9_-]{0,127}$/.test(entry.id) ||
       !types.has(entry.type)
-    )
+    ) {
       throw new Error('Invalid federation identity');
+    }
 
     const language = text(entry.language, 20)
       .toLowerCase()
       .replaceAll('_', '-');
 
-    if (!/^[a-z]{2,3}(-[a-z0-9]{2,8})*$/.test(language))
+    if (!/^[a-z]{2,3}(-[a-z0-9]{2,8})*$/.test(language)) {
       throw new Error('Invalid federation language');
+    }
 
     const key = `${entry.id}:${language}`;
 
-    if (ids.has(key)) throw new Error(`Duplicate federation entry: ${key}`);
+    if (ids.has(key)) {
+      throw new Error(`Duplicate federation entry: ${key}`);
+    }
 
     ids.add(key);
 
@@ -71,31 +77,45 @@ export function validateFeed(feed, source) {
       url.username ||
       url.password ||
       url.protocol !== 'https:'
-    )
+    ) {
       throw new Error('Invalid federation canonical URL');
+    }
 
     if (
       entry.private ||
       entry.draft ||
       entry.public === false ||
       entry.enabled === false
-    )
+    ) {
       throw new Error('Nonpublic federation entry');
+    }
 
-    if (!entry.title?.trim()) throw new Error('Missing federation title');
+    if (!entry.title?.trim()) {
+      throw new Error('Missing federation title');
+    }
 
-    if (!Array.isArray(entry.tags) || entry.tags.length > 100)
+    if (!Array.isArray(entry.tags) || entry.tags.length > 100) {
       throw new Error('Invalid federation tags');
+    }
 
     const metadata = {};
 
     for (const [key, value] of Object.entries(entry.metadata || {})) {
-      if (!metadataKeys.has(key)) continue;
+      if (!metadataKeys.has(key)) {
+        continue;
+      }
 
-      metadata[key] =
-        key === 'categories'
-          ? value.map((item) => text(item, 200))
-          : text(value, 2048);
+      const resolveValue = () => {
+        if (key === 'categories') {
+          return value.map((item) => {
+            return text(item, 200);
+          });
+        }
+
+        return text(value, 2048);
+      };
+
+      metadata[key] = resolveValue();
 
       if (key === 'content_url') {
         const destination = new URL(metadata[key]);
@@ -114,8 +134,9 @@ export function validateFeed(feed, source) {
             'youtube.com',
             'youtu.be',
           ].includes(destination.hostname)
-        )
+        ) {
           throw new Error('Invalid public content URL');
+        }
 
         metadata[key] = destination.href;
       }
@@ -129,7 +150,9 @@ export function validateFeed(feed, source) {
       title: text(entry.title, 1000),
       summary: text(entry.summary),
       url: url.href,
-      tags: entry.tags.map((tag) => text(tag, 200)),
+      tags: entry.tags.map((tag) => {
+        return text(tag, 200);
+      }),
       metadata,
     };
   });
@@ -158,7 +181,9 @@ export async function loadFeed(
         redirect: 'error',
       });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
       bytes = await response.text();
     } catch (error) {
@@ -174,8 +199,9 @@ export async function loadFeed(
     }
 
     if (bytes !== undefined) {
-      if (bytes.length > 5_000_000)
+      if (bytes.length > 5_000_000) {
         throw new Error('Federation feed too large');
+      }
 
       feed = validateFeed(JSON.parse(bytes), source);
     }
@@ -191,12 +217,12 @@ export async function syncFederation() {
   const config = parse(await readFile('.config/federation.yaml', 'utf8'));
 
   const feeds = await Promise.all(
-    config.sources.map((source) =>
-      loadFeed(source, {
+    config.sources.map((source) => {
+      return loadFeed(source, {
         cacheDirectory: resolve('.cache/federation'),
         localFile: process.env[`LOBBY_${source.id.toUpperCase()}_FEED`],
-      }),
-    ),
+      });
+    }),
   );
 
   const directory = resolve('.cache/federation/assets');
@@ -204,7 +230,12 @@ export async function syncFederation() {
   await mkdir(directory, { recursive: true });
   await writeFile(
     resolve(directory, 'federation.json.tmp'),
-    JSON.stringify({ version: 1, items: feeds.flatMap((feed) => feed.items) }),
+    JSON.stringify({
+      version: 1,
+      items: feeds.flatMap((feed) => {
+        return feed.items;
+      }),
+    }),
   );
   await rename(
     resolve(directory, 'federation.json.tmp'),

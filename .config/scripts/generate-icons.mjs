@@ -7,34 +7,86 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { createRequire } from 'node:module';
+import { requireWebsite } from './paths.cjs';
 import { withRasterPage, loadPNG } from './raster-assets.mjs';
 
 const catalog = JSON.parse(await readFile('.config/icon-catalog.json', 'utf8'));
 
 const names = Object.keys(catalog);
 
-const { parse } = createRequire(import.meta.url)('yaml');
+const sharp = requireWebsite('sharp');
+
+const { parse } = requireWebsite('yaml');
 
 const { tile_size: tileSize, compact_tile_size: compactTileSize } = parse(
   await readFile('.config/icon-assets.yaml', 'utf8'),
 );
 
 const tiles = await Promise.all(
-  names.flatMap((name, column) =>
-    ['', '-mask'].map(async (suffix, row) => ({
-      png: await loadPNG(
-        `src/assets/icons/source/${name}${suffix}.png`,
-        tileSize,
-        tileSize,
-      ),
-      column,
-      row,
-    })),
-  ),
+  names.flatMap((name, column) => {
+    return ['', '-mask'].map(async (suffix, row) => {
+      return {
+        png: await loadPNG(
+          `website/src/assets/icons/source/${name}${suffix}.png`,
+          tileSize,
+          tileSize,
+        ),
+        column,
+        row,
+      };
+    });
+  }),
 );
 
-const favicon = await loadPNG('src/assets/icons/favicon.png', 64, 64);
+const favicon = await loadPNG('website/src/assets/icons/favicon.png', 64, 64);
+
+const opticalScales = Object.fromEntries(
+  await Promise.all(
+    names.map(async (name) => {
+      const { data, info } = await sharp(
+        `website/src/assets/icons/source/${name}.png`,
+      )
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+      const bounds = {
+        left: info.width,
+        top: info.height,
+        right: -1,
+        bottom: -1,
+      };
+
+      for (let offset = 3; offset < data.length; offset += 4) {
+        if (data[offset] <= 16) {
+          continue;
+        }
+
+        const pixel = (offset - 3) / 4;
+
+        const x = pixel % info.width;
+
+        const y = Math.floor(pixel / info.width);
+
+        bounds.left = Math.min(bounds.left, x);
+        bounds.top = Math.min(bounds.top, y);
+        bounds.right = Math.max(bounds.right, x);
+        bounds.bottom = Math.max(bounds.bottom, y);
+      }
+
+      const size = Math.max(
+        bounds.right - bounds.left + 1,
+        bounds.bottom - bounds.top + 1,
+      );
+
+      if (size <= 0) {
+        throw new Error(`Empty icon source: ${name}`);
+      }
+
+      return [name, Number(((tileSize * 5) / 6 / size).toFixed(3))];
+    }),
+  ),
+);
 
 await withRasterPage(async (page) => {
   const atlas = await page.evaluate(
@@ -91,7 +143,7 @@ await withRasterPage(async (page) => {
 
       await writeFile(path, Buffer.from(png, 'base64'));
       execFileSync('optipng', ['-quiet', '-o3', '-strip', 'all', path]);
-      await rename(path, `src/assets/icons/${name}.png`);
+      await rename(path, `website/src/assets/icons/${name}.png`);
     }
   } finally {
     await rm(staging, { recursive: true, force: true });
@@ -123,7 +175,10 @@ await withRasterPage(async (page) => {
       { favicon, size },
     );
 
-    await writeFile(`src/static/${name}.png`, Buffer.from(png, 'base64'));
+    await writeFile(
+      `website/src/static/${name}.png`,
+      Buffer.from(png, 'base64'),
+    );
   }
 });
 
@@ -132,15 +187,21 @@ const manifest = {
   tileSize,
   compactTileSize,
   icons: Object.fromEntries(
-    names.map((name, column) => [
-      name,
-      { colored: catalog[name], position: (column / (names.length - 1)) * 100 },
-    ]),
+    names.map((name, column) => {
+      return [
+        name,
+        {
+          colored: catalog[name],
+          position: (column / (names.length - 1)) * 100,
+          opticalScale: opticalScales[name],
+        },
+      ];
+    }),
   ),
 };
 
 await writeFile(
-  'src/assets/icons/manifest.json',
+  'website/src/assets/icons/manifest.json',
   JSON.stringify(manifest, null, 2) + '\n',
 );
 console.log(`Generated PNG atlas with ${names.length} icons and PNG favicons`);
