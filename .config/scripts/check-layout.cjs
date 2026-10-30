@@ -578,9 +578,9 @@ const checks = [];
                   aligned &&
                   profile.top <= quickContacts.top &&
                   profile.bottom >= quickContacts.bottom &&
-                  quickContacts.bottom <= navigation.top &&
+                  navigation.bottom <= quickContacts.top &&
                   profile.bottom >= navigation.bottom &&
-                  navigation.bottom <= content.top &&
+                  quickContacts.bottom <= content.top &&
                   navigation.left >= profile.left &&
                   navigation.right <= profile.right &&
                   Math.abs(footer.width - profile.width) < 1 &&
@@ -1015,7 +1015,7 @@ const checks = [];
                 const fontSize = parseFloat(getComputedStyle(badge).fontSize);
 
                 const title = badge
-                  .closest('.link-heading')
+                  .closest('.action-row')
                   ?.querySelector('.link-title');
 
                 const resolveTitleSize = () => {
@@ -1217,18 +1217,6 @@ const checks = [];
 
                     const itemStyle = getComputedStyle(item);
 
-                    const resolveValue2 = () => {
-                      if (
-                        document.querySelector('.page-content').clientWidth >=
-                          448 &&
-                        !matchMedia('(pointer: coarse)').matches
-                      ) {
-                        return 32;
-                      }
-
-                      return 44;
-                    };
-
                     const resolveValue3 = () => {
                       if (index) {
                         return 1;
@@ -1238,10 +1226,9 @@ const checks = [];
                     };
 
                     return (
-                      row.height >= resolveValue2() &&
-                      getComputedStyle(
-                        link.querySelector('.link-summary'),
-                      ).gridTemplateColumns.split(' ').length === 3 &&
+                      row.height >= 44 &&
+                      getComputedStyle(link).gridTemplateColumns.split(' ')
+                        .length === 3 &&
                       rowStyle.borderRadius === '0px' &&
                       parseFloat(rowStyle.paddingTop) > 0 &&
                       parseFloat(rowStyle.paddingLeft) >
@@ -1443,7 +1430,7 @@ const checks = [];
               ].every((link) => {
                 return (
                   getComputedStyle(link).position === 'relative' &&
-                  link.parentElement.matches('li') &&
+                  link.parentElement.matches('.link-card') &&
                   link.parentElement.closest('a') === null
                 );
               }),
@@ -2133,6 +2120,11 @@ const checks = [];
       reportDirectory,
     );
     await require('./check-language-browser.cjs')(browser, base.href);
+    await require('./check-listing-browser.cjs')(
+      browser,
+      base.href,
+      reportDirectory,
+    );
     await require('./check-component-parity.cjs')(
       browser,
       base.href,

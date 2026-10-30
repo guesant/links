@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
-const { createRequire } = require('node:module');
+const { withBrowser } = require('./browser-presentation.cjs');
 const { resolve } = require('node:path');
 const { readConfiguration } = require('./configuration.cjs');
 
@@ -210,6 +210,8 @@ async function inspectComponents(page, expected, minecraft) {
         frames,
         icons,
         activeCheck,
+        profileShadow: getComputedStyle(document.querySelector('.profile'))
+          .boxShadow,
         sharedOrnaments:
           ornaments.length === 3 &&
           ornaments.every((label) => {
@@ -229,14 +231,14 @@ async function inspectComponents(page, expected, minecraft) {
         shortcutsInHeader:
           shortcuts.closest('.profile') !== null &&
           shortcuts.children.length === 8 &&
-          shortcutsBox.top >= uptimeBox.bottom &&
+          shortcutsBox.top >= navigation.getBoundingClientRect().bottom &&
           shortcutsBox.bottom <= profileBox.bottom &&
           shortcutsBox.left >= profileBox.left &&
           shortcutsBox.right <= profileBox.right,
         navigationSeparated:
           !navigation.querySelector('.quick-contacts') &&
           navigation.closest('.profile') !== null &&
-          navigation.getBoundingClientRect().top >= shortcutsBox.bottom &&
+          navigation.getBoundingClientRect().top >= uptimeBox.bottom &&
           !document.querySelector('.quick-access') &&
           !navigation.querySelector('details, button, summary') &&
           navigation.querySelectorAll('.navigation-links a').length ===
@@ -317,6 +319,11 @@ async function inspectComponents(page, expected, minecraft) {
   }
 
   assert.equal(actual.activeCheck, true);
+  assert.equal(
+    actual.profileShadow,
+    'none',
+    'header has no rectangular shadow',
+  );
 }
 
 async function setPresentation(page, theme, view) {
@@ -610,31 +617,14 @@ async function checkComponentParity(
 module.exports = checkComponentParity;
 
 if (require.main === module) {
-  const puppeteer = createRequire(
-    '/usr/local/lib/node_modules/pa11y-ci/package.json',
-  )('puppeteer');
-
-  (async () => {
-    const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium',
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-dev-shm-usage',
-      ],
-    });
-
-    try {
-      await checkComponentParity(
-        browser,
-        process.env.QA_BASE_URL || 'http://127.0.0.1:4173/',
-        process.env.QA_REPORT_DIR || '.local/reports',
-        process.argv.includes('--screenshots'),
-      );
-    } finally {
-      await browser.close();
-    }
-  })().catch((error) => {
+  withBrowser(async (browser) => {
+    await checkComponentParity(
+      browser,
+      process.env.QA_BASE_URL || 'http://127.0.0.1:4173/',
+      process.env.QA_REPORT_DIR || '.local/reports',
+      process.argv.includes('--screenshots'),
+    );
+  }).catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });

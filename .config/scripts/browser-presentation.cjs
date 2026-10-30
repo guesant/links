@@ -1,3 +1,5 @@
+const { createRequire } = require('node:module');
+
 const responsiveWidths = [
   320,
   390,
@@ -38,7 +40,53 @@ async function captureFromTop(page, path) {
   });
 }
 
+function editorialDestinations(entries) {
+  return entries.every((entry) => {
+    const primary = entry.querySelector('.editorial-primary');
+
+    const repository = entry.querySelector('.editorial-details');
+
+    return (
+      new URL(primary.href).hostname === 'curriculum.guesant.net' &&
+      [
+        'github.com',
+        'gitlab.com',
+        'www.youtube.com',
+        'youtube.com',
+        'youtu.be',
+      ].includes(new URL(repository.href).hostname) &&
+      repository.getClientRects().length > 0 &&
+      Boolean(repository.querySelector('.link-third-party-badge'))
+    );
+  });
+}
+
+async function withBrowser(task) {
+  const puppeteer = createRequire(
+    '/usr/local/lib/node_modules/pa11y-ci/package.json',
+  )('puppeteer');
+
+  const launchOptions = {
+    executablePath: '/usr/bin/chromium',
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+    ],
+  };
+
+  const browser = await puppeteer.launch(launchOptions);
+
+  try {
+    return await task(browser);
+  } finally {
+    await browser.close();
+  }
+}
+
 module.exports = {
+  editorialDestinations,
+  withBrowser,
   responsiveWidths,
   useBrowserLanguages,
   applyAppearance,

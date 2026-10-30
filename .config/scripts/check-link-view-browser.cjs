@@ -5,6 +5,7 @@ const {
   responsiveWidths,
   applyAppearance,
   captureFromTop,
+  editorialDestinations,
 } = require('./browser-presentation.cjs');
 
 module.exports = async function checkLinkViewBrowser(
@@ -291,34 +292,8 @@ module.exports = async function checkLinkViewBrowser(
                   ...document.querySelectorAll('.category-preview-link'),
                 ].every((link) => {
                   return (
-                    link.parentElement.matches('li') &&
+                    link.parentElement.matches('.link-card') &&
                     link.parentElement.closest('a') === null
-                  );
-                }),
-                editorialDestinations: [
-                  ...document.querySelectorAll(
-                    '.editorial-entry:has(.editorial-details)',
-                  ),
-                ].every((entry) => {
-                  return (
-                    new URL(entry.querySelector(':is(h3,h5) a').href)
-                      .hostname === 'curriculum.guesant.net' &&
-                    [
-                      'github.com',
-                      'gitlab.com',
-                      'www.youtube.com',
-                      'youtube.com',
-                      'youtu.be',
-                    ].includes(
-                      new URL(entry.querySelector('.editorial-details').href)
-                        .hostname,
-                    ) &&
-                    visible(entry.querySelector('.editorial-details')) &&
-                    Boolean(
-                      entry.querySelector(
-                        '.editorial-details .link-third-party-badge',
-                      ),
-                    )
                   );
                 }),
                 editorialBorders: [
@@ -392,6 +367,10 @@ module.exports = async function checkLinkViewBrowser(
               `${route.url} ${mode} ${theme} ${width} overflow`,
             );
             assert.equal(actual.checked, mode);
+            actual.editorialDestinations = await page.$$eval(
+              '.editorial-entry:has(.editorial-details)',
+              editorialDestinations,
+            );
 
             for (const key of [
               'stableLinks',

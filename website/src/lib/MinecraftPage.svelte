@@ -9,6 +9,7 @@
   import OrnamentLabel from './OrnamentLabel.svelte';
   import SuspensionRails from './SuspensionRails.svelte';
   import { requiredText } from './validation-primitives.ts';
+  import { emptyActionFor } from './listing-presentation.ts';
   import { destinationFor, profileInitials } from './render-utils.ts';
   import type {
     DisplayLinkRecord,
@@ -141,6 +142,20 @@
             {profile.birthDate}
           </time>
         </p>
+        <nav
+          class="profile-navigation"
+          aria-labelledby="profile-navigation-title"
+        >
+          <OrnamentLabel
+            id="profile-navigation-title"
+            label={uiText('navigation_label')}
+          />
+          <NavigationLinks
+            pages={navigationPages}
+            currentID={page.id}
+            placement="header"
+          />
+        </nav>
         <OrnamentLabel
           id="profile-quick-access-title"
           label={uiText('quick_access_title')}
@@ -164,20 +179,6 @@
               <span class="quick-contact-label">{item.title}</span>
             </a>{/each}
         </div>
-        <nav
-          class="profile-navigation"
-          aria-labelledby="profile-navigation-title"
-        >
-          <OrnamentLabel
-            id="profile-navigation-title"
-            label={uiText('navigation_label')}
-          />
-          <NavigationLinks
-            pages={navigationPages}
-            currentID={page.id}
-            placement="header"
-          />
-        </nav>
       </div>
     </header>
     <div class="suspended-content">
@@ -329,6 +330,8 @@
                 ui={editorialUI}
                 thirdPartyLabel={localized.ui.third_party}
                 {destination}
+                sectionID={page.id}
+                headingLevel={2}
               /><EditorialList
                 items={editorial}
                 ui={editorialUI}
@@ -336,7 +339,16 @@
                 sectionID={page.id}
                 {locale}
                 interfaceName="minecraft"
-                pageURL={page.url}
+                {destination}
+                headingLevel={2}
+                emptyAction={emptyActionFor({
+                  home: false,
+                  pageURL: page.url,
+                  homeURL: `/${locale}/`,
+                  sectionID: page.id,
+                  linksCount: links.length,
+                  ui: editorialUI,
+                })}
                 empty={!links.length}
               />
             </section>

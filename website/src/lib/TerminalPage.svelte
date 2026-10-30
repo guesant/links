@@ -1,6 +1,9 @@
 <script lang="ts">
   import LinkView from './LinkView.svelte';
   import EditorialList from './EditorialList.svelte';
+  import ActionRow from './ActionRow.svelte';
+  import ContentListHeading from './ContentListHeading.svelte';
+  import { emptyActionFor } from './listing-presentation.ts';
   import { currentPage, destinationFor } from './render-utils.ts';
   import type {
     DisplayLinkRecord,
@@ -63,18 +66,13 @@
 
 {#snippet platformLink(item: DisplayLinkRecord)}
   {@const target = destination(item)}
-  <a
-    href={target.href}
-    target={target.target}
-    rel={target.rel}
-    data-link-id={item.id}
-  >
-    <span>{item.title}</span>
-    {#if target.thirdParty}<span class="terminal-third-party-badge">
-        {localized.ui.third_party}
-      </span>{/if}
-    {#if target.external}<span aria-hidden="true">↗</span>{/if}
-  </a>
+  <ActionRow
+    title={item.title}
+    action={target}
+    thirdPartyLabel={localized.ui.third_party}
+    interfaceName="terminal"
+    linkID={item.id}
+  />
 {/snippet}
 
 <a class="skip-link" href="#main-content">{localized.ui.skip_link}</a>
@@ -175,16 +173,21 @@
             data-category={section.page.id}
           >
             <header>
-              <h3><a href={section.page.url}>{section.page.title}</a></h3>
+              <h3>{section.page.title}</h3>
               {#if section.page.description}<p>
                   {section.page.description}
                 </p>{/if}
             </header>
-            <ul class="terminal-link-list">
-              {#each section.links as item}<li>
-                  {@render platformLink(item)}
-                </li>{/each}
-            </ul>
+            {#if section.links.length}
+              <section class="content-link-group" id="links-{section.page.id}">
+                <ContentListHeading label={editorialUI.links} level={4} />
+                <ul class="terminal-link-list divided-list">
+                  {#each section.links as item}<li>
+                      {@render platformLink(item)}
+                    </li>{/each}
+                </ul>
+              </section>
+            {/if}
             <EditorialList
               items={section.editorial}
               ui={editorialUI}
@@ -192,7 +195,16 @@
               sectionID={section.page.id}
               {locale}
               interfaceName="terminal"
-              pageURL={section.page.url}
+              {destination}
+              headingLevel={4}
+              emptyAction={emptyActionFor({
+                home: true,
+                pageURL: section.page.url,
+                homeURL: '',
+                sectionID: section.page.id,
+                linksCount: section.links.length,
+                ui: editorialUI,
+              })}
               empty={!section.links.length}
             />
           </section>{/each}
@@ -201,12 +213,19 @@
         return entry.id === 'now';
       }) as entry}<section class="terminal-directory-entry">
           <header>
-            <h3><a href={entry.url}>{entry.title}</a></h3>
+            <h3>{entry.title}</h3>
             <p>{now.intro}</p>
           </header>
-          <ul>
+          <ul class="terminal-link-list divided-list">
             {#each now.sections as section}<li>
-                <a href={`${entry.url}#now-${section.id}`}>{section.title}</a>
+                <ActionRow
+                  title={section.title}
+                  action={destination({
+                    url: `${entry.url}#now-${section.id}`,
+                  })}
+                  thirdPartyLabel={localized.ui.third_party}
+                  interfaceName="terminal"
+                />
               </li>{/each}
           </ul>
         </section>{/each}
@@ -235,12 +254,17 @@
         {#if page.description}<p>{page.description}</p>{/if}
       </header>
       <LinkView ui={localized.ui} pageKey={page.id} terminal />
-      <ul class="terminal-link-list">
-        {#each links as item}<li>
-            {@render platformLink(item)}
-            {#if item.description}<p>{item.description}</p>{/if}
-          </li>{/each}
-      </ul>
+      {#if links.length}
+        <section class="content-link-group" id="links-{page.id}">
+          <ContentListHeading label={editorialUI.links} level={2} />
+          <ul class="terminal-link-list divided-list">
+            {#each links as item}<li>
+                {@render platformLink(item)}
+                {#if item.description}<p>{item.description}</p>{/if}
+              </li>{/each}
+          </ul>
+        </section>
+      {/if}
       <EditorialList
         items={editorial}
         ui={editorialUI}
@@ -248,7 +272,16 @@
         sectionID={page.id}
         {locale}
         interfaceName="terminal"
-        pageURL={page.url}
+        {destination}
+        headingLevel={2}
+        emptyAction={emptyActionFor({
+          home: false,
+          pageURL: page.url,
+          homeURL: `/${locale}/terminal/`,
+          sectionID: page.id,
+          linksCount: links.length,
+          ui: editorialUI,
+        })}
         empty={!links.length}
       />
     {/if}

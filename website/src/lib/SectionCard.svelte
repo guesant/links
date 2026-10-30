@@ -3,10 +3,13 @@
   import LinkList from './LinkList.svelte';
   import EditorialList from './EditorialList.svelte';
   import { enabledAttribute } from './render-utils.ts';
+  import {
+    emptyActionFor,
+    type ListingDestination,
+  } from './listing-presentation.ts';
   import type {
     DisplayLinkRecord,
     EditorialRecord,
-    LinkDestination,
     PageRecord,
   } from './site-data.ts';
 
@@ -27,7 +30,7 @@
     editorialUI: Record<string, string>;
     thirdPartyLabel: string;
     locale: string;
-    destination: (_item: DisplayLinkRecord) => LinkDestination;
+    destination: ListingDestination;
     index?: number;
     update?: boolean;
   } = $props();
@@ -59,6 +62,7 @@
         ui={editorialUI}
         {thirdPartyLabel}
         {destination}
+        sectionID={page.id}
         preview
       />{/if}
     {#if !update}<EditorialList
@@ -68,7 +72,15 @@
         sectionID={page.id}
         {locale}
         interfaceName="minecraft"
-        pageURL={page.url}
+        {destination}
+        emptyAction={emptyActionFor({
+          home: true,
+          pageURL: page.url,
+          homeURL: '',
+          sectionID: page.id,
+          linksCount: items.length,
+          ui: editorialUI,
+        })}
         empty={!items.length}
       />{/if}
   </div>

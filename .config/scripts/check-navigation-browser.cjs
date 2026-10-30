@@ -59,8 +59,9 @@ async function inspectGeometry(page) {
 
     return {
       insideHeader:
-        navigation.top >= quick.bottom &&
-        navigation.bottom <= header.bottom &&
+        navigation.top >= header.top &&
+        navigation.bottom <= quick.top &&
+        quick.bottom <= header.bottom &&
         navigation.left >= header.left &&
         navigation.right <= header.right,
       overflow: document.documentElement.scrollWidth > innerWidth,

@@ -118,6 +118,7 @@ async function tests() {
     '--test',
     '.config/scripts/check-stats.mjs',
     '.config/scripts/check-content.mjs',
+    '.config/scripts/check-listing.test.mjs',
     '.config/scripts/check-link-retries.mjs',
     '.config/scripts/check-raster.mjs',
     '.config/scripts/check-pointer-sound.mjs',

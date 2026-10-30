@@ -1,0 +1,313 @@
+:root {
+  --listing-row-height: var(--control-min-height);
+  --listing-padding-block: var(--space-2);
+  --listing-padding-inline: var(--space-3);
+  --listing-icon-size: 1.25rem;
+  --listing-marker-size: 1rem;
+  --listing-background: transparent;
+  --listing-text: var(--color-text-muted);
+  --listing-hover-background: var(--color-surface-hover);
+  --listing-hover-text: var(--color-accent-strong);
+  --listing-active-background: var(--color-selected);
+  --listing-active-text: var(--color-selected-text);
+  --listing-border: var(--color-border-control);
+  --listing-focus: var(--color-focus);
+  --listing-focus-width: 0.125rem;
+  --listing-cursor: inherit;
+  --listing-pressed-shadow: inset 0 0 0 var(--divider-width)
+    var(--listing-focus);
+}
+
+:root[data-interface='terminal'] {
+  --listing-text: var(--terminal-blue);
+  --listing-hover-background: light-dark(#eaeef2, #21262d);
+  --listing-hover-text: var(--terminal-green);
+  --listing-active-background: var(--terminal-surface-muted);
+  --listing-active-text: var(--terminal-green);
+  --listing-border: var(--terminal-border);
+  --listing-focus: var(--terminal-green);
+  --listing-cursor: pointer;
+}
+
+.divided-list {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: var(--grid-columns-1);
+  min-width: var(--space-0);
+  gap: var(--space-0);
+  border-block: var(--divider-width) solid var(--listing-border);
+}
+
+.divided-list > * + * {
+  border-block-start: var(--divider-width) solid var(--listing-border);
+}
+
+.divided-list:empty {
+  display: none;
+  border: var(--space-0);
+}
+
+:root[data-interface] .action-row {
+  display: grid;
+  grid-template-columns: var(--grid-track) auto;
+  align-items: center;
+  align-content: center;
+  gap: var(--space-2);
+  position: relative;
+  width: var(--size-full);
+  min-width: var(--space-0);
+  min-height: var(--listing-row-height);
+  padding: var(--listing-padding-block) var(--listing-padding-inline);
+  border: var(--space-0);
+  border-radius: var(--space-0);
+  background: var(--listing-background);
+  color: var(--listing-text);
+  box-shadow: none;
+  font-family: var(--font-body);
+  font-size: var(--font-size-small);
+  font-weight: 400;
+  line-height: var(--line-height-tight);
+  text-decoration: none;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: var(--listing-cursor);
+}
+
+:root[data-interface] .action-row-with-icon {
+  grid-template-columns: var(--listing-icon-size) var(--grid-track) auto;
+}
+
+:root[data-interface] .action-row .action-row-title {
+  min-width: var(--space-0);
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-decoration: none;
+}
+
+:root[data-interface] .action-row:is(:hover, :focus-visible) {
+  background: var(--listing-hover-background);
+  color: var(--listing-hover-text);
+  text-decoration: none;
+}
+
+:root[data-interface] .action-row:focus-visible {
+  outline: var(--listing-focus-width) solid var(--listing-focus);
+  outline-offset: calc(-1 * var(--listing-focus-width));
+}
+
+:root[data-interface] .action-row:active {
+  background: var(--listing-active-background);
+  color: var(--listing-active-text);
+  box-shadow: var(--listing-pressed-shadow);
+}
+
+.action-row-indicators {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: var(--space-0);
+}
+
+@container (width < 12rem) {
+  :root[data-interface] .action-row {
+    grid-template-columns: var(--grid-columns-1);
+  }
+
+  .action-row-indicators {
+    justify-self: end;
+    flex-wrap: wrap;
+    max-width: var(--size-full);
+  }
+
+  :root[data-interface] .action-row .link-third-party-badge {
+    min-width: var(--space-0);
+    white-space: normal;
+  }
+}
+
+.action-row .action-row-icon {
+  display: grid;
+  place-items: center;
+  width: var(--listing-icon-size);
+  height: var(--listing-icon-size);
+  border: var(--space-0);
+  background: transparent;
+  box-shadow: none;
+}
+
+.action-row-icon .site-icon {
+  width: var(--size-full);
+  height: var(--size-full);
+}
+
+.action-row .external-link-icon,
+.action-row .external-link-icon .site-icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--listing-marker-size);
+  height: var(--listing-marker-size);
+}
+
+:root[data-interface='terminal'] .link-third-party-badge {
+  padding-inline: var(--space-1);
+  border: var(--divider-width) solid var(--listing-border);
+  color: var(--terminal-purple);
+  font-size: var(--font-size-third-party);
+  white-space: nowrap;
+}
+
+.link-card-details {
+  display: grid;
+  min-width: var(--space-0);
+  gap: var(--space-4);
+}
+
+:root[data-interface='minecraft'][data-link-view='detailed'] .link-card {
+  --listing-icon-size: var(--icon-frame-size);
+}
+
+:root[data-interface='minecraft'][data-link-view='detailed']
+  .link-card
+  > .action-row {
+  font-family: var(--font-pixel);
+  font-size: var(--font-size-title);
+}
+
+:root[data-interface='minecraft'][data-link-view='detailed']
+  .link-card
+  .action-row-icon {
+  border: var(--pixel-border) solid var(--color-border-light);
+  background: var(--color-icon-slot);
+  box-shadow: var(--shadow-bevel);
+}
+
+:root[data-interface='minecraft'][data-link-view='detailed']
+  .link-card
+  .action-row-icon
+  .site-icon {
+  width: var(--icon-box-size);
+  height: var(--icon-box-size);
+}
+
+.editorial-information {
+  display: grid;
+  align-items: center;
+  min-height: var(--listing-row-height);
+  padding: var(--listing-padding-block) var(--listing-padding-inline);
+  font-size: var(--font-size-small);
+}
+
+.editorial-entry
+  > :is(.editorial-description, .editorial-metadata, .editorial-tags),
+.editorial-entry-heading > .editorial-origin {
+  margin-inline: var(--listing-padding-inline);
+  margin-block-end: var(--space-2);
+}
+
+:root[data-link-view='compact'] .link-card {
+  padding: var(--space-0);
+  border: var(--space-0);
+  background: transparent;
+  box-shadow: none;
+  gap: var(--space-0);
+}
+
+:root[data-link-view='compact']
+  .link-card
+  > :is(.link-card-details, .frame-rivet) {
+  display: none;
+}
+
+:root[data-interface='terminal'] .editorial-list {
+  display: grid;
+  gap: var(--space-5);
+  min-width: var(--space-0);
+}
+
+:root[data-interface='terminal'] :is(.editorial-group, .content-link-group) {
+  display: grid;
+  min-width: var(--space-0);
+}
+
+:root[data-interface='terminal'] .content-list-heading {
+  padding-block: var(--space-3);
+  color: var(--terminal-text);
+  font-size: var(--font-size-body);
+}
+
+:root[data-interface='terminal'] .editorial-entry {
+  display: grid;
+  gap: var(--space-2);
+  min-width: var(--space-0);
+  overflow-wrap: anywhere;
+}
+
+:root[data-interface='terminal'] .editorial-entry-heading {
+  display: grid;
+  min-width: var(--space-0);
+}
+
+:root[data-interface='terminal'] .editorial-entry :is(h3, h4, h5) {
+  font: inherit;
+  min-width: var(--space-0);
+}
+
+:root[data-interface='terminal']
+  :is(.editorial-description, .editorial-origin, .editorial-empty) {
+  color: var(--terminal-muted);
+  font-size: var(--font-size-small);
+}
+
+:root[data-interface='terminal']
+  :is(.editorial-tags, .editorial-metadata, .now-activity) {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--terminal-muted);
+  font-size: var(--font-size-disclaimer);
+}
+
+:root[data-interface='terminal'] .editorial-tags {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+:root[data-interface='terminal'] :is(.editorial-metadata, .now-activity) > div {
+  display: grid;
+  grid-template-columns: var(--grid-columns-2);
+  gap: var(--space-2);
+}
+
+:root[data-link-view='compact']
+  .editorial-entry
+  :is(.editorial-description, .editorial-metadata, .editorial-tags) {
+  display: none;
+}
+
+:root[data-interface='minecraft'][data-link-view='compact']
+  .editorial-entry:is(
+    [data-editorial-type='project'],
+    [data-editorial-type='skill']
+  )
+  :is(.editorial-description, .editorial-metadata) {
+  display: grid;
+}
+
+:root[data-interface='minecraft'][data-link-view='compact']
+  .editorial-entry:is(
+    [data-editorial-type='project'],
+    [data-editorial-type='skill']
+  )
+  .editorial-tags {
+  display: flex;
+}
+
+:root[data-link-view='detailed'] .link-list {
+  gap: var(--space-5);
+}
+
+:root[data-interface='terminal'] .terminal-directory-entry {
+  display: grid;
+  gap: var(--space-3);
+}

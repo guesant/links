@@ -490,12 +490,18 @@ const editorialStylesheet = await readFile(
   'utf8',
 );
 
+const listingStylesheet = await readFile(
+  resolve(assets, 'css', 'listing.css'),
+  'utf8',
+);
+
 await writeFile(
   resolve(output, 'assets/css', 'minecraft.css'),
   [
     resetStylesheet,
     preparedStylesheets['main.css'],
     editorialStylesheet,
+    listingStylesheet,
     preparedStylesheets['bios.css'],
   ].join('\n'),
 );
@@ -504,6 +510,7 @@ await writeFile(
   resolve(output, 'assets/css', 'terminal.css'),
   [
     preparedStylesheets['terminal.css'],
+    listingStylesheet,
     preparedStylesheets['bios.css'],
   ].join('\n'),
 );

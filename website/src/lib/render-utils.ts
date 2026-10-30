@@ -53,7 +53,7 @@ export function destinationFor(
   if (!destination.external && interfaceName === 'terminal') {
     const prefix = `/${locale}/`;
 
-    if (href.startsWith(prefix)) {
+    if (href.startsWith(prefix) && !href.startsWith(`${prefix}terminal/`)) {
       const suffix = href.slice(prefix.length);
 
       const resolveTerminalSuffix = (): string => {

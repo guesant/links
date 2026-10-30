@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { createRequire } = require('node:module');
 const { readConfiguration, pagesFor } = require('./configuration.cjs');
+const { editorialDestinations } = require('./browser-presentation.cjs');
 
 const pa11y = createRequire(
   '/usr/local/lib/node_modules/pa11y-ci/package.json',
@@ -129,29 +130,7 @@ module.exports = async function checkTerminalBrowser(
         assert.equal(
           await page.$$eval(
             '.editorial-entry:has(.editorial-details)',
-            (entries) => {
-              return entries.every((entry) => {
-                return (
-                  new URL(entry.querySelector('h3 a').href).hostname ===
-                    'curriculum.guesant.net' &&
-                  [
-                    'github.com',
-                    'gitlab.com',
-                    'www.youtube.com',
-                    'youtube.com',
-                    'youtu.be',
-                  ].includes(
-                    new URL(entry.querySelector('.editorial-details').href)
-                      .hostname,
-                  ) &&
-                  Boolean(
-                    entry.querySelector(
-                      '.editorial-details .link-third-party-badge',
-                    ),
-                  )
-                );
-              });
-            },
+            editorialDestinations,
           ),
           true,
           `${path} curriculum and platform destinations`,
