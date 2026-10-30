@@ -22,6 +22,12 @@ lighthouse-baseline: dependencies
 check: dependencies
     {{ runner }} node .config/scripts/tasks.mjs check
 
+check-fast: dependencies
+    {{ runner }} node .config/scripts/tasks.mjs check-fast
+
+ci: dependencies
+    {{ runner }} node .config/scripts/tasks.mjs ci
+
 format: dependencies
     {{ runner }} node .config/scripts/tasks.mjs format
 

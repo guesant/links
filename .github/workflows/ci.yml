@@ -1,0 +1,216 @@
+name: Lobby CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Operation
+        type: choice
+        default: validate
+        options:
+          - validate
+          - audit
+          - publish
+          - statistics
+
+permissions:
+  contents: read
+
+concurrency:
+  group: >-
+    lobby-${{ (github.ref == 'refs/heads/main' &&
+    (github.event_name == 'push' || github.event_name == 'schedule' ||
+    (github.event_name == 'workflow_dispatch' &&
+    (inputs.operation == 'publish' || inputs.operation == 'statistics')))) && 'publication' ||
+    format('{0}-{1}-{2}', github.event_name, github.event.pull_request.number || github.ref, inputs.operation || '') }}
+  cancel-in-progress: >-
+    ${{ github.event_name == 'pull_request' ||
+    (github.event_name == 'workflow_dispatch' &&
+    (inputs.operation == 'validate' || inputs.operation == 'audit')) }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      operation: ${{ steps.decision.outputs.operation }}
+      update_statistics: ${{ steps.decision.outputs.update_statistics }}
+      source_sha: ${{ steps.decision.outputs.source_sha }}
+      publish: ${{ steps.decision.outputs.publish }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Select operation in Docker
+        id: decision
+        env:
+          CI_OPERATION: ${{ inputs.operation }}
+        run: |
+          set -eu
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace" --workdir /workspace \
+            --env GITHUB_EVENT_NAME --env GITHUB_REF --env GITHUB_SHA --env CI_OPERATION \
+            --env CI_OUTPUT_PATH=.local/ci/plan-output \
+            --env CI_SUMMARY_PATH=.local/ci/plan-summary \
+            node:24.6.0-bookworm-slim node .config/scripts/ci-policy.mjs plan
+          cat .local/ci/plan-output >> "$GITHUB_OUTPUT"
+          cat .local/ci/plan-summary >> "$GITHUB_STEP_SUMMARY"
+
+  statistics:
+    needs: plan
+    if: >-
+      github.ref == 'refs/heads/main' && needs.plan.outputs.update_statistics == 'true' &&
+      (github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'statistics'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.result.outputs.changed }}
+      sha: ${{ steps.result.outputs.sha }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Collect and commit statistics in Dev Container
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca
+        env:
+          GITHUB_STATS_TOKEN: ${{ github.token }}
+          CI_OUTPUT_PATH: .local/ci/statistics-output
+          CI_SUMMARY_PATH: .local/ci/statistics-summary
+        with:
+          push: never
+          env: |
+            GITHUB_STATS_TOKEN
+            GITHUB_REPOSITORY
+            GITHUB_REF
+            CI_OUTPUT_PATH
+            CI_SUMMARY_PATH
+          runCmd: |
+            set -eu
+            just stats
+            node .config/scripts/publish-stats.mjs
+      - name: Record statistics result
+        id: result
+        run: |
+          set -eu
+          cat .local/ci/statistics-output >> "$GITHUB_OUTPUT"
+          cat .local/ci/statistics-summary >> "$GITHUB_STEP_SUMMARY"
+
+  build:
+    needs: [plan, statistics]
+    if: >-
+      ${{ !cancelled() && needs.plan.result == 'success' &&
+      needs.plan.outputs.operation != 'audit' &&
+      ((needs.plan.outputs.update_statistics == 'false' && needs.statistics.result == 'skipped') ||
+      (needs.plan.outputs.update_statistics == 'true' && needs.statistics.result == 'success' &&
+      needs.statistics.outputs.changed == 'true')) }}
+    runs-on: ubuntu-latest
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - name: Checkout selected source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.statistics.outputs.sha || needs.plan.outputs.source_sha }}
+          persist-credentials: false
+      - name: Record actual source SHA
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Validate and build in Dev Container
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca
+        env:
+          LOBBY_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        with:
+          push: never
+          env: |
+            GITHUB_REPOSITORY
+            GITHUB_SERVER_URL
+            GITHUB_SHA
+            GITHUB_RUN_ID
+            LOBBY_SOURCE_SHA
+          runCmd: just ci
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: quality-reports
+          path: |
+            .local/reports
+            .cache/lighthouseci
+          if-no-files-found: ignore
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: .local/build/site
+
+  audit:
+    needs: plan
+    if: github.event_name == 'workflow_dispatch' && needs.plan.outputs.operation == 'audit'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout selected source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.plan.outputs.source_sha }}
+          persist-credentials: false
+      - name: Run full quality audit in Dev Container
+        uses: devcontainers/ci@513af61f4de4f75d37e4438f184ba4358f0fc1ca
+        with:
+          push: never
+          runCmd: just check
+      - name: Upload audit reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: full-quality-reports
+          path: |
+            .local/reports
+            .cache/lighthouseci
+          if-no-files-found: ignore
+
+  deploy:
+    needs: [plan, build]
+    if: >-
+      ${{ !cancelled() && needs.plan.result == 'success' && needs.build.result == 'success' &&
+      needs.plan.outputs.publish == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout built source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.build.outputs.source_sha }}
+          persist-credentials: false
+      - name: Verify source is still current main in Docker
+        id: freshness
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CI_SOURCE_SHA: ${{ needs.build.outputs.source_sha }}
+        run: |
+          set -eu
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace" --workdir /workspace \
+            --env GITHUB_TOKEN --env GITHUB_REPOSITORY --env CI_SOURCE_SHA \
+            --env CI_OUTPUT_PATH=.local/ci/deployment-output \
+            --env CI_SUMMARY_PATH=.local/ci/deployment-summary \
+            node:24.6.0-bookworm-slim node .config/scripts/ci-policy.mjs deployment
+          cat .local/ci/deployment-output >> "$GITHUB_OUTPUT"
+          cat .local/ci/deployment-summary >> "$GITHUB_STEP_SUMMARY"
+      - name: Deploy GitHub Pages
+        id: deployment
+        if: steps.freshness.outputs.current == 'true'
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346

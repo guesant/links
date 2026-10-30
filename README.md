@@ -25,7 +25,7 @@ O desenvolvimento e o CI usam o mesmo [Dockerfile](.config/container/Dockerfile)
 - [Estatísticas](website/src/data/statistics.yaml)
 - [Templates e assets](website/src/)
 - [Configuração](.config/)
-- [Publicação](.github/workflows/pages.yml)
+- [CI e publicação](.github/workflows/ci.yml)
 - [Créditos e licenças](website/src/data/credits.yaml)
 
 O site é publicado no GitHub Pages. As estatísticas só são substituídas quando a atualização dá certo.
