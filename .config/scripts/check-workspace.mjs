@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import { access, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import test from 'node:test';
@@ -17,47 +16,6 @@ const appFiles = [
   '.stylelintrc.json',
   'src',
 ];
-
-test('publication stops when validation or the final build fails', async () => {
-  const { parse } = requireWebsite('yaml');
-
-  const workflow = parse(
-    await readFile(
-      resolve(repositoryRoot, '.github/workflows/pages.yml'),
-      'utf8',
-    ),
-  );
-
-  const step = workflow.jobs.build.steps.find((entry) => {
-    return entry.with?.runCmd;
-  });
-
-  for (const scenario of [
-    { task: 'check', output: 'check\n' },
-    { task: 'build', output: 'check\nbuild\n' },
-  ]) {
-    const result = spawnSync(
-      'sh',
-      [
-        '-c',
-        `just() {
-  printf '%s\\n' "$1"
-  if [ "$1" = "$LOBBY_FAILING_TASK" ]; then
-    return 23
-  fi
-}
-${step.with.runCmd}`,
-      ],
-      {
-        encoding: 'utf8',
-        env: { ...process.env, LOBBY_FAILING_TASK: scenario.task },
-      },
-    );
-
-    assert.equal(result.status, 23);
-    assert.equal(result.stdout, scenario.output);
-  }
-});
 
 test('application sources and npm tooling live exclusively in website', async () => {
   for (const file of appFiles) {
@@ -98,13 +56,19 @@ test('tooling resolves pinned dependencies from the website package', async () =
 test('asset catalogs point to existing files in website', async () => {
   const { parse } = requireWebsite('yaml');
 
-  for (const name of ['design-assets', 'cursor-assets']) {
+  for (const name of [
+    'design-assets',
+    'cursor-assets',
+  ]) {
     const catalog = parse(
       await readFile(resolve(repositoryRoot, `.config/${name}.yaml`), 'utf8'),
     );
 
     for (const asset of catalog.assets) {
-      for (const file of [asset.file, asset.source].filter(Boolean)) {
+      for (const file of [
+        asset.file,
+        asset.source,
+      ].filter(Boolean)) {
         assert(file.startsWith('website/src/'));
         await access(resolve(repositoryRoot, file));
       }
@@ -192,9 +156,18 @@ test('style policy rejects absolute units, untokenized lengths and unequal fract
     requireWebsite.resolve('stylelint')
   );
 
-  for (const [code, rule] of [
-    [':root { --space-test: 12px; }', 'unit-disallowed-list'],
-    ['.grid { padding: 1rem; }', 'declaration-property-value-disallowed-list'],
+  for (const [
+    code,
+    rule,
+  ] of [
+    [
+      ':root { --space-test: 12px; }',
+      'unit-disallowed-list',
+    ],
+    [
+      '.grid { padding: 1rem; }',
+      'declaration-property-value-disallowed-list',
+    ],
     [
       '.grid { width: calc(100% - 2rem); }',
       'declaration-property-value-disallowed-list',

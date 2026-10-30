@@ -1,0 +1,16 @@
+id: no-narrative-comments-typescript
+language: TypeScript
+severity: error
+message: Narrative comments are not allowed; use tool directives only.
+files:
+  - website/**/*.ts
+rule:
+  all:
+    - kind: comment
+    - not:
+        regex: >-
+          (?x) ^ ( ///\s*<reference\s+types=.*> | //\s* | /\*+\s* )
+          ( eslint-(disable|enable)(-line|-next-line)? | @ts-(expect-error|ignore|nocheck)
+          | prettier-ignore | istanbul\s+ignore | c8\s+ignore | v8\s+ignore
+          | jscpd:ignore-(start|end) | nosemgrep | semgrep: )
+          ( \b | : | \s | \*/ )

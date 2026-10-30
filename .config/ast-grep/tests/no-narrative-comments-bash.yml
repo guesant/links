@@ -1,0 +1,12 @@
+id: no-narrative-comments-bash
+valid:
+  - |
+    #!/usr/bin/env bash
+    set -euo pipefail
+  - |
+    # shellcheck disable=SC2001
+    value=1
+invalid:
+  - |
+    # Keep this step until the old server is removed.
+    value=1

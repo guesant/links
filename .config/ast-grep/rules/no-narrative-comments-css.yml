@@ -1,0 +1,11 @@
+id: no-narrative-comments-css
+language: Css
+severity: error
+message: Narrative comments are not allowed; use tool directives only.
+files:
+  - website/**/*.css
+rule:
+  all:
+    - kind: comment
+    - not:
+        regex: '^/\*\s*(prettier-ignore|stylelint-(disable|enable)(-line|-next-line)?)(\b|:|\s|\*/)'

@@ -1,0 +1,10 @@
+id: no-narrative-comments-bash
+snapshots:
+  ? |
+    # Keep this step until the old server is removed.
+    value=1
+  : labels:
+      - source: '# Keep this step until the old server is removed.'
+        style: primary
+        start: 0
+        end: 49

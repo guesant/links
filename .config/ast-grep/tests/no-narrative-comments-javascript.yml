@@ -1,0 +1,11 @@
+id: no-narrative-comments-javascript
+valid:
+  - |
+    // eslint-disable-next-line no-console
+    const value = 1
+  - |
+    const value = 'https://example.com/path'
+invalid:
+  - |
+    // this makes the request faster
+    const value = 1

@@ -1,0 +1,10 @@
+id: no-narrative-comments-jsonc
+snapshots:
+  ? |
+    // Keep this in sync with the workflow.
+    { "value": 1 }
+  : labels:
+      - source: // Keep this in sync with the workflow.
+        style: primary
+        start: 0
+        end: 39

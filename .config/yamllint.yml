@@ -1,0 +1,11 @@
+extends: default
+ignore: |
+  .config/cursor-assets.yaml
+  .config/design-assets.yaml
+rules:
+  braces: disable
+  comments: disable
+  document-start: disable
+  line-length:
+    max: 320
+  truthy: disable

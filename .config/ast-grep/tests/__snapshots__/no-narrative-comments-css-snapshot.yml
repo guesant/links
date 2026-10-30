@@ -1,0 +1,10 @@
+id: no-narrative-comments-css
+snapshots:
+  ? |
+    /* Keep this for the compact view. */
+    #root { color: red; }
+  : labels:
+      - source: /* Keep this for the compact view. */
+        style: primary
+        start: 0
+        end: 37

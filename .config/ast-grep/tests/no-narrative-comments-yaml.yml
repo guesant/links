@@ -1,0 +1,11 @@
+id: no-narrative-comments-yaml
+valid:
+  - |
+    # yamllint disable rule:line-length
+    title: Lobby
+  - |
+    url: https://example.com/a#section
+invalid:
+  - |
+    # Keep this entry until the page is redesigned.
+    title: Lobby

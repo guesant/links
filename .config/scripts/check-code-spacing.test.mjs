@@ -14,6 +14,7 @@ const configFile = resolve(websiteRoot, 'eslint.config.js');
 const spacingRules = new Set([
   'lobby/padding-line-between-statements',
   '@stylistic/lines-between-class-members',
+  '@stylistic/object-curly-newline',
   '@stylistic/no-multiple-empty-lines',
   '@stylistic/padded-blocks',
 ]);
@@ -59,6 +60,10 @@ export function total(record: Totals): Count {
 }`,
   },
   {
+    file: 'src/object-spacing-fixture.js',
+    source: `export default { meta: { type: 'problem', docs: { description: 'rule' }, schema: ['rule'] }, create(context) { return context.report({ loc, messageId: 'narrative' }); } };`,
+  },
+  {
     file: 'src/lib/SpacingFixture.svelte',
     source: `<script lang="ts">
 import 'node:assert';
@@ -95,6 +100,23 @@ function scriptTokens(source) {
   return tokens;
 }
 
+function semanticTokens(source) {
+  const tokens = scriptTokens(source);
+
+  return tokens.filter((token, index) => {
+    const next = tokens[index + 1];
+
+    return (
+      token !== ',' ||
+      ![
+        '}',
+        ']',
+        ')',
+      ].includes(next)
+    );
+  });
+}
+
 for (const fixture of fixtures) {
   test(`spacing is detected, fixed and stable in ${fixture.file}`, async () => {
     const filePath = resolve(websiteRoot, fixture.file);
@@ -104,14 +126,23 @@ for (const fixture of fixtures) {
     });
 
     const format = (source) => {
-      return prettier.format(source, { ...options, filepath: filePath });
+      return prettier.format(source, {
+        ...options,
+        filepath: filePath,
+      });
     };
 
     const before = await format(fixture.source);
 
-    const eslint = new ESLint({ overrideConfigFile: configFile });
+    const eslint = new ESLint({
+      overrideConfigFile: configFile,
+    });
 
-    const [unformatted] = await eslint.lintText(before, { filePath });
+    const [
+      unformatted,
+    ] = await eslint.lintText(before, {
+      filePath,
+    });
 
     assert.ok(
       unformatted.messages.some((message) => {
@@ -123,14 +154,24 @@ for (const fixture of fixtures) {
     const fixer = new ESLint({
       overrideConfigFile: configFile,
       fix: true,
-      fixTypes: ['layout'],
+      fixTypes: [
+        'layout',
+      ],
     });
 
-    const [fixed] = await fixer.lintText(before, { filePath });
+    const [
+      fixed,
+    ] = await fixer.lintText(before, {
+      filePath,
+    });
 
     const after = await format(fixed.output || before);
 
-    const [checked] = await eslint.lintText(after, { filePath });
+    const [
+      checked,
+    ] = await eslint.lintText(after, {
+      filePath,
+    });
 
     assert.deepEqual(
       checked.messages.filter((message) => {
@@ -138,9 +179,13 @@ for (const fixture of fixtures) {
       }),
       [],
     );
-    assert.deepEqual(scriptTokens(after), scriptTokens(before));
+    assert.deepEqual(semanticTokens(after), semanticTokens(before));
 
-    const [repeated] = await fixer.lintText(after, { filePath });
+    const [
+      repeated,
+    ] = await fixer.lintText(after, {
+      filePath,
+    });
 
     assert.equal(await format(repeated.output || after), after);
 
@@ -154,6 +199,13 @@ for (const fixture of fixtures) {
         after,
         /import 'node:assert';\n\s*import 'node:path';\n\s*\n/,
       );
+    }
+
+    if (fixture.file.endsWith('object-spacing-fixture.js')) {
+      assert.match(after, /export default \{\n/);
+      assert.match(after, /docs: \{\n/);
+      assert.match(after, /context\.report\(\{\n/);
+      assert.match(after, /schema: \[\n\s*'rule',\n\s*\],/);
     }
   });
 }

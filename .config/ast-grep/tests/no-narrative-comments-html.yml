@@ -1,0 +1,9 @@
+id: no-narrative-comments-html
+valid:
+  - |
+    <!-- prettier-ignore -->
+    <main>Content</main>
+invalid:
+  - |
+    <!-- The content begins here. -->
+    <main>Content</main>

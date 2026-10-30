@@ -1,0 +1,21 @@
+id: no-narrative-comments-javascript
+language: JavaScript
+severity: error
+message: Narrative comments are not allowed; use tool directives only.
+files:
+  - website/**/*.js
+  - website/**/*.mjs
+  - website/**/*.cjs
+  - .config/scripts/**/*.js
+  - .config/scripts/**/*.mjs
+  - .config/scripts/**/*.cjs
+rule:
+  all:
+    - kind: comment
+    - not:
+        regex: >-
+          (?x) ^ ( //\s* | /\*+\s* )
+          ( eslint-(disable|enable)(-line|-next-line)? | @ts-(expect-error|ignore|nocheck)
+          | prettier-ignore | istanbul\s+ignore | c8\s+ignore | v8\s+ignore
+          | jscpd:ignore-(start|end) | nosemgrep | semgrep: )
+          ( \b | : | \s | \*/ )

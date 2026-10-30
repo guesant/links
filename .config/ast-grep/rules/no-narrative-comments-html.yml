@@ -1,0 +1,11 @@
+id: no-narrative-comments-html
+language: Html
+severity: error
+message: Narrative comments are not allowed; use tool directives only.
+files:
+  - website/**/*.html
+rule:
+  all:
+    - kind: comment
+    - not:
+        regex: '^<!--\s*(prettier-ignore|eslint-(disable|enable)(-line|-next-line)?)(\b|:|\s)[\s\S]*-->$'

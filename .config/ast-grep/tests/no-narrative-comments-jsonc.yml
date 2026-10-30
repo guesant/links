@@ -1,0 +1,11 @@
+id: no-narrative-comments-jsonc
+valid:
+  - |
+    // prettier-ignore
+    { "value": 1 }
+  - |
+    { "url": "https://example.com/path#section" }
+invalid:
+  - |
+    // Keep this in sync with the workflow.
+    { "value": 1 }

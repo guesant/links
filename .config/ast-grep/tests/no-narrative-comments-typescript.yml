@@ -1,0 +1,15 @@
+id: no-narrative-comments-typescript
+valid:
+  - |
+    // eslint-disable-next-line no-console -- rule is intentionally exercised
+    const value = 'https://example.com/a//b'
+  - |
+    /* prettier-ignore */
+    const value = 1
+invalid:
+  - |
+    // normalize the value before rendering
+    const value = 1
+  - |
+    /* temporary workaround */
+    const value = 1

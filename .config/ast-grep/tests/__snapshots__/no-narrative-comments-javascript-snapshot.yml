@@ -1,0 +1,10 @@
+id: no-narrative-comments-javascript
+snapshots:
+  ? |
+    // this makes the request faster
+    const value = 1
+  : labels:
+      - source: // this makes the request faster
+        style: primary
+        start: 0
+        end: 32

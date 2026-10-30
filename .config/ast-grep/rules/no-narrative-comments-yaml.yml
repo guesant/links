@@ -1,0 +1,19 @@
+id: no-narrative-comments-yaml
+language: Yaml
+severity: error
+message: Narrative comments are not allowed; use tool directives only.
+files:
+  - .config/**/*.yaml
+  - .config/**/*.yml
+  - .github/**/*.yaml
+  - .github/**/*.yml
+  - website/**/*.yaml
+  - website/**/*.yml
+rule:
+  all:
+    - kind: comment
+    - not:
+        regex: >-
+          (?x) ^ \#\s* ( prettier-ignore | yamllint\s+(disable|enable)
+          | zizmor:\s*ignore\[ | yaml-language-server:\s*\$schema= | renovate: )
+          ( \b | : | \s | \] )

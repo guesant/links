@@ -1,0 +1,10 @@
+id: no-narrative-comments-yaml
+snapshots:
+  ? |
+    # Keep this entry until the page is redesigned.
+    title: Lobby
+  : labels:
+      - source: '# Keep this entry until the page is redesigned.'
+        style: primary
+        start: 0
+        end: 47

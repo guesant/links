@@ -1,0 +1,9 @@
+id: no-narrative-comments-css
+valid:
+  - |
+    /* stylelint-disable selector-max-id */
+    #root { color: red; }
+invalid:
+  - |
+    /* Keep this for the compact view. */
+    #root { color: red; }
