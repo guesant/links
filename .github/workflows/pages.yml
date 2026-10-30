@@ -31,6 +31,7 @@ jobs:
             GITHUB_SHA
             GITHUB_RUN_ID
           runCmd: |
+            set -eu
             just check
             just build
       - name: Upload reports
