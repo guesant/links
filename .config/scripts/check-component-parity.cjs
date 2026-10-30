@@ -131,11 +131,17 @@ async function inspectComponents(page, expected, minecraft) {
         (link) => {
           const style = getComputedStyle(link);
 
+          const iconStyle = getComputedStyle(
+            link.querySelector('.quick-contact-icon'),
+          );
+
           return {
             source: style.borderImageSource,
             width: parseFloat(style.borderTopWidth),
             repeat: style.borderImageRepeat,
             background: style.backgroundColor,
+            innerBorder: iconStyle.borderTopWidth,
+            innerBackground: iconStyle.backgroundColor,
           };
         },
       );
@@ -164,6 +170,28 @@ async function inspectComponents(page, expected, minecraft) {
         ),
       );
 
+      const shortcuts = document.querySelector('.quick-contacts');
+
+      const shortcutsBox = shortcuts.getBoundingClientRect();
+
+      const profileBox = document
+        .querySelector('.profile')
+        .getBoundingClientRect();
+
+      const uptimeBox = document
+        .querySelector('.profile-uptime')
+        .getBoundingClientRect();
+
+      const navigation = document.querySelector('.page-navigation');
+
+      const homeBox = navigation
+        .querySelector('.navigation-home')
+        .getBoundingClientRect();
+
+      const sectionsBox = navigation
+        .querySelector('.section-switcher-trigger')
+        .getBoundingClientRect();
+
       return {
         badgesCorrect,
         ownershipCorrect,
@@ -171,6 +199,22 @@ async function inspectComponents(page, expected, minecraft) {
         frames,
         icons,
         activeCheck,
+        shortcutsInHeader:
+          shortcuts.closest('.profile') !== null &&
+          shortcuts.children.length === 8 &&
+          shortcutsBox.top >= uptimeBox.bottom &&
+          shortcutsBox.bottom <= profileBox.bottom &&
+          shortcutsBox.left >= profileBox.left &&
+          shortcutsBox.right <= profileBox.right,
+        navigationSeparated:
+          !navigation.querySelector('.quick-contacts') &&
+          !document.querySelector('.quick-access .section-toolbar') &&
+          navigation.querySelectorAll(':scope > a, :scope > details').length ===
+            2,
+        navigationAligned:
+          Math.abs(homeBox.width - sectionsBox.width) < 1 &&
+          Math.abs(homeBox.top - sectionsBox.top) < 1 &&
+          Math.abs(homeBox.height - sectionsBox.height) < 1,
       };
     },
     { expected, minecraft },
@@ -190,6 +234,21 @@ async function inspectComponents(page, expected, minecraft) {
   }
 
   assert.equal(actual.avatar, 'GA');
+  assert.equal(
+    actual.shortcutsInHeader,
+    true,
+    'eight shortcuts below uptime inside header',
+  );
+  assert.equal(
+    actual.navigationSeparated,
+    true,
+    'navigation only contains Home and Sections',
+  );
+  assert.equal(
+    actual.navigationAligned,
+    true,
+    'navigation controls share equal columns and height',
+  );
   assert(actual.frames.length > 0);
 
   for (const frame of actual.frames) {
@@ -197,6 +256,8 @@ async function inspectComponents(page, expected, minecraft) {
     assert(frame.width > 0);
     assert.equal(frame.repeat, 'repeat');
     assert.equal(frame.background, 'rgba(0, 0, 0, 0)');
+    assert.equal(frame.innerBorder, '0px');
+    assert.equal(frame.innerBackground, 'rgba(0, 0, 0, 0)');
   }
 
   assert(actual.icons.length > 0);

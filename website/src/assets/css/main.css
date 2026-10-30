@@ -168,7 +168,6 @@
   --navigation-menu-max-height: 34rem;
   --navigation-menu-viewport-height: 60svh;
   --navigation-icon-size: 1.25rem;
-  --quick-navigation-contact-size: var(--quick-contact-size);
   --quick-navigation-divider-width: var(--space-1);
   --color-wood-divider-wash: rgb(128 85 47 / 65%);
   --preview-row-height: var(--control-min-height);
@@ -736,14 +735,15 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   font-variant-numeric: tabular-nums;
 }
 
-.profile-uptime-label {
+.profile-section-label {
   font-family: var(--font-pixel);
   font-size: var(--font-size-label);
+  font-weight: 400;
   color: var(--color-wood-text);
 }
 
-.profile-uptime-label::before,
-.profile-uptime-label::after {
+.profile-section-label::before,
+.profile-section-label::after {
   display: inline-block;
   width: var(--space-4);
   height: var(--divider-width);
@@ -827,7 +827,7 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   grid-template-columns: var(--grid-columns-4);
   justify-content: space-between;
   width: var(--size-full);
-  gap: var(--space-1);
+  gap: var(--space-2);
   margin-inline: auto;
 }
 
@@ -837,12 +837,10 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   width: var(--size-full);
   aspect-ratio: 1;
   min-width: var(--space-0);
-  max-width: var(--quick-navigation-contact-size);
+  max-width: var(--quick-contact-size);
   min-height: var(--control-min-height);
   justify-self: center;
   place-items: center;
-  background: var(--color-wood-copy);
-  background-color: var(--color-wood-copy);
   color: var(--color-wood-text);
   text-decoration: none;
 }
@@ -861,8 +859,7 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   place-items: center;
   width: var(--space-6);
   height: var(--space-6);
-  background: var(--color-icon-slot);
-  border: var(--pixel-border) solid var(--color-border-control);
+  background: var(--color-transparent);
   color: var(--color-icon-on-slot);
 }
 
@@ -982,23 +979,13 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   grid-template-columns:
     var(--grid-track) var(--quick-navigation-divider-width)
     var(--grid-track);
-  grid-template-areas:
-    'home divider-start sections'
-    'contacts contacts contacts';
+  grid-template-areas: 'home divider-start sections';
   align-items: center;
   gap: var(--space-2);
   width: min(var(--size-full), var(--main-content-width));
   min-width: var(--space-0);
   margin-inline: auto;
   font-size: var(--font-size-small);
-}
-
-.page-navigation .quick-contact-link {
-  background-color: var(--color-transparent);
-}
-
-.page-navigation > .quick-contacts {
-  grid-area: contacts;
 }
 
 .navigation-home {
@@ -1043,21 +1030,18 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   grid-area: divider-start;
 }
 
-.quick-navigation-divider-end {
-  display: none;
-  grid-area: divider-end;
-}
-
 .navigation-home,
 .section-switcher-trigger {
+  --button-icon-size: var(--navigation-icon-size);
+
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: var(--space-0);
   align-items: center;
   justify-content: center;
   min-height: var(--control-min-height);
-  gap: var(--space-2);
-  padding-inline: var(--space-3);
+  gap: var(--space-1);
+  padding-inline: var(--space-2);
   border: var(--space-1) solid var(--color-wood-border);
   border-image-source: var(--ornament-oak-frame);
   border-image-slice: var(--profile-frame-slice);
@@ -1277,6 +1261,7 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   border-width: var(--space-2);
   border-image-source: var(--ornament-oak-frame);
   border-image-slice: var(--profile-frame-slice);
+  background-color: var(--color-transparent);
 }
 
 :is(a, button, summary):focus-visible,
@@ -1285,13 +1270,11 @@ html[data-js-enabled][data-landscape-preview-failed] .world-landscape-preview {
   outline-offset: var(--space-1);
 }
 
-.page-navigation
-  :is(.navigation-home, .quick-contact-link, .section-switcher-trigger) {
+.page-navigation :is(.navigation-home, .section-switcher-trigger) {
   box-shadow: var(--shadow-bevel), var(--shadow-navigation-frame);
 }
 
-.page-navigation
-  :is(.navigation-home, .quick-contact-link, .section-switcher-trigger):active {
+.page-navigation :is(.navigation-home, .section-switcher-trigger):active {
   box-shadow: var(--shadow-pressed), var(--shadow-navigation-frame-pressed);
 }
 
@@ -2415,52 +2398,8 @@ html[data-page-hidden='true'] :is(.world-clouds, .lantern-glow) {
 }
 
 @container shell (min-width: 36rem) {
-  .page-navigation {
-    --quick-navigation-contact-size: calc(var(--space-6) + var(--space-2));
-
-    grid-template-columns:
-      auto var(--quick-navigation-divider-width) var(--grid-track)
-      var(--quick-navigation-divider-width) auto;
-    grid-template-areas: 'home divider-start contacts divider-end sections';
-    gap: var(--space-2);
-  }
-
-  .page-navigation .quick-contacts {
+  .quick-contacts {
     grid-template-columns: var(--grid-columns-8);
-    gap: var(--space-1);
-  }
-
-  .page-navigation .quick-contact-link {
-    border-width: var(--space-1);
-    max-width: var(--quick-navigation-contact-size);
-    min-height: var(--quick-navigation-contact-size);
-  }
-
-  .page-navigation .quick-contact-icon {
-    width: calc(var(--space-6) - var(--space-1));
-    height: calc(var(--space-6) - var(--space-1));
-  }
-
-  .page-navigation .quick-contact-icon .site-icon {
-    width: calc(var(--icon-grid-size) - var(--space-1));
-    height: calc(var(--icon-grid-size) - var(--space-1));
-  }
-
-  .page-navigation :is(.navigation-home, .section-switcher-trigger) {
-    --button-icon-size: var(--space-4);
-
-    gap: var(--pixel-border);
-    padding-inline: var(--space-2);
-    border-width: var(--pixel-border);
-    font-size: var(--font-size-disclaimer);
-  }
-
-  .page-navigation .navigation-chevron {
-    --button-icon-size: var(--space-2);
-  }
-
-  .quick-navigation-divider-end {
-    display: block;
   }
 }
 

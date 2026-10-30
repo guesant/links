@@ -109,10 +109,12 @@ async function checkNavigationBrowser(browser, baseURL, reportDirectory) {
         assert.equal(await page.$('.navigation-current'), null);
         assert.equal(
           await page.$eval('.quick-contacts', (group) => {
-            return Boolean(group.closest('.page-navigation'));
+            return Boolean(group.closest('.profile'));
           }),
           true,
         );
+        assert.equal(await page.$('.page-navigation .quick-contacts'), null);
+        assert.equal(await page.$('.quick-access .section-toolbar'), null);
 
         for (const theme of ['dark', 'light']) {
           await page.evaluate((theme) => {

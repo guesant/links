@@ -136,7 +136,7 @@
         <p class="profile-username">@{profile.username}</p>
         <p class="profile-bio">{profile.bio}</p>
         <p class="profile-uptime">
-          <span class="profile-uptime-label">{localized.ui.uptime_label}</span>
+          <span class="profile-section-label">{localized.ui.uptime_label}</span>
           <time
             datetime={profile.birthDate}
             data-uptime={profile.birthDate}
@@ -145,17 +145,34 @@
             {profile.birthDate}
           </time>
         </p>
+        <h2 class="profile-section-label" id="profile-quick-access-title">
+          {localized.ui.quick_access_title}
+        </h2>
+        <div
+          class="quick-contacts"
+          role="group"
+          aria-labelledby="profile-quick-access-title"
+        >
+          {#each quickLinks as item}<a
+              class="quick-contact-link"
+              href={destination(item).href}
+              target={destination(item).target}
+              rel={destination(item).rel}
+              title={item.title}
+              aria-label={item.title}
+            >
+              <span class="quick-contact-icon">
+                <Icon name={item.icon} optical />
+              </span>
+              <span class="quick-contact-label">{item.title}</span>
+            </a>{/each}
+        </div>
       </div>
     </header>
     <div class="suspended-content">
       <SuspensionRails {lanternCount} />
       <div class="quick-access">
-        <header class="section-toolbar">
-          <h2 class="section-toolbar-title" id="quick-access-title">
-            {localized.ui.quick_access_title}
-          </h2>
-        </header>
-        <nav class="page-navigation" aria-labelledby="quick-access-title">
+        <nav class="page-navigation" aria-label={localized.ui.navigation_label}>
           <a
             class="navigation-home"
             href={homeURL}
@@ -168,29 +185,6 @@
           </a>
           <span
             class="quick-navigation-divider quick-navigation-divider-start"
-            aria-hidden="true"
-          ></span>
-          <div
-            class="quick-contacts"
-            role="group"
-            aria-label={localized.ui.quick_contacts_label}
-          >
-            {#each quickLinks as item}<a
-                class="quick-contact-link"
-                href={destination(item).href}
-                target={destination(item).target}
-                rel={destination(item).rel}
-                title={item.title}
-                aria-label={item.title}
-              >
-                <span class="quick-contact-icon">
-                  <Icon name={item.icon} optical />
-                </span>
-                <span class="quick-contact-label">{item.title}</span>
-              </a>{/each}
-          </div>
-          <span
-            class="quick-navigation-divider quick-navigation-divider-end"
             aria-hidden="true"
           ></span>
           <details class="section-switcher" data-section-switcher>

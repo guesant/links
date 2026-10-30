@@ -516,13 +516,14 @@ const checks = [];
 
                 return (
                   aligned &&
-                  navigation.top <= quickContacts.top &&
-                  navigation.bottom >= quickContacts.bottom &&
+                  profile.top <= quickContacts.top &&
+                  profile.bottom >= quickContacts.bottom &&
+                  profile.bottom <= navigation.top &&
                   navigation.bottom <= content.top &&
                   Math.abs(navigation.width - content.width) < 1 &&
                   Math.abs(footer.width - profile.width) < 1 &&
-                  quickContacts.left >= navigation.left &&
-                  quickContacts.right <= navigation.right &&
+                  quickContacts.left >= profile.left &&
+                  quickContacts.right <= profile.right &&
                   Math.abs(
                     navigation.left +
                       navigation.width / 2 -
@@ -932,9 +933,7 @@ const checks = [];
                   );
                 }),
               quickContactsTransparent: [
-                ...document.querySelectorAll(
-                  '.page-navigation .quick-contact-link',
-                ),
+                ...document.querySelectorAll('.profile .quick-contact-link'),
               ].every((link) => {
                 return (
                   getComputedStyle(link).backgroundColor === 'rgba(0, 0, 0, 0)'
