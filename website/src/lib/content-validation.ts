@@ -19,7 +19,10 @@ function validateEditorialLabels(
 
   const labels: EditorialEntry['labels'] = {};
 
-  for (const [language, rawLabel] of Object.entries(source)) {
+  for (const [
+    language,
+    rawLabel,
+  ] of Object.entries(source)) {
     const localized = record(rawLabel, `${label}.${language}`);
 
     const title = requiredText(localized.title, `${label}.${language}.title`);
@@ -41,13 +44,23 @@ function validateEditorialLabels(
 }
 
 function validateEditorialOptions(item: UnknownRecord, label: string): void {
-  for (const flag of ['enabled', 'public', 'private', 'draft']) {
+  for (const flag of [
+    'enabled',
+    'public',
+    'private',
+    'draft',
+  ]) {
     if (item[flag] !== undefined && typeof item[flag] !== 'boolean') {
       throw new Error(`Invalid ${label}.${flag}`);
     }
   }
 
-  for (const key of ['url', 'group', 'status', 'updated'] as const) {
+  for (const key of [
+    'url',
+    'group',
+    'status',
+    'updated',
+  ] as const) {
     if (item[key] !== undefined && typeof item[key] !== 'string') {
       throw new Error(`Invalid ${label}.${key}`);
     }
@@ -132,15 +145,24 @@ export function validateEditorial(value: unknown): SiteData['editorial'] {
 
   const now: Record<string, Record<string, string>> = {};
 
-  for (const [locale, rawUIEntry] of Object.entries(rawUI)) {
+  for (const [
+    locale,
+    rawUIEntry,
+  ] of Object.entries(rawUI)) {
     ui[locale] = validateTextMap(rawUIEntry, `editorial.ui.${locale}`);
   }
 
-  for (const [locale, rawNowEntry] of Object.entries(rawNow)) {
+  for (const [
+    locale,
+    rawNowEntry,
+  ] of Object.entries(rawNow)) {
     now[locale] = validateTextMap(rawNowEntry, `editorial.now.${locale}`);
   }
 
-  for (const [section, rawItems] of Object.entries(rawEntries)) {
+  for (const [
+    section,
+    rawItems,
+  ] of Object.entries(rawEntries)) {
     entries[section] = array(rawItems, `editorial.entries.${section}`).map(
       (rawItem, index) => {
         return validateEditorialEntry(section, index, rawItem);
@@ -148,7 +170,11 @@ export function validateEditorial(value: unknown): SiteData['editorial'] {
     );
   }
 
-  return { entries, ui, now };
+  return {
+    entries,
+    ui,
+    now,
+  };
 }
 
 export function validateCredits(value: unknown): SiteData['credits'] {
@@ -158,7 +184,10 @@ export function validateCredits(value: unknown): SiteData['credits'] {
 
   const validatedLicenses: SiteData['credits']['licenses'] = {};
 
-  for (const [id, rawLicense] of Object.entries(licenses)) {
+  for (const [
+    id,
+    rawLicense,
+  ] of Object.entries(licenses)) {
     const license = record(rawLicense, `credits.licenses.${id}`);
 
     validatedLicenses[id] = {
@@ -199,7 +228,10 @@ export function validateCredits(value: unknown): SiteData['credits'] {
     }
   }
 
-  return { licenses: validatedLicenses, entries };
+  return {
+    licenses: validatedLicenses,
+    entries,
+  };
 }
 
 function validateNumericMap(
@@ -210,7 +242,10 @@ function validateNumericMap(
 
   const output: Record<string, number> = {};
 
-  for (const [key, entry] of Object.entries(source)) {
+  for (const [
+    key,
+    entry,
+  ] of Object.entries(source)) {
     if (typeof entry !== 'number' || !Number.isFinite(entry) || entry < 0) {
       throw new Error(
         `Invalid ${label}.${key}: expected a non-negative number`,
@@ -228,7 +263,10 @@ export function validateStatistics(value: unknown): SiteData['statistics'] {
 
   const output: SiteData['statistics'] = {};
 
-  for (const [id, rawEntry] of Object.entries(statistics)) {
+  for (const [
+    id,
+    rawEntry,
+  ] of Object.entries(statistics)) {
     const entry = record(rawEntry, `statistics.${id}`);
 
     const metrics = validateNumericMap(
@@ -384,7 +422,10 @@ function validateFederationMetadata(
 
   const metadata: FederationItem['metadata'] = {};
 
-  for (const [key, entry] of Object.entries(raw)) {
+  for (const [
+    key,
+    entry,
+  ] of Object.entries(raw)) {
     if (!allowed.has(key)) {
       continue;
     }
@@ -451,5 +492,8 @@ export function validateFederation(value: unknown): SiteData['federation'] {
     return validateFederationItem(item, index, identities);
   });
 
-  return { version: 1, items };
+  return {
+    version: 1,
+    items,
+  };
 }

@@ -51,7 +51,13 @@ export async function collectGitHub(entry, fetcher = fetch) {
 
   const endpoint = `https://api.github.com/users/${encodeURIComponent(username)}`;
 
-  const user = await request(endpoint, { headers }, fetcher);
+  const user = await request(
+    endpoint,
+    {
+      headers,
+    },
+    fetcher,
+  );
 
   if (user.login?.toLowerCase() !== username.toLowerCase()) {
     throw new Error('GitHub returned a different profile');
@@ -66,7 +72,9 @@ export async function collectGitHub(entry, fetcher = fetch) {
 
     const entries = await request(
       `${endpoint}/repos?type=owner&per_page=100&page=${page}`,
-      { headers },
+      {
+        headers,
+      },
       fetcher,
     );
 
@@ -91,7 +99,9 @@ export async function collectGitHub(entry, fetcher = fetch) {
     }
   }
 
-  const publicRepositories = [...repositories.values()];
+  const publicRepositories = [
+    ...repositories.values(),
+  ];
 
   return {
     username: user.login,
@@ -134,7 +144,9 @@ export async function collectLeetCode(entry, fetcher = fetch) {
       body: JSON.stringify({
         query:
           'query($username: String!) { matchedUser(username: $username) { username profile { ranking } submitStatsGlobal { acSubmissionNum { difficulty count } } } allQuestionsCount { difficulty count } }',
-        variables: { username },
+        variables: {
+          username,
+        },
       }),
     },
     fetcher,
@@ -157,11 +169,18 @@ export async function collectLeetCode(entry, fetcher = fetch) {
     throw new Error('LeetCode returned invalid counts');
   }
 
-  const metrics = { ranking: integer(user.profile?.ranking) };
+  const metrics = {
+    ranking: integer(user.profile?.ranking),
+  };
 
   const available = {};
 
-  for (const difficulty of ['All', 'Easy', 'Medium', 'Hard']) {
+  for (const difficulty of [
+    'All',
+    'Easy',
+    'Medium',
+    'Hard',
+  ]) {
     const resolveKey = () => {
       if (difficulty === 'All') {
         return 'solved';
@@ -192,7 +211,11 @@ export async function collectLeetCode(entry, fetcher = fetch) {
     throw new Error('LeetCode difficulty counts do not add up');
   }
 
-  return { username: user.username, metrics, available };
+  return {
+    username: user.username,
+    metrics,
+    available,
+  };
 }
 
 export async function updateStats({
@@ -229,9 +252,14 @@ export async function updateStats({
     throw new Error('Invalid statistics cache');
   }
 
-  const next = { ...previous };
+  const next = {
+    ...previous,
+  };
 
-  const providers = { github: collectGitHub, leetcode: collectLeetCode };
+  const providers = {
+    github: collectGitHub,
+    leetcode: collectLeetCode,
+  };
 
   const results = [];
 
@@ -276,7 +304,10 @@ export async function updateStats({
       }
 
       next[entry.id] = snapshot;
-      results.push({ id: entry.id, status: 'updated' });
+      results.push({
+        id: entry.id,
+        status: 'updated',
+      });
     } catch (error) {
       const cached =
         previous[entry.id]?.profile_url === entry.url &&
@@ -303,11 +334,15 @@ export async function updateStats({
       return entry.status === 'updated';
     })
   ) {
-    await mkdir(dirname(outputPath), { recursive: true });
+    await mkdir(dirname(outputPath), {
+      recursive: true,
+    });
 
     const temporary = `${outputPath}.${process.pid}.tmp`;
 
-    await writeFile(temporary, stringify(next), { mode: 0o644 });
+    await writeFile(temporary, stringify(next), {
+      mode: 0o644,
+    });
     await rename(temporary, outputPath);
   }
 

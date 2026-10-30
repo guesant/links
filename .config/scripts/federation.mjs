@@ -100,7 +100,10 @@ export function validateFeed(feed, source) {
 
     const metadata = {};
 
-    for (const [key, value] of Object.entries(entry.metadata || {})) {
+    for (const [
+      key,
+      value,
+    ] of Object.entries(entry.metadata || {})) {
       if (!metadataKeys.has(key)) {
         continue;
       }
@@ -157,14 +160,20 @@ export function validateFeed(feed, source) {
     };
   });
 
-  return { version: 1, source: source.id, items };
+  return {
+    version: 1,
+    source: source.id,
+    items,
+  };
 }
 
 export async function loadFeed(
   source,
   { cacheDirectory, localFile, fetcher = fetch, warn = console.warn },
 ) {
-  await mkdir(cacheDirectory, { recursive: true });
+  await mkdir(cacheDirectory, {
+    recursive: true,
+  });
 
   const cache = resolve(cacheDirectory, `${source.id}.json`);
 
@@ -227,7 +236,9 @@ export async function syncFederation() {
 
   const directory = resolve('.cache/federation/assets');
 
-  await mkdir(directory, { recursive: true });
+  await mkdir(directory, {
+    recursive: true,
+  });
   await writeFile(
     resolve(directory, 'federation.json.tmp'),
     JSON.stringify({

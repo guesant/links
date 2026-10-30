@@ -338,7 +338,9 @@ export function resolveDestination(
 
   const externalRelAttributes = () => {
     if (target === '_blank') {
-      return { rel: 'noopener noreferrer' };
+      return {
+        rel: 'noopener noreferrer',
+      };
     }
 
     return {};

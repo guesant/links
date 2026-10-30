@@ -45,11 +45,16 @@
     release: urls.pointerRelease,
   };
 
-  for (const [name, url] of Object.entries(audioURLs) as [
+  for (const [
+    name,
+    url,
+  ] of Object.entries(audioURLs) as [
     keyof typeof buffers,
     string,
   ][]) {
-    fetch(url, { priority: 'low' })
+    fetch(url, {
+      priority: 'low',
+    })
       .then((response) => {
         if (response.ok) {
           return response.arrayBuffer();
@@ -114,7 +119,9 @@
             playing = null;
           }
         },
-        { once: true },
+        {
+          once: true,
+        },
       );
       source.start();
       playing = source;
@@ -146,7 +153,10 @@
 
       play('press');
     },
-    { capture: true, passive: true },
+    {
+      capture: true,
+      passive: true,
+    },
   );
   document.addEventListener(
     'pointerup',
@@ -174,7 +184,10 @@
         }, remaining);
       }
     },
-    { capture: true, passive: true },
+    {
+      capture: true,
+      passive: true,
+    },
   );
   document.addEventListener(
     'pointercancel',
@@ -183,7 +196,10 @@
         reset();
       }
     },
-    { capture: true, passive: true },
+    {
+      capture: true,
+      passive: true,
+    },
   );
   window.addEventListener('blur', reset);
   document.addEventListener('visibilitychange', () => {

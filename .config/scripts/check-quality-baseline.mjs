@@ -27,16 +27,29 @@ function fileViolations(file, baseline) {
     });
 
   const warnings = Object.entries(warningCounts(file.messages))
-    .filter(([rule, count]) => {
-      return count > (baseline.eslint?.[path]?.[rule] || 0);
-    })
-    .map(([rule, count]) => {
-      const allowed = baseline.eslint?.[path]?.[rule] || 0;
+    .filter(
+      ([
+        rule,
+        count,
+      ]) => {
+        return count > (baseline.eslint?.[path]?.[rule] || 0);
+      },
+    )
+    .map(
+      ([
+        rule,
+        count,
+      ]) => {
+        const allowed = baseline.eslint?.[path]?.[rule] || 0;
 
-      return `${path}: ${rule} (${count}, baseline ${allowed})`;
-    });
+        return `${path}: ${rule} (${count}, baseline ${allowed})`;
+      },
+    );
 
-  return [...errors, ...warnings];
+  return [
+    ...errors,
+    ...warnings,
+  ];
 }
 
 export function violationsFor(report, baseline) {
@@ -58,13 +71,21 @@ function currentBaseline(report) {
     }
   }
 
-  return { eslint };
+  return {
+    eslint,
+  };
 }
 
 function runEslint() {
   const eslint = spawnSync(
     'website/node_modules/.bin/eslint',
-    ['--config', 'website/eslint.config.js', '.', '--format', 'json'],
+    [
+      '--config',
+      'website/eslint.config.js',
+      '.',
+      '--format',
+      'json',
+    ],
     {
       encoding: 'utf8',
       maxBuffer: 16 * 1024 * 1024,
@@ -85,7 +106,10 @@ function runEslint() {
     throw new Error('ESLint did not return a valid JSON report');
   }
 
-  return { ...eslint, report };
+  return {
+    ...eslint,
+    report,
+  };
 }
 
 async function updateBaseline(report, eslintStatus) {

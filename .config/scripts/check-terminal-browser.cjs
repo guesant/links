@@ -48,7 +48,11 @@ module.exports = async function checkTerminalBrowser(
         const path = `${language.path}terminal/${resolvePath()}`;
 
         assert.equal(
-          (await page.goto(url(path), { waitUntil: 'networkidle2' })).status(),
+          (
+            await page.goto(url(path), {
+              waitUntil: 'networkidle2',
+            })
+          ).status(),
           200,
           path,
         );
@@ -153,18 +157,33 @@ module.exports = async function checkTerminalBrowser(
           `${path} curriculum and platform destinations`,
         );
 
-        for (const mode of ['compact', 'detailed']) {
+        for (const mode of [
+          'compact',
+          'detailed',
+        ]) {
           if (route.type !== 'now') {
             await page.click(`label[for="link-view-${mode}"]`);
           }
 
-          for (const theme of ['light', 'dark']) {
+          for (const theme of [
+            'light',
+            'dark',
+          ]) {
             await page.evaluate((value) => {
               document.documentElement.dataset.theme = value;
             }, theme);
 
-            for (const width of [320, 390, 768, 1024, 1440]) {
-              await page.setViewport({ width, height: 900 });
+            for (const width of [
+              320,
+              390,
+              768,
+              1024,
+              1440,
+            ]) {
+              await page.setViewport({
+                width,
+                height: 900,
+              });
               await page.evaluate(() => {
                 return new Promise((resolve) => {
                   return requestAnimationFrame(() => {
@@ -214,22 +233,39 @@ module.exports = async function checkTerminalBrowser(
               assert.equal(actual.nestedLinks, false);
               assert.equal(actual.thirdPartyBadges, true);
               assert.deepEqual(actual.ids, initial);
-              checks.push({ path, width, theme, mode });
+              checks.push({
+                path,
+                width,
+                theme,
+                mode,
+              });
             }
           }
         }
 
         if (route.id === 'home' && language.id === 'pt-br') {
-          for (const mode of ['compact', 'detailed']) {
+          for (const mode of [
+            'compact',
+            'detailed',
+          ]) {
             await page.click(`label[for="link-view-${mode}"]`);
 
-            for (const theme of ['light', 'dark']) {
+            for (const theme of [
+              'light',
+              'dark',
+            ]) {
               await page.evaluate((value) => {
                 document.documentElement.dataset.theme = value;
               }, theme);
 
-              for (const width of [390, 1440]) {
-                await page.setViewport({ width, height: 900 });
+              for (const width of [
+                390,
+                1440,
+              ]) {
+                await page.setViewport({
+                  width,
+                  height: 900,
+                });
                 await page.evaluate(() => {
                   return scrollTo(0, 0);
                 });
@@ -241,8 +277,18 @@ module.exports = async function checkTerminalBrowser(
           }
         }
 
-        if (['home', 'career', 'code', 'now'].includes(route.id)) {
-          for (const theme of ['light', 'dark']) {
+        if (
+          [
+            'home',
+            'career',
+            'code',
+            'now',
+          ].includes(route.id)
+        ) {
+          for (const theme of [
+            'light',
+            'dark',
+          ]) {
             await page.evaluate((value) => {
               document.documentElement.dataset.theme = value;
             }, theme);
@@ -251,7 +297,10 @@ module.exports = async function checkTerminalBrowser(
               browser,
               page,
               ignoreUrl: true,
-              runners: ['axe', 'htmlcs'],
+              runners: [
+                'axe',
+                'htmlcs',
+              ],
               standard: 'WCAG2AA',
               levelCapWhenNeedsReview: 'warning',
               viewport: {
@@ -266,7 +315,11 @@ module.exports = async function checkTerminalBrowser(
               return issue.type === 'error';
             });
 
-            accessibility.push({ path, theme, issues });
+            accessibility.push({
+              path,
+              theme,
+              issues,
+            });
             fs.writeFileSync(
               `${reportDirectory}/terminal-accessibility.json`,
               JSON.stringify(accessibility, null, 2),
@@ -283,7 +336,9 @@ module.exports = async function checkTerminalBrowser(
     await page.click('[data-settings-open]');
     await page.click('label[for="theme-light"]');
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2' }),
+      page.waitForNavigation({
+        waitUntil: 'networkidle2',
+      }),
       page.click('label[for="interface-terminal"]'),
     ]);
     assert.equal(new URL(page.url()).pathname, '/pt-br/terminal/career/');
@@ -302,7 +357,9 @@ module.exports = async function checkTerminalBrowser(
       }),
       false,
     );
-    await page.reload({ waitUntil: 'networkidle2' });
+    await page.reload({
+      waitUntil: 'networkidle2',
+    });
     assert.equal(
       await page.$eval('#bios-dialog', (dialog) => {
         return dialog.open;
@@ -310,7 +367,9 @@ module.exports = async function checkTerminalBrowser(
       false,
     );
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
+      page.waitForNavigation({
+        waitUntil: 'domcontentloaded',
+      }),
       page.click('[data-reboot]'),
     ]);
     assert.equal(
@@ -323,7 +382,10 @@ module.exports = async function checkTerminalBrowser(
     assert.equal(new URL(page.url()).hash, '#main-content');
     await page.keyboard.press('Escape');
     await page.emulateMediaFeatures([
-      { name: 'prefers-reduced-motion', value: 'reduce' },
+      {
+        name: 'prefers-reduced-motion',
+        value: 'reduce',
+      },
     ]);
     await page.goto(url('pt-br/terminal/?lobby-boot=1'), {
       waitUntil: 'networkidle2',
@@ -347,7 +409,14 @@ module.exports = async function checkTerminalBrowser(
     assert.deepEqual(errors, []);
     fs.writeFileSync(
       `${reportDirectory}/terminal-checks.json`,
-      JSON.stringify({ checks, errors }, null, 2),
+      JSON.stringify(
+        {
+          checks,
+          errors,
+        },
+        null,
+        2,
+      ),
     );
     console.log(
       `Terminal: ${checks.length} responsive checks and interface/BIOS lifecycle passed`,

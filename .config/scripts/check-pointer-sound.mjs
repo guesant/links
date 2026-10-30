@@ -12,7 +12,13 @@ function harness({
   failedResume = false,
   delayed = false,
 } = {}) {
-  const state = { starts: [], stops: 0, decodes: 0, fetches: 0, gains: [] };
+  const state = {
+    starts: [],
+    stops: 0,
+    decodes: 0,
+    fetches: 0,
+    gains: [],
+  };
 
   const listeners = new Map();
 
@@ -29,7 +35,10 @@ function harness({
   const advance = (duration) => {
     now += duration;
 
-    for (const [id, timer] of timers) {
+    for (const [
+      id,
+      timer,
+    ] of timers) {
       if (timer.at <= now) {
         timers.delete(id);
         timer.callback();
@@ -57,7 +66,12 @@ function harness({
     }
 
     createGain() {
-      const gain = { gain: { value: 1 }, connect() {} };
+      const gain = {
+        gain: {
+          value: 1,
+        },
+        connect() {},
+      };
 
       state.gains.push(gain);
 
@@ -103,7 +117,10 @@ function harness({
       },
     },
     addEventListener(name, listener, options) {
-      listeners.set(name, { listener, options });
+      listeners.set(name, {
+        listener,
+        options,
+      });
     },
   };
 
@@ -112,7 +129,9 @@ function harness({
       return {};
     }
 
-    return { AudioContext };
+    return {
+      AudioContext,
+    };
   };
 
   runInNewContext(script, {
@@ -124,7 +143,10 @@ function harness({
     setTimeout(callback, delay) {
       const id = ++timerId;
 
-      timers.set(id, { callback, at: now + delay });
+      timers.set(id, {
+        callback,
+        at: now + delay,
+      });
 
       return id;
     },
@@ -135,7 +157,9 @@ function harness({
     window: {
       ...resolveWindow(),
       addEventListener(name, listener) {
-        listeners.set(name, { listener });
+        listeners.set(name, {
+          listener,
+        });
       },
     },
     async fetch(url, options) {
@@ -201,7 +225,11 @@ test('pointer audio prepares two buffers silently and preserves quiet gain', asy
   assert.equal(h.state.starts.length, 0);
   assert.equal(h.state.gains[0].gain.value, 0.04);
 
-  for (const name of ['pointerdown', 'pointerup', 'pointercancel']) {
+  for (const name of [
+    'pointerdown',
+    'pointerup',
+    'pointercancel',
+  ]) {
     assert.equal(h.listeners.get(name).options.capture, true);
     assert.equal(h.listeners.get(name).options.passive, true);
   }
@@ -212,8 +240,12 @@ test('global mouse presses and matching releases play distinct recordings', asyn
   await h.ready();
   h.emit('pointerup');
   assert.equal(h.state.starts.length, 0);
-  h.emit('pointerdown', { target: null });
-  h.emit('pointerup', { pointerId: 2 });
+  h.emit('pointerdown', {
+    target: null,
+  });
+  h.emit('pointerup', {
+    pointerId: 2,
+  });
   assert.equal(h.state.starts.length, 1);
   h.emit('pointerup');
   h.emit('pointerup');
@@ -273,10 +305,18 @@ test('rapid clicks reuse buffers without stacking', async () => {
 });
 
 for (const event of [
-  { isTrusted: false },
-  { button: 2 },
-  { pointerType: 'touch' },
-  { pointerType: 'pen' },
+  {
+    isTrusted: false,
+  },
+  {
+    button: 2,
+  },
+  {
+    pointerType: 'touch',
+  },
+  {
+    pointerType: 'pen',
+  },
 ]) {
   test('pointer audio ignores ' + JSON.stringify(event), async () => {
     const h = harness();
@@ -288,7 +328,11 @@ for (const event of [
   });
 }
 
-for (const name of ['pointercancel', 'blur', 'visibilitychange']) {
+for (const name of [
+  'pointercancel',
+  'blur',
+  'visibilitychange',
+]) {
   test('pointer audio clears pairing on ' + name, async () => {
     const h = harness();
 
@@ -303,7 +347,9 @@ for (const name of ['pointercancel', 'blur', 'visibilitychange']) {
 }
 
 test('loading never queues stale presses or releases', async () => {
-  const h = harness({ delayed: true });
+  const h = harness({
+    delayed: true,
+  });
 
   h.emit('pointerdown');
   h.emit('pointerup');
@@ -316,9 +362,15 @@ test('loading never queues stale presses or releases', async () => {
 });
 
 for (const options of [
-  { failedFetch: true },
-  { failedResume: true },
-  { unsupported: true },
+  {
+    failedFetch: true,
+  },
+  {
+    failedResume: true,
+  },
+  {
+    unsupported: true,
+  },
 ]) {
   test('pointer audio fails silently ' + JSON.stringify(options), async () => {
     const h = harness(options);
@@ -333,7 +385,10 @@ for (const options of [
 
 test('WAV cuts have short distinct PCM recordings', async () => {
   const recordings = await Promise.all(
-    ['press', 'release'].map(async (name) => {
+    [
+      'press',
+      'release',
+    ].map(async (name) => {
       const bytes = await readFile(
         'website/src/assets/audio/mouse-' + name + '.wav',
       );

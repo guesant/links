@@ -48,7 +48,9 @@ async function waitForLandscape(page, previewFailed = false) {
           Number(getComputedStyle(preview).opacity) === 0
         );
       },
-      { timeout: 10000 },
+      {
+        timeout: 10000,
+      },
       previewFailed,
     );
   } catch (error) {
@@ -60,7 +62,9 @@ async function waitForLandscape(page, previewFailed = false) {
       return {
         url: location.href,
         width: innerWidth,
-        state: { ...document.documentElement.dataset },
+        state: {
+          ...document.documentElement.dataset,
+        },
         expected: getComputedStyle(document.documentElement).getPropertyValue(
           '--landscape-image',
         ),
@@ -101,7 +105,9 @@ async function createScenePage(
         (request) => {
           return request.url().endsWith('/night-mobile.webp');
         },
-        { timeout: 10000 },
+        {
+          timeout: 10000,
+        },
       );
     }
 
@@ -110,7 +116,10 @@ async function createScenePage(
 
   const held = resolveHeld();
 
-  await page.setViewport({ width: 390, height: 900 });
+  await page.setViewport({
+    width: 390,
+    height: 900,
+  });
 
   const resolveValue = () => {
     if (reduced) {
@@ -121,7 +130,10 @@ async function createScenePage(
   };
 
   await page.emulateMediaFeatures([
-    { name: 'prefers-color-scheme', value: 'dark' },
+    {
+      name: 'prefers-color-scheme',
+      value: 'dark',
+    },
     {
       name: 'prefers-reduced-motion',
       value: resolveValue(),
@@ -209,7 +221,10 @@ async function checkTransition(context, baseURL) {
     const after = await profileBounds(page);
 
     assert.deepEqual(after, before, 'progressive images do not shift content');
-    await page.setViewport({ width: 1024, height: 900 });
+    await page.setViewport({
+      width: 1024,
+      height: 900,
+    });
     await waitForLandscape(page);
     assert.match(
       await page.$eval('.world-landscape', (element) => {
@@ -235,7 +250,9 @@ async function checkThemeRace(context, baseURL) {
     });
     await waitForLandscape(page);
     await release();
-    await page.waitForNetworkIdle({ idleTime: 100 });
+    await page.waitForNetworkIdle({
+      idleTime: 100,
+    });
     await waitForLandscape(page);
     assert.match(
       await page.$eval('.world-landscape', (element) => {
@@ -259,10 +276,14 @@ async function checkFailure(context, baseURL, previewFails) {
 
   const failure = resolveFailure();
 
-  const { page } = await createScenePage(context, baseURL, { failure });
+  const { page } = await createScenePage(context, baseURL, {
+    failure,
+  });
 
   try {
-    await page.waitForNetworkIdle({ idleTime: 100 });
+    await page.waitForNetworkIdle({
+      idleTime: 100,
+    });
 
     if (previewFails) {
       await waitForLandscape(page, true);
@@ -288,7 +309,9 @@ async function checkFailure(context, baseURL, previewFails) {
 }
 
 async function checkFallbacks(context, baseURL) {
-  const reduced = await createScenePage(context, baseURL, { reduced: true });
+  const reduced = await createScenePage(context, baseURL, {
+    reduced: true,
+  });
 
   try {
     await waitForLandscape(reduced.page);
@@ -302,10 +325,14 @@ async function checkFallbacks(context, baseURL) {
     await reduced.page.close();
   }
 
-  const native = await createScenePage(context, baseURL, { javascript: false });
+  const native = await createScenePage(context, baseURL, {
+    javascript: false,
+  });
 
   try {
-    await native.page.waitForNetworkIdle({ idleTime: 100 });
+    await native.page.waitForNetworkIdle({
+      idleTime: 100,
+    });
 
     const state = await native.page.$eval('.world-landscape', (element) => {
       return {
@@ -338,4 +365,7 @@ async function checkProgressiveScene(browser, baseURL) {
   }
 }
 
-module.exports = { waitForLandscape, checkProgressiveScene };
+module.exports = {
+  waitForLandscape,
+  checkProgressiveScene,
+};

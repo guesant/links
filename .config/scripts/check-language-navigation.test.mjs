@@ -11,8 +11,16 @@ function pendingNavigation() {
     current: 'pt-br',
     default: 'pt-br',
     neutral: false,
-    routes: ['pt-br', 'fr', 'es'].map((id) => {
-      return { id, home: `/${id}/`, url: `/${id}/code/` };
+    routes: [
+      'pt-br',
+      'fr',
+      'es',
+    ].map((id) => {
+      return {
+        id,
+        home: `/${id}/`,
+        url: `/${id}/code/`,
+      };
     }),
   };
 
@@ -20,10 +28,15 @@ function pendingNavigation() {
 
   const controller = createLanguageNavigation({
     page: () => {
-      return { context, url: new URL('https://example.test/pt-br/code/') };
+      return {
+        context,
+        url: new URL('https://example.test/pt-br/code/'),
+      };
     },
     languages: () => {
-      return ['pt-BR'];
+      return [
+        'pt-BR',
+      ];
     },
     storage: () => {
       return {
@@ -37,7 +50,11 @@ function pendingNavigation() {
     },
     navigate: (url) => {
       return new Promise((resolve, reject) => {
-        requests.push({ url, resolve, reject });
+        requests.push({
+          url,
+          resolve,
+          reject,
+        });
       });
     },
     replaceURL: () => {},
@@ -115,5 +132,7 @@ test('the matching language navigation keeps its native fallback available', asy
   controller.beforeNavigate(requests[0].url);
   requests[0].reject(new Error('Actual language request failed'));
   await navigation;
-  assert.deepEqual(fallbacks, ['https://example.test/fr/code/']);
+  assert.deepEqual(fallbacks, [
+    'https://example.test/fr/code/',
+  ]);
 });

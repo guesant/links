@@ -163,7 +163,9 @@
 
   sceneThemeObserver.observe(root, {
     attributes: true,
-    attributeFilter: ['data-theme'],
+    attributeFilter: [
+      'data-theme',
+    ],
   });
 
   const sceneColorScheme = window.matchMedia('(prefers-color-scheme: light)');

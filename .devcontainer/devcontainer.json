@@ -10,14 +10,19 @@
   "mounts": [
     "source=links-node-modules,target=/workspace/website/node_modules,type=volume"
   ],
-  "forwardPorts": [4173],
+  "forwardPorts": [
+    4173
+  ],
   "portsAttributes": {
     "4173": { "label": "Links", "onAutoForward": "notify" }
   },
   "overrideCommand": false,
   "customizations": {
     "vscode": {
-      "extensions": ["nefrob.vscode-just", "tamasfe.even-better-toml"]
+      "extensions": [
+        "nefrob.vscode-just",
+        "tamasfe.even-better-toml"
+      ]
     }
   }
 }

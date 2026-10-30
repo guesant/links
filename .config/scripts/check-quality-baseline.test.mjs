@@ -5,19 +5,34 @@ import { violationsFor } from './check-quality-baseline.mjs';
 import { requireWebsite } from './paths.cjs';
 
 const report = (messages) => {
-  return [{ filePath: resolve('website/src/example.js'), messages }];
+  return [
+    {
+      filePath: resolve('website/src/example.js'),
+      messages,
+    },
+  ];
 };
 
 const baseline = {
-  eslint: { 'website/src/example.js': { complexity: 2 } },
+  eslint: {
+    'website/src/example.js': {
+      complexity: 2,
+    },
+  },
 };
 
 test('accepts warning counts at or below the baseline', () => {
   assert.deepEqual(
     violationsFor(
       report([
-        { severity: 1, ruleId: 'complexity' },
-        { severity: 1, ruleId: 'complexity' },
+        {
+          severity: 1,
+          ruleId: 'complexity',
+        },
+        {
+          severity: 1,
+          ruleId: 'complexity',
+        },
       ]),
       baseline,
     ),
@@ -29,10 +44,22 @@ test('rejects new warning counts and errors', () => {
   assert.deepEqual(
     violationsFor(
       report([
-        { severity: 1, ruleId: 'complexity' },
-        { severity: 1, ruleId: 'complexity' },
-        { severity: 1, ruleId: 'max-depth' },
-        { severity: 2, ruleId: 'no-undef' },
+        {
+          severity: 1,
+          ruleId: 'complexity',
+        },
+        {
+          severity: 1,
+          ruleId: 'complexity',
+        },
+        {
+          severity: 1,
+          ruleId: 'max-depth',
+        },
+        {
+          severity: 2,
+          ruleId: 'no-undef',
+        },
       ]),
       baseline,
     ),
@@ -49,12 +76,19 @@ test('rejects regressions in a file without a baseline entry', () => {
       [
         {
           filePath: resolve('website/src/new.js'),
-          messages: [{ severity: 1, ruleId: 'max-depth' }],
+          messages: [
+            {
+              severity: 1,
+              ruleId: 'max-depth',
+            },
+          ],
         },
       ],
       baseline,
     ),
-    ['website/src/new.js: max-depth (1, baseline 0)'],
+    [
+      'website/src/new.js: max-depth (1, baseline 0)',
+    ],
   );
 });
 
@@ -65,7 +99,10 @@ test('lint forbids ternaries in JavaScript, TypeScript and Svelte', async () => 
     overrideConfigFile: resolve('website/eslint.config.js'),
   });
 
-  for (const [filePath, code] of [
+  for (const [
+    filePath,
+    code,
+  ] of [
     [
       'website/src/example.js',
       'export function label(active) { return active ? "yes" : "no"; }',
@@ -79,7 +116,11 @@ test('lint forbids ternaries in JavaScript, TypeScript and Svelte', async () => 
       '<script lang="ts">let active = $state(true);</script><span>{active ? "yes" : "no"}</span>',
     ],
   ]) {
-    const [result] = await eslint.lintText(code, { filePath });
+    const [
+      result,
+    ] = await eslint.lintText(code, {
+      filePath,
+    });
 
     assert.ok(
       result.messages.some((message) => {
@@ -89,7 +130,9 @@ test('lint forbids ternaries in JavaScript, TypeScript and Svelte', async () => 
     );
   }
 
-  const [valid] = await eslint.lintText(
+  const [
+    valid,
+  ] = await eslint.lintText(
     `export function label(active: boolean): string {
   if (active) {
     return 'yes';
@@ -98,7 +141,9 @@ test('lint forbids ternaries in JavaScript, TypeScript and Svelte', async () => 
   return 'no';
 }
 `,
-    { filePath: 'website/src/example.ts' },
+    {
+      filePath: 'website/src/example.ts',
+    },
   );
 
   assert.equal(valid.errorCount, 0);

@@ -11,7 +11,13 @@ export async function verifyTransientFailures(report, request = fetch) {
     return [];
   }
 
-  const transient = new Set([429, 500, 502, 503, 504]);
+  const transient = new Set([
+    429,
+    500,
+    502,
+    503,
+    504,
+  ]);
 
   if (
     !failures.length ||
@@ -36,7 +42,9 @@ export async function verifyTransientFailures(report, request = fetch) {
     const response = await request(url, {
       method: 'GET',
       signal: AbortSignal.timeout(20000),
-      headers: { 'User-Agent': 'links-validation' },
+      headers: {
+        'User-Agent': 'links-validation',
+      },
     });
 
     await response.body?.cancel();
@@ -45,7 +53,11 @@ export async function verifyTransientFailures(report, request = fetch) {
       throw new Error(`Link retry failed: HTTP ${response.status} ${url}`);
     }
 
-    verified.push({ url, status: response.status, method: 'GET' });
+    verified.push({
+      url,
+      status: response.status,
+      method: 'GET',
+    });
   }
 
   return verified;
@@ -60,8 +72,12 @@ async function main() {
 
   const reportPath = resolve('.local/reports/links.json');
 
-  await mkdir(cacheDirectory, { recursive: true });
-  await mkdir('.local/reports', { recursive: true });
+  await mkdir(cacheDirectory, {
+    recursive: true,
+  });
+  await mkdir('.local/reports', {
+    recursive: true,
+  });
   await writeFile(reportPath, '');
 
   const result = spawnSync(
@@ -77,7 +93,10 @@ async function main() {
       reportPath,
       publicPath,
     ],
-    { cwd: cacheDirectory, stdio: 'inherit' },
+    {
+      cwd: cacheDirectory,
+      stdio: 'inherit',
+    },
   );
 
   if (result.error) {
@@ -99,7 +118,14 @@ async function main() {
 
   await writeFile(
     '.local/reports/link-retries.json',
-    JSON.stringify({ verified, checked_at: new Date().toISOString() }, null, 2),
+    JSON.stringify(
+      {
+        verified,
+        checked_at: new Date().toISOString(),
+      },
+      null,
+      2,
+    ),
   );
   console.log(
     JSON.stringify({

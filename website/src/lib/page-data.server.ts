@@ -213,7 +213,9 @@ export async function loadPageData(
       appearance: data.links.theme.appearance,
       animations_enabled: data.links.theme.animations_enabled,
     },
-    navigation: { home: data.links.navigation.home },
+    navigation: {
+      home: data.links.navigation.home,
+    },
     site: data.links.site,
     language_preference: data.links.language_preference,
   };
@@ -269,7 +271,9 @@ export async function loadPageData(
 }
 
 function pageSummary(entry: PageRecord): PageRecord {
-  const summary = { ...entry };
+  const summary = {
+    ...entry,
+  };
 
   delete summary.section;
   delete summary.links;

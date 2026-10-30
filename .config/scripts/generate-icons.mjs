@@ -24,7 +24,10 @@ const { tile_size: tileSize, compact_tile_size: compactTileSize } = parse(
 
 const tiles = await Promise.all(
   names.flatMap((name, column) => {
-    return ['', '-mask'].map(async (suffix, row) => {
+    return [
+      '',
+      '-mask',
+    ].map(async (suffix, row) => {
       return {
         png: await loadPNG(
           `website/src/assets/icons/source/${name}${suffix}.png`,
@@ -48,7 +51,9 @@ const opticalScales = Object.fromEntries(
       )
         .ensureAlpha()
         .raw()
-        .toBuffer({ resolveWithObject: true });
+        .toBuffer({
+          resolveWithObject: true,
+        });
 
       const bounds = {
         left: info.width,
@@ -83,7 +88,10 @@ const opticalScales = Object.fromEntries(
         throw new Error(`Empty icon source: ${name}`);
       }
 
-      return [name, Number(((tileSize * 5) / 6 / size).toFixed(3))];
+      return [
+        name,
+        Number(((tileSize * 5) / 6 / size).toFixed(3)),
+      ];
     }),
   ),
 );
@@ -130,29 +138,60 @@ await withRasterPage(async (page) => {
         'pixel-compact': compact.toDataURL('image/png').split(',')[1],
       };
     },
-    { tiles, columns: names.length, tileSize, compactTileSize },
+    {
+      tiles,
+      columns: names.length,
+      tileSize,
+      compactTileSize,
+    },
   );
 
-  await mkdir('.cache/icons', { recursive: true });
+  await mkdir('.cache/icons', {
+    recursive: true,
+  });
 
   const staging = await mkdtemp('.cache/icons/atlas-');
 
   try {
-    for (const [name, png] of Object.entries(atlas)) {
+    for (const [
+      name,
+      png,
+    ] of Object.entries(atlas)) {
       const path = `${staging}/${name}.png`;
 
       await writeFile(path, Buffer.from(png, 'base64'));
-      execFileSync('optipng', ['-quiet', '-o3', '-strip', 'all', path]);
+      execFileSync('optipng', [
+        '-quiet',
+        '-o3',
+        '-strip',
+        'all',
+        path,
+      ]);
       await rename(path, `website/src/assets/icons/${name}.png`);
     }
   } finally {
-    await rm(staging, { recursive: true, force: true });
+    await rm(staging, {
+      recursive: true,
+      force: true,
+    });
   }
 
-  for (const [name, size] of [
-    ['favicon', 64],
-    ['icon-192', 192],
-    ['icon-512', 512],
+  for (const [
+    name,
+    size,
+  ] of [
+    [
+      'favicon',
+      64,
+    ],
+    [
+      'icon-192',
+      192,
+    ],
+    [
+      'icon-512',
+      512,
+    ],
   ]) {
     const png = await page.evaluate(
       async ({ favicon, size }) => {
@@ -172,7 +211,10 @@ await withRasterPage(async (page) => {
 
         return canvas.toDataURL('image/png').split(',')[1];
       },
-      { favicon, size },
+      {
+        favicon,
+        size,
+      },
     );
 
     await writeFile(

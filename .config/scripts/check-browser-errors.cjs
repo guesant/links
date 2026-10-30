@@ -29,11 +29,20 @@ module.exports = async function withBrowserErrors(browser, task) {
   try {
     await task();
   } catch (error) {
-    throw new AggregateError([error, ...errors], 'Browser scenario failed');
+    throw new AggregateError(
+      [
+        error,
+        ...errors,
+      ],
+      'Browser scenario failed',
+    );
   } finally {
     browser.off('targetcreated', observe);
 
-    for (const [page, listener] of observed) {
+    for (const [
+      page,
+      listener,
+    ] of observed) {
       page.off('pageerror', listener);
     }
   }

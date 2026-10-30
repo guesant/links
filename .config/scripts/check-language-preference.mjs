@@ -8,7 +8,10 @@ import { languageDestination } from '../../website/src/lib/language-preference.t
 
 async function harness({
   current = '',
-  languages = ['pt-BR', 'en-US'],
+  languages = [
+    'pt-BR',
+    'en-US',
+  ],
   saved = null,
   blocked = false,
   unavailable = [],
@@ -17,7 +20,14 @@ async function harness({
   suffix = '',
   failure = false,
 } = {}) {
-  const routes = ['pt-br', 'zh', 'fr', 'es', 'it', 'en'].map((id) => {
+  const routes = [
+    'pt-br',
+    'zh',
+    'fr',
+    'es',
+    'it',
+    'en',
+  ].map((id) => {
     const home = `${prefix}${id}/`;
 
     const resolveUrl = () => {
@@ -28,10 +38,19 @@ async function harness({
       return `${home}${page}`;
     };
 
-    return { id, home, url: resolveUrl() };
+    return {
+      id,
+      home,
+      url: resolveUrl(),
+    };
   });
 
-  const context = { current, default: 'pt-br', neutral: !current, routes };
+  const context = {
+    current,
+    default: 'pt-br',
+    neutral: !current,
+    routes,
+  };
 
   const resolveUrl1 = () => {
     if (current) {
@@ -55,7 +74,10 @@ async function harness({
 
   const controller = createLanguageNavigation({
     page: () => {
-      return { context, url };
+      return {
+        context,
+        url,
+      };
     },
     languages: () => {
       return languages;
@@ -100,21 +122,51 @@ async function harness({
 
   await controller.normalize();
 
-  return { state, controller };
+  return {
+    state,
+    controller,
+  };
 }
 
-for (const [tag, expected] of [
-  ['pt-PT', 'pt-br'],
-  ['fr-CA', 'fr'],
-  ['es-MX', 'es'],
-  ['zh-TW', 'zh'],
-  ['it-IT', 'it'],
-  ['en-US', 'en'],
+for (const [
+  tag,
+  expected,
+] of [
+  [
+    'pt-PT',
+    'pt-br',
+  ],
+  [
+    'fr-CA',
+    'fr',
+  ],
+  [
+    'es-MX',
+    'es',
+  ],
+  [
+    'zh-TW',
+    'zh',
+  ],
+  [
+    'it-IT',
+    'it',
+  ],
+  [
+    'en-US',
+    'en',
+  ],
 ]) {
   test(`browser preference ${tag} resolves a supported locale`, async () => {
-    const { state, controller } = await harness({ languages: [tag] });
+    const { state, controller } = await harness({
+      languages: [
+        tag,
+      ],
+    });
 
-    assert.deepEqual(state.replacements, [`https://example.test/${expected}/`]);
+    assert.deepEqual(state.replacements, [
+      `https://example.test/${expected}/`,
+    ]);
     assert.deepEqual(state.writes, []);
     await controller.normalize();
     assert.equal(state.replacements.length, 1);
@@ -122,57 +174,119 @@ for (const [tag, expected] of [
 }
 
 test('unsupported and absent preferences default to Portuguese', async () => {
-  for (const languages of [['de-DE', 'ru-RU'], []]) {
-    assert.deepEqual((await harness({ languages })).state.replacements, [
-      'https://example.test/pt-br/',
-    ]);
+  for (const languages of [
+    [
+      'de-DE',
+      'ru-RU',
+    ],
+    [],
+  ]) {
+    assert.deepEqual(
+      (
+        await harness({
+          languages,
+        })
+      ).state.replacements,
+      [
+        'https://example.test/pt-br/',
+      ],
+    );
   }
 });
 test('ordered browser preferences skip unsupported languages', async () => {
   assert.deepEqual(
-    (await harness({ languages: ['de-DE', 'en-US', 'pt-BR'] })).state
-      .replacements,
-    ['https://example.test/en/'],
+    (
+      await harness({
+        languages: [
+          'de-DE',
+          'en-US',
+          'pt-BR',
+        ],
+      })
+    ).state.replacements,
+    [
+      'https://example.test/en/',
+    ],
   );
 });
 test('first visits respect explicit locale prefixes', async () => {
-  for (const current of ['pt-br', 'zh', 'fr', 'es', 'it', 'en']) {
-    assert.deepEqual((await harness({ current })).state.replacements, []);
+  for (const current of [
+    'pt-br',
+    'zh',
+    'fr',
+    'es',
+    'it',
+    'en',
+  ]) {
+    assert.deepEqual(
+      (
+        await harness({
+          current,
+        })
+      ).state.replacements,
+      [],
+    );
   }
 });
 test('a manual preference overrides browser language and URL locale', async () => {
-  for (const current of ['en', 'fr']) {
+  for (const current of [
+    'en',
+    'fr',
+  ]) {
     assert.deepEqual(
       (
         await harness({
           current,
           page: 'code/',
-          languages: ['en-US'],
+          languages: [
+            'en-US',
+          ],
           saved: 'pt-br',
         })
       ).state.replacements,
-      ['https://example.test/pt-br/code/'],
+      [
+        'https://example.test/pt-br/code/',
+      ],
     );
   }
 });
 test('invalid saved preferences cannot create arbitrary redirects', async () => {
   assert.deepEqual(
-    (await harness({ saved: 'https://evil.test/', languages: ['en'] })).state
-      .replacements,
-    ['https://example.test/en/'],
+    (
+      await harness({
+        saved: 'https://evil.test/',
+        languages: [
+          'en',
+        ],
+      })
+    ).state.replacements,
+    [
+      'https://example.test/en/',
+    ],
   );
 });
 test('matching locales never redirect again', async () => {
   assert.deepEqual(
-    (await harness({ current: 'pt-br', saved: 'pt-br' })).state.replacements,
+    (
+      await harness({
+        current: 'pt-br',
+        saved: 'pt-br',
+      })
+    ).state.replacements,
     [],
   );
 });
 test('automatic redirects preserve query, fragment and installation prefix', async () => {
   assert.deepEqual(
-    (await harness({ prefix: '/prefix/', suffix: '?source=link#details' }))
-      .state.replacements,
-    ['https://example.test/prefix/pt-br/?source=link#details'],
+    (
+      await harness({
+        prefix: '/prefix/',
+        suffix: '?source=link#details',
+      })
+    ).state.replacements,
+    [
+      'https://example.test/prefix/pt-br/?source=link#details',
+    ],
   );
 });
 test('missing page translations do not redirect visitors away from their content', async () => {
@@ -182,7 +296,9 @@ test('missing page translations do not redirect visitors away from their content
         current: 'en',
         page: 'now/',
         saved: 'fr',
-        unavailable: ['fr'],
+        unavailable: [
+          'fr',
+        ],
       })
     ).state.replacements,
     [],
@@ -204,12 +320,16 @@ test('manual selection persists a locale and replaces the equivalent page', asyn
 test('manual fallback to a locale home drops an unavailable page fragment', async () => {
   const { state, controller } = await harness({
     current: 'pt-br',
-    unavailable: ['fr'],
+    unavailable: [
+      'fr',
+    ],
     suffix: '#now-context',
   });
 
   await controller.select('fr');
-  assert.deepEqual(state.replacements, ['https://example.test/fr/']);
+  assert.deepEqual(state.replacements, [
+    'https://example.test/fr/',
+  ]);
 });
 test('blocked storage keeps a manual selection explicit in the URL', async () => {
   const { state, controller } = await harness({
@@ -235,7 +355,9 @@ test('blocked storage keeps a manual selection explicit in the URL', async () =>
   );
 });
 test('explicit query preferences are persisted and cleaned in the final URL', async () => {
-  const { state } = await harness({ suffix: '?lang=en&source=link#details' });
+  const { state } = await harness({
+    suffix: '?lang=en&source=link#details',
+  });
 
   assert.equal(state.saved, 'en');
   assert.deepEqual(state.cleanups, []);
@@ -243,21 +365,38 @@ test('explicit query preferences are persisted and cleaned in the final URL', as
     'https://example.test/en/?source=link#details',
   ]);
   assert.deepEqual(
-    (await harness({ current: 'en', suffix: '?lang=en&x=1' })).state.cleanups,
-    ['https://example.test/en/?x=1'],
+    (
+      await harness({
+        current: 'en',
+        suffix: '?lang=en&x=1',
+      })
+    ).state.cleanups,
+    [
+      'https://example.test/en/?x=1',
+    ],
   );
 });
 test('unknown manual selections and cross-origin routes are ignored', async () => {
-  const { state, controller } = await harness({ current: 'pt-br' });
+  const { state, controller } = await harness({
+    current: 'pt-br',
+  });
 
   await controller.select('unknown');
   assert.deepEqual(state.replacements, []);
   assert.deepEqual(state.writes, []);
 
-  for (const path of ['https://evil.test/', '//evil.test/', '/\\evil.test/']) {
+  for (const path of [
+    'https://evil.test/',
+    '//evil.test/',
+    '/\\evil.test/',
+  ]) {
     assert.equal(
       languageDestination(
-        { id: 'en', url: path, home: path },
+        {
+          id: 'en',
+          url: path,
+          home: path,
+        },
         new URL('https://example.test/'),
       ),
       null,
@@ -265,8 +404,12 @@ test('unknown manual selections and cross-origin routes are ignored', async () =
   }
 });
 test('a failed SPA transition falls back only once', async () => {
-  const { state, controller } = await harness({ failure: true });
+  const { state, controller } = await harness({
+    failure: true,
+  });
 
   await controller.normalize();
-  assert.deepEqual(state.fallbacks, ['https://example.test/pt-br/']);
+  assert.deepEqual(state.fallbacks, [
+    'https://example.test/pt-br/',
+  ]);
 });

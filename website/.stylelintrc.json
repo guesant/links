@@ -1,14 +1,30 @@
 {
-  "extends": ["stylelint-config-standard"],
+  "extends": [
+    "stylelint-config-standard"
+  ],
   "rules": {
     "no-descending-specificity": null,
-    "unit-disallowed-list": ["px", "cm", "mm", "q", "in", "pt", "pc"],
+    "unit-disallowed-list": [
+      "px",
+      "cm",
+      "mm",
+      "q",
+      "in",
+      "pt",
+      "pc"
+    ],
     "declaration-property-value-disallowed-list": {
       "/^(?!--)/": [
         "/(?:^|[\\s,(])[-+]?(?:\\d*\\.)?\\d+(?:rem|em|vw|vh|svh|svw|dvh|dvw|vmin|vmax|ch|ex|lh|rlh)\\b/"
       ],
-      "/^(?:grid|--grid)/": ["/(?:^|[^\\w.])(?!1fr\\b)(?:\\d*\\.)?\\d+fr\\b/"]
+      "/^(?:grid|--grid)/": [
+        "/(?:^|[^\\w.])(?!1fr\\b)(?:\\d*\\.)?\\d+fr\\b/"
+      ]
     }
   },
-  "ignoreFiles": [".local/**", ".svelte-kit/**", "static/assets/**"]
+  "ignoreFiles": [
+    ".local/**",
+    ".svelte-kit/**",
+    "static/assets/**"
+  ]
 }

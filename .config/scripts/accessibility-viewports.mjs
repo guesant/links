@@ -32,7 +32,9 @@ export default async function accessibilityViewports(audits, defaults) {
       const key = `${audit.url}:${view}`;
 
       if (!heights.has(key)) {
-        await page.goto(audit.url, { waitUntil: 'networkidle2' });
+        await page.goto(audit.url, {
+          waitUntil: 'networkidle2',
+        });
         await page.evaluate((view) => {
           document.documentElement.dataset.linkView = view;
         }, view);

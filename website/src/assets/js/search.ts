@@ -22,7 +22,10 @@ function lobbySearchLink(href: string, title: string): HTMLAnchorElement {
   link.textContent = title;
 
   if (
-    ['http:', 'https:'].includes(url.protocol) &&
+    [
+      'http:',
+      'https:',
+    ].includes(url.protocol) &&
     url.origin !== location.origin
   ) {
     link.target = '_blank';
@@ -371,11 +374,18 @@ function isSearchItem(value: unknown): value is SearchItem {
       }
     });
     searchResults.addEventListener('keydown', (event) => {
-      if (!['ArrowDown', 'ArrowUp'].includes(event.key)) {
+      if (
+        ![
+          'ArrowDown',
+          'ArrowUp',
+        ].includes(event.key)
+      ) {
         return;
       }
 
-      const links = [...searchResults.querySelectorAll<HTMLAnchorElement>('a')];
+      const links = [
+        ...searchResults.querySelectorAll<HTMLAnchorElement>('a'),
+      ];
 
       const resolvePosition = () => {
         if (document.activeElement instanceof HTMLAnchorElement) {

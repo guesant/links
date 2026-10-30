@@ -82,7 +82,10 @@ export function validateTextMap(
 
   const output: Record<string, string> = {};
 
-  for (const [key, entry] of Object.entries(source)) {
+  for (const [
+    key,
+    entry,
+  ] of Object.entries(source)) {
     if (typeof entry !== 'string') {
       throw new Error(`Invalid ${label}.${key}: expected a string`);
     }

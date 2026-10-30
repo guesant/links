@@ -6,7 +6,9 @@ import { clientScript } from './client-source.mjs';
 const script = await clientScript('link-view');
 
 function harness({ saved, blocked = false } = {}) {
-  const root = { dataset: {} };
+  const root = {
+    dataset: {},
+  };
 
   const listeners = new Map();
 
@@ -14,7 +16,11 @@ function harness({ saved, blocked = false } = {}) {
 
   class HTMLInputElement {
     constructor(value, checked = false, matches = true) {
-      Object.assign(this, { value, checked, matching: matches });
+      Object.assign(this, {
+        value,
+        checked,
+        matching: matches,
+      });
     }
 
     matches() {
@@ -52,7 +58,10 @@ function harness({ saved, blocked = false } = {}) {
             throw new Error('Storage blocked');
           }
 
-          writes.push({ key, value });
+          writes.push({
+            key,
+            value,
+          });
         },
       },
     },
@@ -78,8 +87,15 @@ function harness({ saved, blocked = false } = {}) {
 }
 
 test('link display defaults to compact and ignores invalid saved values', () => {
-  for (const saved of [undefined, '', 'unknown', '<script>']) {
-    const { root, controls, writes } = harness({ saved });
+  for (const saved of [
+    undefined,
+    '',
+    'unknown',
+    '<script>',
+  ]) {
+    const { root, controls, writes } = harness({
+      saved,
+    });
 
     assert.equal(root.dataset.linkView, 'compact');
     assert.equal(root.dataset.linkViewReady, 'true');
@@ -87,13 +103,18 @@ test('link display defaults to compact and ignores invalid saved values', () => 
       controls.map((entry) => {
         return entry.checked;
       }),
-      [true, false],
+      [
+        true,
+        false,
+      ],
     );
     assert.deepEqual(writes, []);
   }
 });
 test('saved detailed mode is applied before DOM readiness', () => {
-  const { root, controls, ready } = harness({ saved: 'detailed' });
+  const { root, controls, ready } = harness({
+    saved: 'detailed',
+  });
 
   assert.equal(root.dataset.linkView, 'detailed');
   controls[1].checked = false;
@@ -102,7 +123,10 @@ test('saved detailed mode is applied before DOM readiness', () => {
     controls.map((entry) => {
       return entry.checked;
     }),
-    [false, true],
+    [
+      false,
+      true,
+    ],
   );
 });
 test('switching link display persists one global preference', () => {
@@ -114,17 +138,28 @@ test('switching link display persists one global preference', () => {
     controls.map((entry) => {
       return entry.checked;
     }),
-    [false, true],
+    [
+      false,
+      true,
+    ],
   );
   select('compact');
   assert.equal(root.dataset.linkView, 'compact');
   assert.deepEqual(writes, [
-    { key: 'guesant-links-view', value: 'detailed' },
-    { key: 'guesant-links-view', value: 'compact' },
+    {
+      key: 'guesant-links-view',
+      value: 'detailed',
+    },
+    {
+      key: 'guesant-links-view',
+      value: 'compact',
+    },
   ]);
 });
 test('blocked storage does not prevent changing link display', () => {
-  const { root, select } = harness({ blocked: true });
+  const { root, select } = harness({
+    blocked: true,
+  });
 
   assert.equal(root.dataset.linkView, 'compact');
   select('detailed');
@@ -134,8 +169,12 @@ test('unrelated controls, unchecked inputs and invalid modes are ignored', () =>
   const { root, select, writes } = harness();
 
   select('unexpected');
-  select('detailed', { checked: false });
-  select('detailed', { matching: false });
+  select('detailed', {
+    checked: false,
+  });
+  select('detailed', {
+    matching: false,
+  });
   assert.equal(root.dataset.linkView, 'compact');
   assert.deepEqual(writes, []);
 });

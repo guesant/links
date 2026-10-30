@@ -18,14 +18,29 @@ const items = [
     id: 'one',
     title: 'Formação',
     summary: 'A public summary',
-    tags: ['backend'],
-    metadata: { area: 'Computação' },
+    tags: [
+      'backend',
+    ],
+    metadata: {
+      area: 'Computação',
+    },
   },
-  { id: 'two', title: 'Project', summary: 'Other', tags: [], metadata: {} },
+  {
+    id: 'two',
+    title: 'Project',
+    summary: 'Other',
+    tags: [],
+    metadata: {},
+  },
 ];
 
 test('search matches accents, case, tags, metadata and multiple terms', () => {
-  for (const query of ['FORMACAO', 'backend', 'computacao', 'public backend']) {
+  for (const query of [
+    'FORMACAO',
+    'backend',
+    'computacao',
+    'public backend',
+  ]) {
     assert.equal(context.lobbySearchItems(items, query)[0].id, 'one');
   }
 
@@ -33,9 +48,17 @@ test('search matches accents, case, tags, metadata and multiple terms', () => {
   assert.equal(context.lobbySearchItems(items, ' ').length, 0);
 });
 test('search returns every match without changing source records', () => {
-  const many = Array.from({ length: 150 }, (_, id) => {
-    return { ...items[0], id };
-  });
+  const many = Array.from(
+    {
+      length: 150,
+    },
+    (_, id) => {
+      return {
+        ...items[0],
+        id,
+      };
+    },
+  );
 
   assert.equal(context.lobbySearchItems(many, 'backend').length, 150);
   assert.equal(many.length, 150);
@@ -48,14 +71,23 @@ test('explicit list limits preserve totals and reject invalid limits', () => {
   assert.equal(selection.partial, true);
   assert.equal(items.length, 2);
 
-  for (const limit of [undefined, 0, 2, 10]) {
+  for (const limit of [
+    undefined,
+    0,
+    2,
+    10,
+  ]) {
     const complete = context.lobbySelectList(items, limit);
 
     assert.equal(complete.shown, 2);
     assert.equal(complete.partial, false);
   }
 
-  for (const limit of [-1, 1.5, 'invalid']) {
+  for (const limit of [
+    -1,
+    1.5,
+    'invalid',
+  ]) {
     assert.throws(() => {
       return context.lobbySelectList(items, limit);
     }, /List limit/);
@@ -166,7 +198,9 @@ function searchHarness() {
         return null;
       },
       querySelectorAll: () => {
-        return [button];
+        return [
+          button,
+        ];
       },
       createElement: () => {
         return new Element();
@@ -183,7 +217,10 @@ function searchHarness() {
       assert.equal(options.signal, 'timeout-signal');
 
       return new Promise((resolve, reject) => {
-        return requests.push({ resolve, reject });
+        return requests.push({
+          resolve,
+          reject,
+        });
       });
     },
   });
@@ -242,12 +279,17 @@ test('search renders and counts more than one hundred matches', async () => {
   h.open();
   h.input('backend');
   h.resolve(
-    Array.from({ length: 150 }, (_, id) => {
-      return {
-        ...searchEntry,
-        id: String(id),
-      };
-    }),
+    Array.from(
+      {
+        length: 150,
+      },
+      (_, id) => {
+        return {
+          ...searchEntry,
+          id: String(id),
+        };
+      },
+    ),
   );
   await h.flush();
   assert.equal(h.status.textContent, '150');
@@ -264,13 +306,24 @@ test('an explicit search limit reports the full matching count', async () => {
   h.open();
   h.input('backend');
   h.resolve([
-    ...Array.from({ length: 3 }, (_, id) => {
-      return {
-        ...searchEntry,
-        id: String(id),
-      };
-    }),
-    { ...searchEntry, title: 'Other', summary: '', tags: [], metadata: {} },
+    ...Array.from(
+      {
+        length: 3,
+      },
+      (_, id) => {
+        return {
+          ...searchEntry,
+          id: String(id),
+        };
+      },
+    ),
+    {
+      ...searchEntry,
+      title: 'Other',
+      summary: '',
+      tags: [],
+      metadata: {},
+    },
   ]);
   await h.flush();
   assert.equal(h.status.textContent, 'Showing 2 of 3');
@@ -314,7 +367,9 @@ test('search shows loading rather than no results while preparing its index', as
   assert.equal(h.results.attributes['aria-busy'], 'true');
   h.input('backend');
   assert.equal(h.status.textContent, 'Loading');
-  h.resolve([searchEntry]);
+  h.resolve([
+    searchEntry,
+  ]);
   await h.flush();
   assert.equal(h.status.textContent, '1');
   assert.equal(h.results.attributes['aria-busy'], 'false');
@@ -336,17 +391,41 @@ test('search keeps failure visible while editing and retries without losing the 
   assert.equal(h.requests.length, 2);
   assert.equal(h.status.textContent, 'Loading');
   assert.equal(h.query.value, 'formacao');
-  h.resolve([searchEntry]);
+  h.resolve([
+    searchEntry,
+  ]);
   await h.flush();
   assert.equal(h.status.textContent, '1');
   assert.equal(h.retry.hidden, true);
 });
 test('search handles empty indexes, malformed indexes and HTTP failures distinctly', async () => {
-  for (const [value, ok, expected] of [
-    [[], true, 'Empty'],
-    [{}, true, 'Unavailable'],
-    [[null], true, 'Unavailable'],
-    [[], false, 'Unavailable'],
+  for (const [
+    value,
+    ok,
+    expected,
+  ] of [
+    [
+      [],
+      true,
+      'Empty',
+    ],
+    [
+      {},
+      true,
+      'Unavailable',
+    ],
+    [
+      [
+        null,
+      ],
+      true,
+      'Unavailable',
+    ],
+    [
+      [],
+      false,
+      'Unavailable',
+    ],
   ]) {
     const h = searchHarness();
 
@@ -363,7 +442,9 @@ test('search settles closed requests and reopens without fetching a ready index 
 
   h.open();
   h.dialog.open = false;
-  h.resolve([searchEntry]);
+  h.resolve([
+    searchEntry,
+  ]);
   await h.flush();
   h.open();
   assert.equal(h.requests.length, 1);

@@ -7,7 +7,11 @@ let uptimeElements = document.querySelectorAll<HTMLElement>('[data-uptime]');
 let updateTimer: number | undefined;
 
 const elapsedParts = (birthDate: string, now: Date): UptimeParts => {
-  const [year = 0, month = 1, day = 1] = birthDate.split('-').map(Number);
+  const [
+    year = 0,
+    month = 1,
+    day = 1,
+  ] = birthDate.split('-').map(Number);
 
   const today = new Date(
     Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
@@ -48,7 +52,11 @@ const elapsedParts = (birthDate: string, now: Date): UptimeParts => {
 
   const days = (today.getTime() - monthiversary.getTime()) / 86400000;
 
-  return { years, months, days };
+  return {
+    years,
+    months,
+    days,
+  };
 };
 
 const formatUptime = (element: HTMLElement, now: Date) => {
@@ -63,7 +71,11 @@ const formatUptime = (element: HTMLElement, now: Date) => {
   const locale =
     element.dataset.uptimeLocale || document.documentElement.lang || 'en';
 
-  const units: UptimeUnit[] = ['years', 'months', 'days'];
+  const units: UptimeUnit[] = [
+    'years',
+    'months',
+    'days',
+  ];
 
   const unitNames: Record<UptimeUnit, 'year' | 'month' | 'day'> = {
     years: 'year',

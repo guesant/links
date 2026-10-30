@@ -66,7 +66,10 @@
       ...document.querySelectorAll<HTMLElement>('[data-rail-anchor]'),
     ];
 
-    for (const element of [content, ...anchors]) {
+    for (const element of [
+      content,
+      ...anchors,
+    ]) {
       if (element) {
         observer.observe(element);
       }

@@ -1,7 +1,10 @@
 {
   "defaults": {
     "concurrency": 1,
-    "runners": ["axe", "htmlcs"],
+    "runners": [
+      "axe",
+      "htmlcs"
+    ],
     "standard": "WCAG2AA",
     "timeout": 30000,
     "wait": 1000,
@@ -9,7 +12,10 @@
     "levelCapWhenNeedsReview": "warning",
     "viewport": { "width": 1280, "height": 1024 },
     "chromeLaunchConfig": {
-      "args": ["--no-sandbox", "--disable-dev-shm-usage"],
+      "args": [
+        "--no-sandbox",
+        "--disable-dev-shm-usage"
+      ],
       "executablePath": "/usr/bin/chromium"
     }
   }

@@ -6,7 +6,9 @@ const base = JSON.parse(await readFile('.config/lighthouserc.json', 'utf8'));
 
 const reports = resolve('.local/reports/lighthouse-baseline');
 
-await mkdir(reports, { recursive: true });
+await mkdir(reports, {
+  recursive: true,
+});
 
 async function verifyMedians(directory, formFactor) {
   const scores = new Map();
@@ -39,7 +41,10 @@ async function verifyMedians(directory, formFactor) {
   const threshold =
     base.ci.assert.assertions['categories:performance'][1].minScore;
 
-  for (const [path, values] of scores) {
+  for (const [
+    path,
+    values,
+  ] of scores) {
     values.sort((left, right) => {
       return left - right;
     });
@@ -58,15 +63,22 @@ async function verifyMedians(directory, formFactor) {
   }
 }
 
-for (const formFactor of ['mobile', 'desktop']) {
+for (const formFactor of [
+  'mobile',
+  'desktop',
+]) {
   const config = structuredClone(base);
 
   const resolveSettings = () => {
     if (formFactor === 'desktop') {
-      return { preset: 'desktop' };
+      return {
+        preset: 'desktop',
+      };
     }
 
-    return { formFactor };
+    return {
+      formFactor,
+    };
   };
 
   config.ci.collect = {
@@ -88,14 +100,26 @@ for (const formFactor of ['mobile', 'desktop']) {
 
   const configPath = resolve(reports, `${formFactor}.json`);
 
-  await rm(config.ci.upload.outputDir, { recursive: true, force: true });
-  await mkdir(config.ci.upload.outputDir, { recursive: true });
+  await rm(config.ci.upload.outputDir, {
+    recursive: true,
+    force: true,
+  });
+  await mkdir(config.ci.upload.outputDir, {
+    recursive: true,
+  });
   await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);
 
-  const result = spawnSync('lhci', ['autorun', `--config=${configPath}`], {
-    cwd: config.ci.upload.outputDir,
-    stdio: 'inherit',
-  });
+  const result = spawnSync(
+    'lhci',
+    [
+      'autorun',
+      `--config=${configPath}`,
+    ],
+    {
+      cwd: config.ci.upload.outputDir,
+      stdio: 'inherit',
+    },
+  );
 
   if (result.error) {
     throw result.error;

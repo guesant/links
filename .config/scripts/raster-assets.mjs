@@ -5,7 +5,16 @@ const puppeteer = createRequire(
   '/usr/local/lib/node_modules/pa11y-ci/package.json',
 )('puppeteer');
 
-const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+const signature = Buffer.from([
+  137,
+  80,
+  78,
+  71,
+  13,
+  10,
+  26,
+  10,
+]);
 
 export async function loadPNG(path, width, height) {
   const png = await readFile(path);
@@ -26,7 +35,10 @@ export async function withRasterPage(task) {
   const browser = await puppeteer.launch({
     executablePath: '/usr/bin/chromium',
     headless: true,
-    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+    ],
   });
 
   try {

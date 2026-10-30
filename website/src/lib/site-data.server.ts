@@ -26,11 +26,24 @@ export async function getSiteData(
     ) as unknown;
   };
 
-  const [links, editorial, credits, statistics] = await Promise.all(
-    ['links', 'editorial', 'credits', 'statistics'].map(readYaml),
+  const [
+    links,
+    editorial,
+    credits,
+    statistics,
+  ] = await Promise.all(
+    [
+      'links',
+      'editorial',
+      'credits',
+      'statistics',
+    ].map(readYaml),
   );
 
-  let federation: unknown = { version: 1, items: [] };
+  let federation: unknown = {
+    version: 1,
+    items: [],
+  };
 
   try {
     federation = JSON.parse(
@@ -126,7 +139,10 @@ export function pagesFor(
 
 export function routeEntries(data: SiteData): string[] {
   return data.links.language_options.flatMap(({ id }) => {
-    return ['minecraft', 'terminal'].flatMap((interfaceName) => {
+    return [
+      'minecraft',
+      'terminal',
+    ].flatMap((interfaceName) => {
       return pagesFor(data, id, interfaceName)
         .filter((page) => {
           return !page.fallback;
@@ -158,7 +174,10 @@ function localizedVisual(
     return undefined;
   }
 
-  return { ...visual, alt: visual.alt[locale] || visual.alt.en || '' };
+  return {
+    ...visual,
+    alt: visual.alt[locale] || visual.alt.en || '',
+  };
 }
 
 function linkStatistics(

@@ -17,7 +17,10 @@ export default {
             for (const statement of node.body) {
               listeners[':statement']({
                 ...statement,
-                parent: { type: 'Program', body: node.body },
+                parent: {
+                  type: 'Program',
+                  body: node.body,
+                },
               });
             }
           },

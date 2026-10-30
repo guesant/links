@@ -79,7 +79,9 @@
 
     event.preventDefault();
     switcher.open = false;
-    switcher.querySelector('summary')?.focus({ preventScroll: true });
+    switcher.querySelector('summary')?.focus({
+      preventScroll: true,
+    });
   });
   document.addEventListener('pointerdown', (event) => {
     const switcher = getSwitcher();
@@ -97,7 +99,9 @@
     switcher.open = false;
 
     if (restoreFocus) {
-      switcher.querySelector('summary')?.focus({ preventScroll: true });
+      switcher.querySelector('summary')?.focus({
+        preventScroll: true,
+      });
     }
   });
   document.addEventListener('focusin', (event) => {

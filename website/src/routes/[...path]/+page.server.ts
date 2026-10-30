@@ -10,7 +10,9 @@ export async function entries(): Promise<Array<{ path: string }>> {
   const data = await getSiteData();
 
   return routeEntries(data).map((path) => {
-    return { path };
+    return {
+      path,
+    };
   });
 }
 

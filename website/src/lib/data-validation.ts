@@ -51,7 +51,10 @@ function validateLinks(value: unknown): void {
     throw new Error('Invalid links.language_options: empty list');
   }
 
-  for (const [index, entry] of languages.entries()) {
+  for (const [
+    index,
+    entry,
+  ] of languages.entries()) {
     const language = record(entry, `links.language_options[${index}]`);
 
     text(language.id, `links.language_options[${index}].id`);
@@ -103,7 +106,10 @@ function validateLinks(value: unknown): void {
 
   const linkIDs = new Set<string>();
 
-  for (const [index, entry] of sections.entries()) {
+  for (const [
+    index,
+    entry,
+  ] of sections.entries()) {
     const section = record(entry, `links.sections[${index}]`);
 
     text(section.id, `links.sections[${index}].id`);
@@ -146,7 +152,10 @@ function validateLinks(value: unknown): void {
           `links.sections[${index}].links[].localized_urls`,
         );
 
-        for (const [locale, destination] of Object.entries(localizedURLs)) {
+        for (const [
+          locale,
+          destination,
+        ] of Object.entries(localizedURLs)) {
           if (!languageIDs.has(locale)) {
             throw new Error(`Unknown localized URL language: ${locale}`);
           }
@@ -164,7 +173,12 @@ function validateLinks(value: unknown): void {
         }
       }
 
-      for (const flag of ['enabled', 'public', 'private', 'draft']) {
+      for (const flag of [
+        'enabled',
+        'public',
+        'private',
+        'draft',
+      ]) {
         if (link[flag] !== undefined && typeof link[flag] !== 'boolean') {
           throw new Error(`Invalid link visibility flag: ${flag}`);
         }
@@ -231,7 +245,10 @@ function validateLinks(value: unknown): void {
     }
   }
 
-  for (const [index, entry] of sections.entries()) {
+  for (const [
+    index,
+    entry,
+  ] of sections.entries()) {
     const section = record(entry, `links.sections[${index}]`);
 
     const resolveRefs = () => {
@@ -255,7 +272,10 @@ function validateLinks(value: unknown): void {
     });
 
     if (
-      new Set([...ownLinks, ...refs]).size !==
+      new Set([
+        ...ownLinks,
+        ...refs,
+      ]).size !==
       ownLinks.length + refs.length
     ) {
       throw new Error(`Duplicate link in section ${section.id}`);
@@ -356,7 +376,10 @@ function linkFromUnknown(
   if (source.localized_urls !== undefined) {
     const rawURLs = record(source.localized_urls, `${label}.localized_urls`);
 
-    for (const [language, rawURL] of Object.entries(rawURLs)) {
+    for (const [
+      language,
+      rawURL,
+    ] of Object.entries(rawURLs)) {
       if (!languages.has(language)) {
         throw new Error(`Unknown localized URL language: ${language}`);
       }
@@ -428,7 +451,9 @@ function linkFromUnknown(
 
   const localizedURLFields = () => {
     if (Object.keys(localizedURLs).length) {
-      return { localized_urls: localizedURLs };
+      return {
+        localized_urls: localizedURLs,
+      };
     }
 
     return {};
@@ -591,7 +616,10 @@ function linkDocumentFromUnknown(value: unknown): LinkDocument {
 
   const metrics: LinkDocument['statistics']['metrics'] = {};
 
-  for (const [id, rawMetric] of Object.entries(rawMetricDefinitions)) {
+  for (const [
+    id,
+    rawMetric,
+  ] of Object.entries(rawMetricDefinitions)) {
     const metric = record(rawMetric, `links.statistics.metrics.${id}`);
 
     metrics[id] = {
@@ -638,7 +666,9 @@ function linkDocumentFromUnknown(value: unknown): LinkDocument {
         title: requiredText(seo.title, `${label}.seo.title`),
         description: requiredText(seo.description, `${label}.seo.description`),
       },
-      profile: { bio: requiredText(profile.bio, `${label}.profile.bio`) },
+      profile: {
+        bio: requiredText(profile.bio, `${label}.profile.bio`),
+      },
       ui: {
         ...ui,
         third_party: requiredText(ui.third_party, `${label}.ui.third_party`),
@@ -660,7 +690,10 @@ function linkDocumentFromUnknown(value: unknown): LinkDocument {
 
   const now: LinkDocument['now'] = {};
 
-  for (const [language, content] of Object.entries(rawNow)) {
+  for (const [
+    language,
+    content,
+  ] of Object.entries(rawNow)) {
     now[language] = validateNow(content, `links.now.${language}`);
   }
 
@@ -741,7 +774,9 @@ function linkDocumentFromUnknown(value: unknown): LinkDocument {
     statistics,
     locales,
     now,
-    language_preference: { default: defaultLanguage },
+    language_preference: {
+      default: defaultLanguage,
+    },
     navigation: {
       sections: navigationSections,
       links: navigationLinks,

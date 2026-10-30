@@ -12,4 +12,7 @@ const readConfiguration = (
   return parse(fs.readFileSync(path, 'utf8'));
 };
 
-module.exports = { ...configuration, readConfiguration };
+module.exports = {
+  ...configuration,
+  readConfiguration,
+};

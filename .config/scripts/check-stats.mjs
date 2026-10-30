@@ -31,14 +31,18 @@ const username = (entry) => {
 };
 
 const response = (data, status = 200) => {
-  return new Response(JSON.stringify(data), { status });
+  return new Response(JSON.stringify(data), {
+    status,
+  });
 };
 
 const repository = (id) => {
   return {
     id,
     private: false,
-    owner: { login: username(github) },
+    owner: {
+      login: username(github),
+    },
     stargazers_count: 2,
     forks_count: 1,
   };
@@ -49,17 +53,36 @@ const leetData = () => {
     data: {
       matchedUser: {
         username: username(leetcode),
-        profile: { ranking: 7 },
+        profile: {
+          ranking: 7,
+        },
         submitStatsGlobal: {
           acSubmissionNum: [
-            { difficulty: 'All', count: 6 },
-            { difficulty: 'Easy', count: 3 },
-            { difficulty: 'Medium', count: 2 },
-            { difficulty: 'Hard', count: 1 },
+            {
+              difficulty: 'All',
+              count: 6,
+            },
+            {
+              difficulty: 'Easy',
+              count: 3,
+            },
+            {
+              difficulty: 'Medium',
+              count: 2,
+            },
+            {
+              difficulty: 'Hard',
+              count: 1,
+            },
           ],
         },
       },
-      allQuestionsCount: ['All', 'Easy', 'Medium', 'Hard'].map((difficulty) => {
+      allQuestionsCount: [
+        'All',
+        'Easy',
+        'Medium',
+        'Hard',
+      ].map((difficulty) => {
         return {
           difficulty,
           count: 100,
@@ -75,17 +98,26 @@ const fetcher = async (url) => {
   }
 
   if (String(url).includes('/repos?')) {
-    return response([repository(1)]);
+    return response([
+      repository(1),
+    ]);
   }
 
-  return response({ login: username(github), followers: 4, public_repos: 1 });
+  return response({
+    login: username(github),
+    followers: 4,
+    public_repos: 1,
+  });
 };
 
 test('public GitHub statistics and request boundaries', async () => {
   const requests = [];
 
   const result = await collectGitHub(github, async (url, options) => {
-    requests.push({ url, options });
+    requests.push({
+      url,
+      options,
+    });
 
     return fetcher(url);
   });
@@ -114,12 +146,20 @@ test('GitHub pagination does not duplicate repositories', async () => {
 
     const resolveValue = () => {
       if (String(url).includes('page=2')) {
-        return [repository(100), repository(101)];
+        return [
+          repository(100),
+          repository(101),
+        ];
       }
 
-      return Array.from({ length: 100 }, (_, index) => {
-        return repository(index + 1);
-      });
+      return Array.from(
+        {
+          length: 100,
+        },
+        (_, index) => {
+          return repository(index + 1);
+        },
+      );
     };
 
     return response(resolveValue());
@@ -128,7 +168,10 @@ test('GitHub pagination does not duplicate repositories', async () => {
   assert.equal(result.metrics.stars, 202);
 });
 
-for (const [name, mutation] of [
+for (const [
+  name,
+  mutation,
+] of [
   [
     'private',
     (item) => {
@@ -161,7 +204,9 @@ for (const [name, mutation] of [
     await assert.rejects(
       collectGitHub(github, async (url) => {
         if (String(url).includes('/repos?')) {
-          return response([item]);
+          return response([
+            item,
+          ]);
         }
 
         return fetcher(url);
@@ -190,11 +235,18 @@ test('LeetCode uses public GraphQL data, not a card service', async () => {
   });
 });
 
-for (const [name, mutate] of [
+for (const [
+  name,
+  mutate,
+] of [
   [
     'GraphQL errors',
     (data) => {
-      data.errors = [{ message: 'fixture-error' }];
+      data.errors = [
+        {
+          message: 'fixture-error',
+        },
+      ];
     },
   ],
   [
@@ -284,7 +336,10 @@ test('atomic cache updates and failure retention', async () => {
         return new Response('invalid JSON');
       },
     ]) {
-      const result = await updateStats({ ...options, fetcher: failure });
+      const result = await updateStats({
+        ...options,
+        fetcher: failure,
+      });
 
       assert(
         result.every((item) => {
@@ -341,7 +396,10 @@ test('atomic cache updates and failure retention', async () => {
       'unavailable',
     );
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, {
+      recursive: true,
+      force: true,
+    });
   }
 });
 test('first failed collection does not fabricate a cache', async () => {
@@ -362,8 +420,13 @@ test('first failed collection does not fabricate a cache', async () => {
         return item.status === 'unavailable';
       }),
     );
-    await assert.rejects(readFile(outputPath), { code: 'ENOENT' });
+    await assert.rejects(readFile(outputPath), {
+      code: 'ENOENT',
+    });
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, {
+      recursive: true,
+      force: true,
+    });
   }
 });

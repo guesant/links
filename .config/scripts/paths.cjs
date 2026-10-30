@@ -7,4 +7,8 @@ const websiteRoot = resolve(repositoryRoot, 'website');
 
 const requireWebsite = createRequire(resolve(websiteRoot, 'package.json'));
 
-module.exports = { repositoryRoot, websiteRoot, requireWebsite };
+module.exports = {
+  repositoryRoot,
+  websiteRoot,
+  requireWebsite,
+};

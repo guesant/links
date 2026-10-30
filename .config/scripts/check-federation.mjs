@@ -18,12 +18,24 @@ const entry = {
   title: 'A public post',
   summary: 'Public summary',
   url: 'https://blog.guesant.net/posts/one/',
-  tags: ['testing'],
-  metadata: { date: '2026-01-01' },
+  tags: [
+    'testing',
+  ],
+  metadata: {
+    date: '2026-01-01',
+  },
 };
 
-const feed = (items = [entry]) => {
-  return { version: 1, source: 'blog', items };
+const feed = (
+  items = [
+    entry,
+  ],
+) => {
+  return {
+    version: 1,
+    source: 'blog',
+    items,
+  };
 };
 
 test('federation keeps only public allowlisted fields', () => {
@@ -32,7 +44,10 @@ test('federation keeps only public allowlisted fields', () => {
       {
         ...entry,
         secret: 'hidden',
-        metadata: { secret: 'hidden', date: '2026-01-01' },
+        metadata: {
+          secret: 'hidden',
+          date: '2026-01-01',
+        },
       },
     ]),
     source,
@@ -44,16 +59,27 @@ test('federation keeps only public allowlisted fields', () => {
   assert.deepEqual(validateFeed(feed([]), source).items, []);
 });
 test('resume projects retain only safe declared public platform URLs', () => {
-  const resume = { id: 'resume', origin: 'https://curriculum.guesant.net' };
+  const resume = {
+    id: 'resume',
+    origin: 'https://curriculum.guesant.net',
+  };
 
   const project = {
     ...entry,
     type: 'project',
     url: 'https://curriculum.guesant.net/en/#project-one',
-    metadata: { content_url: 'https://github.com/guesant/ava-pro' },
+    metadata: {
+      content_url: 'https://github.com/guesant/ava-pro',
+    },
   };
 
-  const input = { version: 1, source: 'resume', items: [project] };
+  const input = {
+    version: 1,
+    source: 'resume',
+    items: [
+      project,
+    ],
+  };
 
   const result = validateFeed(input, resume).items[0];
 
@@ -69,7 +95,17 @@ test('resume projects retain only safe declared public platform URLs', () => {
   ]) {
     assert.throws(() => {
       return validateFeed(
-        { ...input, items: [{ ...project, metadata: { content_url: url } }] },
+        {
+          ...input,
+          items: [
+            {
+              ...project,
+              metadata: {
+                content_url: url,
+              },
+            },
+          ],
+        },
         resume,
       );
     });
@@ -77,19 +113,35 @@ test('resume projects retain only safe declared public platform URLs', () => {
 
   assert.throws(() => {
     return validateFeed(
-      { ...input, items: [{ ...project, type: 'case' }] },
+      {
+        ...input,
+        items: [
+          {
+            ...project,
+            type: 'case',
+          },
+        ],
+      },
       resume,
     );
   });
   assert.throws(() => {
     return validateFeed(
-      feed([{ ...entry, metadata: project.metadata }]),
+      feed([
+        {
+          ...entry,
+          metadata: project.metadata,
+        },
+      ]),
       source,
     );
   });
 });
 
-for (const [name, modify] of [
+for (const [
+  name,
+  modify,
+] of [
   [
     'unknown version',
     (value) => {
@@ -117,7 +169,9 @@ for (const [name, modify] of [
   [
     'duplicate identifier',
     (value) => {
-      value.items.push({ ...value.items[0] });
+      value.items.push({
+        ...value.items[0],
+      });
     },
   ],
   [
@@ -214,7 +268,10 @@ test('federation uses valid cache only for network failures', async () => {
           return {
             ok: true,
             text: async () => {
-              return JSON.stringify({ ...feed(), version: 9 });
+              return JSON.stringify({
+                ...feed(),
+                version: 9,
+              });
             },
           };
         },
@@ -225,7 +282,10 @@ test('federation uses valid cache only for network failures', async () => {
       1,
     );
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, {
+      recursive: true,
+      force: true,
+    });
   }
 });
 test('federation fails without usable cache and supports local generated inputs', async () => {
@@ -237,7 +297,10 @@ test('federation fails without usable cache and supports local generated inputs'
     };
 
     await assert.rejects(
-      loadFeed(source, { cacheDirectory: directory, fetcher }),
+      loadFeed(source, {
+        cacheDirectory: directory,
+        fetcher,
+      }),
       /No valid feed/,
     );
 
@@ -256,9 +319,15 @@ test('federation fails without usable cache and supports local generated inputs'
     );
     await writeFile(localFile, '{}');
     await assert.rejects(
-      loadFeed(source, { cacheDirectory: directory, localFile }),
+      loadFeed(source, {
+        cacheDirectory: directory,
+        localFile,
+      }),
     );
   } finally {
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, {
+      recursive: true,
+      force: true,
+    });
   }
 });

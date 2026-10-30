@@ -19,12 +19,21 @@ export function linkNavigation(
   const url: URL = new URL(href, origin);
 
   const external: boolean =
-    ['http:', 'https:'].includes(url.protocol) &&
-    url.origin !== new URL(origin).origin;
+    [
+      'http:',
+      'https:',
+    ].includes(url.protocol) && url.origin !== new URL(origin).origin;
 
   if (external) {
-    return { external, target: '_blank', rel: 'noopener noreferrer' };
+    return {
+      external,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    };
   }
 
-  return { external, target: '_self' };
+  return {
+    external,
+    target: '_self',
+  };
 }

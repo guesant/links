@@ -3,7 +3,10 @@
 
   const storageKey = 'guesant-links-view';
 
-  const modes = new Set(['compact', 'detailed']);
+  const modes = new Set([
+    'compact',
+    'detailed',
+  ]);
 
   const sync = () => {
     for (const control of document.querySelectorAll<HTMLInputElement>(

@@ -6,5 +6,7 @@ export function optionalProperty<Key extends string, Value>(
     return {};
   }
 
-  return { [key]: value } as Record<Key, Value>;
+  return {
+    [key]: value,
+  } as Record<Key, Value>;
 }

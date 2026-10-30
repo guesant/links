@@ -16,7 +16,9 @@ async function blockedStorage(browser, baseURL) {
     });
     await page.goto(
       new URL('/pt-br/career/?source=blocked#main-content', baseURL).href,
-      { waitUntil: 'networkidle0' },
+      {
+        waitUntil: 'networkidle0',
+      },
     );
     await page.click('[data-settings-open]');
     await page.select('[data-language-switcher]', '/en/career/');
@@ -36,15 +38,24 @@ async function blockedStorage(browser, baseURL) {
         return dialog.open;
       }),
     );
-    await page.reload({ waitUntil: 'networkidle0' });
+    await page.reload({
+      waitUntil: 'networkidle0',
+    });
     assert.equal(page.url(), url.href);
     await page.click('[data-settings-open]');
     await page.evaluate(() => {
       const select = document.querySelector('[data-language-switcher]');
 
-      for (const path of ['/fr/career/', '/es/career/']) {
+      for (const path of [
+        '/fr/career/',
+        '/es/career/',
+      ]) {
         select.value = path;
-        select.dispatchEvent(new Event('change', { bubbles: true }));
+        select.dispatchEvent(
+          new Event('change', {
+            bubbles: true,
+          }),
+        );
       }
     });
     await page.waitForFunction(() => {
@@ -123,7 +134,9 @@ async function searchAndHistory(browser, baseURL) {
       '/search/en-minecraft.json',
     ]);
     await page.keyboard.press('Escape');
-    await page.goBack({ waitUntil: 'networkidle0' });
+    await page.goBack({
+      waitUntil: 'networkidle0',
+    });
     assert.match(new URL(page.url()).pathname, /^\/(pt-br|en)\/$/);
   } finally {
     await context.close();
@@ -188,5 +201,10 @@ module.exports = async function checkLanguageContinuity(browser, baseURL) {
   await searchAndHistory(browser, baseURL);
   console.log('Language continuity: native fallback');
   await nativeFallback(browser, baseURL);
-  console.log(JSON.stringify({ languageContinuityScenarios: 3, failures: [] }));
+  console.log(
+    JSON.stringify({
+      languageContinuityScenarios: 3,
+      failures: [],
+    }),
+  );
 };

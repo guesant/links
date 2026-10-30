@@ -10,7 +10,9 @@ const sharp = requireWebsite('sharp');
 const { parse } = requireWebsite('yaml');
 
 async function filesIn(directory) {
-  const entries = await readdir(directory, { withFileTypes: true });
+  const entries = await readdir(directory, {
+    withFileTypes: true,
+  });
 
   return (
     await Promise.all(
@@ -69,7 +71,10 @@ test('PNG icon sources and atlas match their catalog', async () => {
     names.length * 2,
   );
 
-  for (const [column, name] of names.entries()) {
+  for (const [
+    column,
+    name,
+  ] of names.entries()) {
     assert.equal(manifest.icons[name].colored, catalog[name]);
     assert(Number.isFinite(manifest.icons[name].opticalScale));
     assert(manifest.icons[name].opticalScale > 0);
@@ -93,7 +98,9 @@ test('PNG icon sources and atlas match their catalog', async () => {
     )
       .ensureAlpha()
       .raw()
-      .toBuffer({ resolveWithObject: true });
+      .toBuffer({
+        resolveWithObject: true,
+      });
 
     let left = info.width;
 
@@ -147,19 +154,30 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
 
   const atlases = await Promise.all(
     [
-      ['pixel', manifest.tileSize],
-      ['pixel-compact', manifest.compactTileSize],
-    ].map(async ([name, tileSize]) => {
-      return {
+      [
+        'pixel',
+        manifest.tileSize,
+      ],
+      [
+        'pixel-compact',
+        manifest.compactTileSize,
+      ],
+    ].map(
+      async ([
         name,
         tileSize,
-        atlas: await loadPNG(
-          `website/src/assets/icons/${name}.png`,
-          manifest.count * tileSize,
-          tileSize * 2,
-        ),
-      };
-    }),
+      ]) => {
+        return {
+          name,
+          tileSize,
+          atlas: await loadPNG(
+            `website/src/assets/icons/${name}.png`,
+            manifest.count * tileSize,
+            tileSize * 2,
+          ),
+        };
+      },
+    ),
   );
 
   const sources = await Promise.all(
@@ -182,7 +200,10 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
 
   await withRasterPage(async (page) => {
     for (const { name, tileSize, atlas } of atlases) {
-      for (const ratio of [1, 2]) {
+      for (const ratio of [
+        1,
+        2,
+      ]) {
         for (const size of geometry.display_sizes) {
           const width = manifest.count * size;
 
@@ -197,7 +218,10 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
               document.body.style.margin = '0';
 
               for (const source of sources) {
-                for (const key of ['png', 'mask']) {
+                for (const key of [
+                  'png',
+                  'mask',
+                ]) {
                   const image = new Image();
 
                   image.src = `data:image/png;base64,${source[key]}`;
@@ -224,7 +248,10 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
                 return `url("data:image/png;base64,${png}")`;
               };
 
-              for (const [column, source] of sources.entries()) {
+              for (const [
+                column,
+                source,
+              ] of sources.entries()) {
                 for (let row = 0; row < 4; row += 1) {
                   const element = document.createElement('span');
 
@@ -284,7 +311,10 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
                 [
                   atlas,
                   ...sources.flatMap(({ png, mask }) => {
-                    return [png, mask];
+                    return [
+                      png,
+                      mask,
+                    ];
                   }),
                 ].map(async (png) => {
                   const image = new Image();
@@ -299,10 +329,17 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
                 });
               });
             },
-            { sources, atlas, size, tileSize },
+            {
+              sources,
+              atlas,
+              size,
+              tileSize,
+            },
           );
 
-          const screenshot = await page.screenshot({ omitBackground: true });
+          const screenshot = await page.screenshot({
+            omitBackground: true,
+          });
 
           const difference = await page.evaluate(
             async ({ png, size, ratio }) => {
@@ -331,7 +368,10 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
 
               let changed = 0;
 
-              for (const row of [0, 2]) {
+              for (const row of [
+                0,
+                2,
+              ]) {
                 for (let y = 0; y < height; y += 1) {
                   for (let x = 0; x < image.width; x += 1) {
                     const first = ((row * height + y) * image.width + x) * 4;
@@ -339,7 +379,12 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
                     const second = first + height * image.width * 4;
 
                     if (
-                      [0, 1, 2, 3].some((channel) => {
+                      [
+                        0,
+                        1,
+                        2,
+                        3,
+                      ].some((channel) => {
                         return (
                           Math.abs(
                             pixels[first + channel] - pixels[second + channel],
@@ -355,7 +400,11 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
 
               return changed;
             },
-            { png: Buffer.from(screenshot).toString('base64'), size, ratio },
+            {
+              png: Buffer.from(screenshot).toString('base64'),
+              size,
+              ratio,
+            },
           );
 
           assert.equal(
@@ -372,7 +421,14 @@ test('PNG atlas renders each icon without shifting or leaking adjacent tiles', a
 test('six PNG cursors preserve transparency and use one global cursor', async () => {
   const config = parse(await readFile('.config/cursor-assets.yaml', 'utf8'));
 
-  const names = ['click', 'default', 'grab', 'pointer', 'text', 'wait'];
+  const names = [
+    'click',
+    'default',
+    'grab',
+    'pointer',
+    'text',
+    'wait',
+  ];
 
   assert.deepEqual(
     config.assets
@@ -464,7 +520,11 @@ test('six PNG cursors preserve transparency and use one global cursor', async ()
             hotspot: data[(hotspot[1] * image.width + hotspot[0]) * 4 + 3],
           };
         },
-        { png, hotspot: asset.hotspot, padding: config.padding },
+        {
+          png,
+          hotspot: asset.hotspot,
+          padding: config.padding,
+        },
       );
 
       assert(
@@ -499,10 +559,22 @@ test('six PNG cursors preserve transparency and use one global cursor', async ()
 });
 
 test('favicon and installable icons use PNG at their declared sizes', async () => {
-  for (const [name, size] of [
-    ['favicon', 64],
-    ['icon-192', 192],
-    ['icon-512', 512],
+  for (const [
+    name,
+    size,
+  ] of [
+    [
+      'favicon',
+      64,
+    ],
+    [
+      'icon-192',
+      192,
+    ],
+    [
+      'icon-512',
+      512,
+    ],
   ]) {
     await loadPNG(`website/src/static/${name}.png`, size, size);
   }
@@ -583,7 +655,10 @@ test('rail slices join matching stems and preserve a complete terminal', async (
           coupling: stem(coupling.top + coupling.height - 1),
         };
       },
-      { png: source.toString('base64'), geometry },
+      {
+        png: source.toString('base64'),
+        geometry,
+      },
     );
 
     assert(edges.first.length > 0);
