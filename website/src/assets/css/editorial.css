@@ -77,6 +77,8 @@
 }
 
 .editorial-entry :is(h3, h5) {
+  flex: 1;
+  min-width: var(--space-0);
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   line-height: var(--line-height-tight);

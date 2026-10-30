@@ -1,13 +1,31 @@
 import type { EditorialRecord, SiteData } from './site-data.ts';
 
 export const editorialKinds: Record<string, readonly string[]> = {
-  career: ['skill', 'experience', 'education'],
-  code: ['project', 'case'],
-  writing: ['post', 'case'],
-  interests: ['interests'],
-  uses: ['uses'],
-  library: ['library'],
-  curiosities: ['curiosities'],
+  career: [
+    'skill',
+    'experience',
+    'education',
+  ],
+  code: [
+    'project',
+    'case',
+  ],
+  writing: [
+    'post',
+    'case',
+  ],
+  interests: [
+    'interests',
+  ],
+  uses: [
+    'uses',
+  ],
+  library: [
+    'library',
+  ],
+  curiosities: [
+    'curiosities',
+  ],
 };
 
 function visible(entry: {
@@ -147,29 +165,40 @@ function platformFor(url: string): string {
   return 'GitLab';
 }
 
+function affiliationFor(
+  item: EditorialRecord,
+  data: SiteData,
+  locale: string,
+): string {
+  let affiliation = item.metadata.position;
+
+  if (item.type === 'education') {
+    affiliation = item.metadata.degree;
+  }
+
+  if (typeof affiliation === 'string' && affiliation.trim()) {
+    return affiliation.trim();
+  }
+
+  return (
+    data.editorial.ui[locale]?.affiliation_unspecified ||
+    data.editorial.ui.en?.affiliation_unspecified ||
+    ''
+  );
+}
+
 function decorateItem(
   item: EditorialRecord,
   data: SiteData,
   locale: string,
 ): EditorialRecord {
-  if (item.type === 'experience') {
-    const rawPosition = item.metadata.position;
+  if (item.type === 'experience' || item.type === 'education') {
+    const affiliation = affiliationFor(item, data, locale);
 
-    const resolvePosition = () => {
-      if (typeof rawPosition === 'string') {
-        return rawPosition.trim();
-      }
-
-      return '';
+    return {
+      ...item,
+      title: `${item.title} · ${affiliation}`,
     };
-
-    const position =
-      resolvePosition() ||
-      data.editorial.ui[locale]?.affiliation_unspecified ||
-      data.editorial.ui.en?.affiliation_unspecified ||
-      '';
-
-    return { ...item, title: `${item.title} · ${position}` };
   }
 
   if (

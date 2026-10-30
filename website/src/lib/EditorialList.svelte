@@ -141,7 +141,7 @@
               {#if Object.values(item.metadata || {}).some(Boolean)}
                 <dl class="editorial-metadata">
                   {#each Object.entries(item.metadata || {}).filter( ([key, value]) => {
-                      return value && key !== 'content_url' && !(item.type === 'experience' && key === 'position');
+                      return value && key !== 'content_url' && !(item.type === 'experience' && key === 'position') && !(item.type === 'education' && key === 'degree');
                     } ) as [key, value]}
                     <div>
                       <dt>{ui[key] || key}</dt>

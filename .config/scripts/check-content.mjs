@@ -35,7 +35,13 @@ test('neutral home shares all localized content without duplicating its route', 
 
   assert.equal(initial.isLanguageEntry, true);
   assert.equal(localized.isLanguageEntry, false);
-  assert.deepEqual({ ...initial, isLanguageEntry: false }, localized);
+  assert.deepEqual(
+    {
+      ...initial,
+      isLanguageEntry: false,
+    },
+    localized,
+  );
   assert.equal(initial.locale, 'pt-br');
   assert.equal(initial.page.url, '/pt-br/');
   assert.equal(languageContext(initial).neutral, true);
@@ -88,8 +94,15 @@ test('profile initials use the first and last name, ignoring middle names', () =
 test('optional fields omit only undefined, preserving meaningful falsy values', () => {
   assert.deepEqual(optionalProperty('field', undefined), {});
 
-  for (const value of [false, 0, '', null]) {
-    assert.deepEqual(optionalProperty('field', value), { field: value });
+  for (const value of [
+    false,
+    0,
+    '',
+    null,
+  ]) {
+    assert.deepEqual(optionalProperty('field', value), {
+      field: value,
+    });
   }
 });
 
@@ -134,8 +147,13 @@ test('cross-origin navigation opens a protected new tab independently of ownersh
   );
 
   const owned = destination(
-    { links: data.links },
-    { url: 'https://resume.guesant.net/', target: '_self' },
+    {
+      links: data.links,
+    },
+    {
+      url: 'https://resume.guesant.net/',
+      target: '_self',
+    },
   );
 
   assert.equal(owned.thirdParty, false);
@@ -145,7 +163,11 @@ test('cross-origin navigation opens a protected new tab independently of ownersh
 
 test('every locale requires a non-empty third-party label', () => {
   for (const { id } of data.links.language_options) {
-    for (const value of [undefined, '', '   ']) {
+    for (const value of [
+      undefined,
+      '',
+      '   ',
+    ]) {
       const links = structuredClone(data.links);
 
       if (value === undefined) {
@@ -156,7 +178,10 @@ test('every locale requires a non-empty third-party label', () => {
 
       assert.throws(
         () => {
-          return validateSiteDocuments({ ...data, links });
+          return validateSiteDocuments({
+            ...data,
+            links,
+          });
         },
         new RegExp(`links.locales.${id}.ui.third_party`),
       );
@@ -188,7 +213,10 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
   assert.throws(() => {
     return validateSiteDocuments({
       ...valid,
-      links: { ...data.links, sections: null },
+      links: {
+        ...data.links,
+        sections: null,
+      },
     });
   });
 
@@ -196,7 +224,10 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
 
   invalidIconLinks.sections[0].links[0].icon = false;
   assert.throws(() => {
-    return validateSiteDocuments({ ...valid, links: invalidIconLinks });
+    return validateSiteDocuments({
+      ...valid,
+      links: invalidIconLinks,
+    });
   });
 
   const invalidLocalizedLinkLinks = structuredClone(data.links);
@@ -213,7 +244,10 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
 
   invalidSectionFlagLinks.sections[0].enabled = 'yes';
   assert.throws(() => {
-    return validateSiteDocuments({ ...valid, links: invalidSectionFlagLinks });
+    return validateSiteDocuments({
+      ...valid,
+      links: invalidSectionFlagLinks,
+    });
   });
 
   const unknownLinkLocaleLinks = structuredClone(data.links);
@@ -223,7 +257,10 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
     xx: 'https://example.com/',
   };
   assert.throws(() => {
-    return validateSiteDocuments({ ...valid, links: unknownLinkLocaleLinks });
+    return validateSiteDocuments({
+      ...valid,
+      links: unknownLinkLocaleLinks,
+    });
   });
   assert.throws(() => {
     return validateSiteDocuments({
@@ -232,7 +269,10 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
         ...data.editorial,
         ui: {
           ...data.editorial.ui,
-          'pt-br': { ...data.editorial.ui['pt-br'], search: false },
+          'pt-br': {
+            ...data.editorial.ui['pt-br'],
+            search: false,
+          },
         },
       },
     });
@@ -244,7 +284,10 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
         ...data.statistics,
         'github-stats': {
           ...data.statistics['github-stats'],
-          metrics: { ...data.statistics['github-stats'].metrics, stars: '88' },
+          metrics: {
+            ...data.statistics['github-stats'].metrics,
+            stars: '88',
+          },
         },
       },
     });
@@ -278,7 +321,11 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
             {
               id: 'unsafe',
               url: 'javascript:alert(1)',
-              labels: { 'pt-br': { title: 'Unsafe' } },
+              labels: {
+                'pt-br': {
+                  title: 'Unsafe',
+                },
+              },
             },
           ],
         },
@@ -316,23 +363,40 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
     summary: '',
     url: 'https://blog.guesant.net/posts/public-item/',
     tags: [],
-    metadata: { categories: ['engineering'], private_value: 'discarded' },
+    metadata: {
+      categories: [
+        'engineering',
+      ],
+      private_value: 'discarded',
+    },
   };
 
   const accepted = validateSiteDocuments({
     ...valid,
-    federation: { version: 1, items: [validItem] },
+    federation: {
+      version: 1,
+      items: [
+        validItem,
+      ],
+    },
   });
 
   assert.deepEqual(accepted.federation.items[0].metadata, {
-    categories: ['engineering'],
+    categories: [
+      'engineering',
+    ],
   });
   assert.throws(() => {
     return validateSiteDocuments({
       ...valid,
       federation: {
         version: 1,
-        items: [validItem, { ...validItem }],
+        items: [
+          validItem,
+          {
+            ...validItem,
+          },
+        ],
       },
     });
   });
@@ -341,7 +405,12 @@ test('runtime boundary validation rejects malformed documents and feed URLs', ()
       ...valid,
       federation: {
         version: 1,
-        items: [{ ...validItem, source: 'unknown' }],
+        items: [
+          {
+            ...validItem,
+            source: 'unknown',
+          },
+        ],
       },
     });
   });
@@ -353,7 +422,12 @@ test('localized static routes are unique and include both interfaces', () => {
   assert.equal(new Set(routes).size, routes.length);
 
   for (const language of data.links.language_options) {
-    for (const route of ['home', 'career', 'code', 'now']) {
+    for (const route of [
+      'home',
+      'career',
+      'code',
+      'now',
+    ]) {
       const standard = pagesFor(data, language.id, 'minecraft').find((page) => {
         return page.id === route;
       });
@@ -414,7 +488,9 @@ test('section references resolve visible links without duplicate definitions', (
     return linksForSection(data.links, {
       id: 'fixture',
       links: [],
-      link_refs: ['unknown-link'],
+      link_refs: [
+        'unknown-link',
+      ],
     });
   }, /Unknown link reference/);
 });
@@ -437,7 +513,11 @@ test('link filters and destinations preserve ownership and public visibility', (
         public: true,
         url: 'https://guesant.net/',
       },
-      { id: 'fixture-disabled', enabled: false, url: 'https://github.com/' },
+      {
+        id: 'fixture-disabled',
+        enabled: false,
+        url: 'https://github.com/',
+      },
       {
         id: 'fixture-private',
         enabled: true,
@@ -451,21 +531,41 @@ test('link filters and destinations preserve ownership and public visibility', (
     linksForSection(fixture, fixture.sections.at(-1)).map((item) => {
       return item.id;
     }),
-    ['fixture-public'],
+    [
+      'fixture-public',
+    ],
   );
   assert.equal(
-    destination({ links: fixture }, { url: 'https://blog.guesant.net/' })
-      .thirdParty,
+    destination(
+      {
+        links: fixture,
+      },
+      {
+        url: 'https://blog.guesant.net/',
+      },
+    ).thirdParty,
     false,
   );
   assert.equal(
-    destination({ links: fixture }, { url: 'https://github.com/guesant' })
-      .thirdParty,
+    destination(
+      {
+        links: fixture,
+      },
+      {
+        url: 'https://github.com/guesant',
+      },
+    ).thirdParty,
     true,
   );
   assert.equal(
-    destination({ links: fixture }, { url: 'mailto:hello@guesant.net' })
-      .external,
+    destination(
+      {
+        links: fixture,
+      },
+      {
+        url: 'mailto:hello@guesant.net',
+      },
+    ).external,
     true,
   );
 });
@@ -473,28 +573,113 @@ test('link filters and destinations preserve ownership and public visibility', (
 test('editorial records hide private, disabled, and draft entries', () => {
   const fixture = structuredClone(data);
 
-  fixture.federation = { version: 1, items: [] };
+  fixture.federation = {
+    version: 1,
+    items: [],
+  };
   fixture.editorial.entries.career = [
     {
       id: 'visible',
       enabled: true,
       public: true,
-      labels: { 'pt-br': { title: 'Visible' } },
+      labels: {
+        'pt-br': {
+          title: 'Visible',
+        },
+      },
     },
     {
       id: 'disabled',
       enabled: false,
-      labels: { 'pt-br': { title: 'Disabled' } },
+      labels: {
+        'pt-br': {
+          title: 'Disabled',
+        },
+      },
     },
-    { id: 'private', private: true, labels: { 'pt-br': { title: 'Private' } } },
-    { id: 'draft', draft: true, labels: { 'pt-br': { title: 'Draft' } } },
+    {
+      id: 'private',
+      private: true,
+      labels: {
+        'pt-br': {
+          title: 'Private',
+        },
+      },
+    },
+    {
+      id: 'draft',
+      draft: true,
+      labels: {
+        'pt-br': {
+          title: 'Draft',
+        },
+      },
+    },
   ];
   assert.deepEqual(
     editorialItems(fixture, 'career', 'pt-br').map((item) => {
       return item.id;
     }),
-    ['visible'],
+    [
+      'visible',
+    ],
   );
+});
+
+test('career titles retain the affiliation without changing identity or source data', () => {
+  for (const language of data.links.language_options) {
+    for (const type of [
+      'experience',
+      'education',
+    ]) {
+      const fixture = structuredClone(data);
+
+      const field = {
+        experience: 'position',
+        education: 'degree',
+      }[type];
+
+      fixture.editorial.entries.career = [];
+      fixture.federation.items = [
+        {
+          id: 'affiliation-record',
+          type,
+          source: 'resume',
+          language: 'en',
+          title: 'Institution',
+          summary: 'Published summary',
+          url: 'https://curriculum.guesant.net/en/#affiliation-record',
+          tags: [],
+          metadata: {
+            [field]: '  Published affiliation  ',
+          },
+        },
+      ];
+
+      const original = structuredClone(fixture.federation.items[0]);
+
+      const [
+        item,
+      ] = editorialItems(fixture, 'career', language.id);
+
+      assert.deepEqual(item, {
+        ...original,
+        title: 'Institution · Published affiliation',
+      });
+      assert.deepEqual(fixture.federation.items[0], original);
+
+      fixture.federation.items[0].metadata[field] = '';
+
+      const [
+        unspecified,
+      ] = editorialItems(fixture, 'career', language.id);
+
+      assert.equal(
+        unspecified.title,
+        `Institution · ${data.editorial.ui[language.id].affiliation_unspecified}`,
+      );
+    }
+  }
 });
 
 test('section pages retain all configured links and translated routes', () => {
