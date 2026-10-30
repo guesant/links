@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BiosScreen from '$lib/BiosScreen.svelte';
   import IconButton from '$lib/IconButton.svelte';
   import MinecraftPage from '$lib/MinecraftPage.svelte';
   import TerminalPage from '$lib/TerminalPage.svelte';
@@ -97,14 +98,18 @@
       return {
         '@type': 'ProfilePage',
         '@id': `${canonical}#profile`,
-        mainEntity: { '@id': `${siteCanonical}#person` },
+        mainEntity: {
+          '@id': `${siteCanonical}#person`,
+        },
       };
     }
 
     return {
       '@type': 'WebPage',
       '@id': `${canonical}#page`,
-      about: { '@id': `${siteCanonical}#person` },
+      about: {
+        '@id': `${siteCanonical}#person`,
+      },
     };
   }
 
@@ -134,7 +139,9 @@
           name: localized.seo.title,
           description: localized.seo.description,
           inLanguage: localized.ui.html_lang,
-          publisher: { '@id': `${siteCanonical}#person` },
+          publisher: {
+            '@id': `${siteCanonical}#person`,
+          },
         },
         {
           ...pageIdentity(),
@@ -142,7 +149,9 @@
           name: title,
           description,
           inLanguage: localized.ui.html_lang,
-          isPartOf: { '@id': `${siteCanonical}#website` },
+          isPartOf: {
+            '@id': `${siteCanonical}#website`,
+          },
         },
       ],
     }).replaceAll('<', '\\u003c'),
@@ -487,53 +496,4 @@
   </div>
 </dialog>
 
-<dialog
-  id="bios-dialog"
-  class="bios-dialog"
-  aria-labelledby="bios-title"
-  aria-describedby="bios-status"
->
-  <div class="bios-screen">
-    <header class="bios-header">
-      <h2 id="bios-title">
-        GuesantBIOS v5.0
-        <br />
-        Interface initialization monitor
-      </h2>
-      <span class="bios-status-badge">STARTUP CHECK</span>
-    </header>
-    <div class="bios-post" aria-hidden="true">
-      <p class="bios-post-line" data-bios-step="1" hidden>
-        Runtime loader : Ready
-      </p>
-      <p class="bios-post-line" data-bios-step="4" hidden>
-        Configuration : Loaded
-      </p>
-      <p class="bios-post-line bios-post-muted" data-bios-step="8" hidden>
-        Checking interface modules ...
-      </p>
-      {#each ['Navigation', 'Content index', 'User preferences', 'Display controls'] as item, index}<p
-          class="bios-post-line bios-post-drive"
-          data-bios-step={11 + index * 2}
-          hidden
-        >
-          Module 0{index} : {item}
-        </p>{/each}
-      <p class="bios-boot-line" data-bios-boot-line hidden>
-        Starting interface: <span data-bios-interface></span>
-        <span data-bios-progress></span>
-        <span class="bios-cursor"></span>
-      </p>
-    </div>
-    <p class="visually-hidden" id="bios-status" role="status">
-      {editorialUI.bios_status}
-    </p>
-    <footer class="bios-footer">
-      <button type="button" data-bios-skip>
-        {editorialUI.bios_skip} · Esc
-      </button>
-      <span>Automatic startup sequence</span>
-    </footer>
-    <p class="bios-build-stamp">LOBBY-BOOT-5.0</p>
-  </div>
-</dialog>
+<BiosScreen ui={editorialUI} />

@@ -44,7 +44,13 @@ const href = (path) => {
   return new URL(path.replace(/^\/+/, ''), base).href;
 };
 
-const widths = [320, 390, 768, 1024, 1440];
+const widths = [
+  320,
+  390,
+  768,
+  1024,
+  1440,
+];
 
 const routes = config.language_options.flatMap(({ id }) => {
   return pagesFor(config, id)
@@ -52,19 +58,27 @@ const routes = config.language_options.flatMap(({ id }) => {
       return !page.fallback;
     })
     .map((page) => {
-      return { ...page, language: id };
+      return {
+        ...page,
+        language: id,
+      };
     });
 });
 
 const checks = [];
 
 (async () => {
-  fs.mkdirSync(reportDirectory, { recursive: true });
+  fs.mkdirSync(reportDirectory, {
+    recursive: true,
+  });
 
   const browser = await puppeteer.launch({
     executablePath: '/usr/bin/chromium',
     headless: true,
-    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+    ],
   });
 
   const page = await browser.newPage();
@@ -96,7 +110,11 @@ const checks = [];
       });
 
       const typography = await page.evaluate(async () => {
-        const weights = [400, 600, 700];
+        const weights = [
+          400,
+          600,
+          700,
+        ];
 
         const loaded = await Promise.all(
           weights.map((weight) => {
@@ -110,9 +128,12 @@ const checks = [];
         return {
           body: getComputedStyle(document.body).fontFamily,
           control: getComputedStyle(
-            document.querySelector('.section-switcher-trigger'),
+            document.querySelector('.header-navigation-links a'),
           ).fontFamily,
           heading: getComputedStyle(document.querySelector('h1')).fontFamily,
+          pixelHeading: document
+            .querySelector('h1')
+            .matches('.profile-name, .section-toolbar-title'),
           loaded: loaded.every((faces) => {
             return (
               faces.length > 0 &&
@@ -127,27 +148,31 @@ const checks = [];
       assert.match(typography.body, /^"?Oxanium"?,/);
       assert.match(typography.control, /^"?Oxanium"?,/);
 
-      const resolveValue = () => {
-        if (route.id === 'home') {
+      const headingFont = () => {
+        if (typography.pixelHeading) {
           return /press start 2p/;
         }
 
         return /^"?Oxanium"?,/;
       };
 
-      assert.match(typography.heading, resolveValue());
+      assert.match(typography.heading, headingFont());
       assert(typography.loaded, `Oxanium failed to load on ${route.url}`);
 
       const expectedNavigation = pagesFor(config, route.language)
         .filter((entry) => {
-          return ['home', 'links-page'].includes(entry.type);
+          return (
+            [
+              'home',
+              'links-page',
+            ].includes(entry.type) || entry.id === 'now'
+          );
         })
         .map((entry) => {
           return {
             title: entry.title,
             url: href(entry.url),
             current: entry.id === route.id,
-            icon: entry.icon,
           };
         });
 
@@ -166,13 +191,12 @@ const checks = [];
       }
 
       assert.deepEqual(
-        await page.$$eval('.section-menu-list a', (tabs) => {
+        await page.$$eval('.header-navigation-links a', (tabs) => {
           return tabs.map((tab) => {
             return {
               title: tab.textContent.trim(),
               url: tab.href,
               current: tab.getAttribute('aria-current') === 'page',
-              icon: tab.querySelector('[data-platform]').dataset.platform,
             };
           });
         }),
@@ -192,12 +216,17 @@ const checks = [];
             };
           });
         }),
-        Array.from({ length: 2 }, () => {
-          return {
-            href: href(nowPage.url),
-            current: route.id === 'now',
-          };
-        }),
+        Array.from(
+          {
+            length: 2,
+          },
+          () => {
+            return {
+              href: href(nowPage.url),
+              current: route.id === 'now',
+            };
+          },
+        ),
       );
       assert.equal(
         await page.$$eval(
@@ -254,7 +283,9 @@ const checks = [];
               title: document
                 .getElementById(panel.getAttribute('aria-labelledby'))
                 .textContent.trim(),
-              facts: [...panel.querySelectorAll('.about-fact')].map((fact) => {
+              facts: [
+                ...panel.querySelectorAll('.about-fact'),
+              ].map((fact) => {
                 return {
                   icon: fact.querySelector('[data-platform]').dataset.platform,
                   text: fact.textContent.trim(),
@@ -263,11 +294,11 @@ const checks = [];
               site_title: panel
                 .querySelector('.about-site-title')
                 .textContent.trim(),
-              topics: [...panel.querySelectorAll('.about-topics > li')].map(
-                (topic) => {
-                  return topic.textContent.trim();
-                },
-              ),
+              topics: [
+                ...panel.querySelectorAll('.about-topics > li'),
+              ].map((topic) => {
+                return topic.textContent.trim();
+              }),
             };
           }),
           expected,
@@ -289,7 +320,10 @@ const checks = [];
         config.locales[route.language].ui.html_lang,
       );
 
-      for (const theme of ['dark', 'light']) {
+      for (const theme of [
+        'dark',
+        'light',
+      ]) {
         await page.click('[data-settings-open]');
         await page.$eval(`#theme-${theme}`, (option) => {
           return option.click();
@@ -356,7 +390,15 @@ const checks = [];
                   return ((value + 0.055) / 1.055) ** 2.4;
                 })
                 .reduce((sum, value, index) => {
-                  return sum + value * [0.2126, 0.7152, 0.0722][index];
+                  return (
+                    sum +
+                    value *
+                      [
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                      ][index]
+                  );
                 }, 0);
             };
 
@@ -387,13 +429,18 @@ const checks = [];
               'color-accent-strong',
             ].map(color);
 
-            const woodText = ['color-wood-text', 'color-wood-muted'].map(color);
+            const woodText = [
+              'color-wood-text',
+              'color-wood-muted',
+            ].map(color);
 
             let panel = Infinity,
               wood = Infinity;
 
             for (let index = 0; index < pixels.length; index += 4) {
-              const pixel = [...pixels.slice(index, index + 3)];
+              const pixel = [
+                ...pixels.slice(index, index + 3),
+              ];
 
               if (pixels[index + 3] !== 255) {
                 throw new Error('Material must be opaque');
@@ -415,7 +462,10 @@ const checks = [];
               }
             }
 
-            return { panel, wood };
+            return {
+              panel,
+              wood,
+            };
           });
 
           assert(
@@ -431,11 +481,16 @@ const checks = [];
         }
 
         for (const width of widths) {
-          await page.setViewport({ width, height: 900 });
+          await page.setViewport({
+            width,
+            height: 900,
+          });
           await waitForLandscape(page);
 
           const layout = await page.evaluate(() => {
-            const cards = [...document.querySelectorAll('.link-button')];
+            const cards = [
+              ...document.querySelectorAll('.link-button'),
+            ];
 
             const rowAligned = (elements) => {
               return elements.every((element) => {
@@ -470,7 +525,7 @@ const checks = [];
                   .getBoundingClientRect();
 
                 const navigation = document
-                  .querySelector('.page-navigation')
+                  .querySelector('.profile-navigation')
                   .getBoundingClientRect();
 
                 const content = document
@@ -497,7 +552,10 @@ const checks = [];
 
                 const insetEnd = parseFloat(suspendedStyle.paddingRight);
 
-                const outerAligned = [profile, footer].every((rect) => {
+                const outerAligned = [
+                  profile,
+                  footer,
+                ].every((rect) => {
                   return (
                     Math.abs(rect.width - shell.width) < 1 &&
                     Math.abs(rect.left - shell.left) < 1 &&
@@ -507,7 +565,9 @@ const checks = [];
 
                 const aligned =
                   outerAligned &&
-                  [navigation, content].every((rect) => {
+                  [
+                    content,
+                  ].every((rect) => {
                     return (
                       Math.abs(rect.left - shell.left - insetStart) < 1 &&
                       Math.abs(shell.right - rect.right - insetEnd) < 1
@@ -518,9 +578,11 @@ const checks = [];
                   aligned &&
                   profile.top <= quickContacts.top &&
                   profile.bottom >= quickContacts.bottom &&
-                  profile.bottom <= navigation.top &&
+                  quickContacts.bottom <= navigation.top &&
+                  profile.bottom >= navigation.bottom &&
                   navigation.bottom <= content.top &&
-                  Math.abs(navigation.width - content.width) < 1 &&
+                  navigation.left >= profile.left &&
+                  navigation.right <= profile.right &&
                   Math.abs(footer.width - profile.width) < 1 &&
                   quickContacts.left >= profile.left &&
                   quickContacts.right <= profile.right &&
@@ -573,7 +635,9 @@ const checks = [];
               statisticsAligned: [
                 ...document.querySelectorAll('.link-row'),
               ].every((row) => {
-                const statistics = [...row.querySelectorAll('.statistics')];
+                const statistics = [
+                  ...row.querySelectorAll('.statistics'),
+                ];
 
                 return (
                   innerWidth < 896 ||
@@ -592,13 +656,11 @@ const checks = [];
                 );
               }),
               navigationCompact:
-                document
-                  .querySelector('.page-navigation')
-                  .getBoundingClientRect().height < 220 &&
-                !document.querySelector('.section-switcher').open,
+                !document.querySelector('.profile-navigation details') &&
+                document.querySelector('.header-navigation-links') !== null,
               controlsFit: [
                 ...document.querySelectorAll(
-                  '.navigation-home,.section-switcher-trigger,.ui-button,.site-footer-content > *',
+                  '.header-navigation-links a,.ui-button,.site-footer-content > *',
                 ),
               ]
                 .filter((element) => {
@@ -610,17 +672,17 @@ const checks = [];
                     element.getBoundingClientRect().height >= 44
                   );
                 }),
-              columns: [...document.querySelectorAll('.link-row')].map(
-                (list) => {
-                  return getComputedStyle(list).gridTemplateColumns.split(' ')
-                    .length;
-                },
-              ),
+              columns: [
+                ...document.querySelectorAll('.link-row'),
+              ].map((list) => {
+                return getComputedStyle(list).gridTemplateColumns.split(' ')
+                  .length;
+              }),
               languageControls:
                 document.querySelectorAll('.language-select').length,
               noControlMotion: [
                 ...document.querySelectorAll(
-                  '.link-button,.quick-contact-link,.navigation-home,.section-switcher-trigger,.toggle-button,.language-select,.site-footer-content > *',
+                  '.link-button,.quick-contact-link,.header-navigation-links a,.toggle-button,.language-select,.site-footer-content > *',
                 ),
               ].every((element) => {
                 return (
@@ -649,7 +711,9 @@ const checks = [];
                   .querySelector('.suspension-body')
                   .getBoundingClientRect();
 
-                const chains = [...rail.querySelectorAll('.suspension-chain')];
+                const chains = [
+                  ...rail.querySelectorAll('.suspension-chain'),
+                ];
 
                 const upper = chains[0].getBoundingClientRect();
 
@@ -754,7 +818,9 @@ const checks = [];
                       'auto',
                     );
                   }) &&
-                  [...rail.querySelectorAll('img')].every((image) => {
+                  [
+                    ...rail.querySelectorAll('img'),
+                  ].every((image) => {
                     const rect = image.getBoundingClientRect();
 
                     const expected =
@@ -800,7 +866,9 @@ const checks = [];
 
                 return (
                   gap > 0 &&
-                  [...suspended.children]
+                  [
+                    ...suspended.children,
+                  ]
                     .filter((element) => {
                       return !element.classList.contains('suspension-rail');
                     })
@@ -827,47 +895,47 @@ const checks = [];
 
                 const gap = parseFloat(getComputedStyle(content).rowGap);
 
-                return [...content.querySelectorAll('.suspension-body')].every(
-                  (body) => {
-                    if (!body.getClientRects().length) {
-                      return true;
-                    }
+                return [
+                  ...content.querySelectorAll('.suspension-body'),
+                ].every((body) => {
+                  if (!body.getClientRects().length) {
+                    return true;
+                  }
 
-                    const frame = body.getBoundingClientRect();
+                  const frame = body.getBoundingClientRect();
 
-                    const lanterns = [
-                      ...body.querySelectorAll('[data-rail-lantern]'),
-                    ];
+                  const lanterns = [
+                    ...body.querySelectorAll('[data-rail-lantern]'),
+                  ];
 
-                    return (
-                      lanterns.length === anchors.length &&
-                      lanterns.every((lantern, index) => {
-                        const expected =
-                          anchors[index].getBoundingClientRect().bottom +
-                          gap / 2 -
-                          frame.top;
+                  return (
+                    lanterns.length === anchors.length &&
+                    lanterns.every((lantern, index) => {
+                      const expected =
+                        anchors[index].getBoundingClientRect().bottom +
+                        gap / 2 -
+                        frame.top;
 
-                        const actual = parseFloat(
-                          lantern.style.getPropertyValue(
-                            '--rail-lantern-position',
-                          ),
-                        );
+                      const actual = parseFloat(
+                        lantern.style.getPropertyValue(
+                          '--rail-lantern-position',
+                        ),
+                      );
 
-                        const image = lantern.getBoundingClientRect();
+                      const image = lantern.getBoundingClientRect();
 
-                        return (
-                          Math.abs(expected - actual) < 1 &&
-                          Math.abs(
-                            image.left +
-                              image.width / 2 -
-                              frame.left -
-                              frame.width / 2,
-                          ) < 1
-                        );
-                      })
-                    );
-                  },
-                );
+                      return (
+                        Math.abs(expected - actual) < 1 &&
+                        Math.abs(
+                          image.left +
+                            image.width / 2 -
+                            frame.left -
+                            frame.width / 2,
+                        ) < 1
+                      );
+                    })
+                  );
+                });
               })(),
               repeatingFrames: [
                 ...document.querySelectorAll(
@@ -908,7 +976,9 @@ const checks = [];
                     ) < 1
                   );
                 }),
-              opticalIcons: [...document.querySelectorAll('.site-icon-optical')]
+              opticalIcons: [
+                ...document.querySelectorAll('.site-icon-optical'),
+              ]
                 .filter((icon) => {
                   return icon.getClientRects().length;
                 })
@@ -965,7 +1035,9 @@ const checks = [];
                 );
               }),
               coloredIcons: (() => {
-                const icons = [...document.querySelectorAll('.site-icon')];
+                const icons = [
+                  ...document.querySelectorAll('.site-icon'),
+                ];
 
                 return (
                   icons.length > 0 &&
@@ -974,47 +1046,44 @@ const checks = [];
                   })
                 );
               })(),
-              beveledIcons: [...document.querySelectorAll('.site-icon')].every(
-                (icon) => {
-                  const face = icon.querySelector('.site-icon-face');
+              beveledIcons: [
+                ...document.querySelectorAll('.site-icon'),
+              ].every((icon) => {
+                const face = icon.querySelector('.site-icon-face');
 
-                  return (
-                    icon.dataset.finish === 'beveled' &&
-                    face &&
-                    (
-                      getComputedStyle(icon).filter.match(/drop-shadow\(/g) ||
-                      []
-                    ).length === 2 &&
-                    getComputedStyle(face).maskImage !== 'none' &&
-                    getComputedStyle(
-                      face,
-                      '::before',
-                    ).backgroundImage.startsWith('linear-gradient(')
-                  );
-                },
-              ),
-              localIcons: [...document.querySelectorAll('.site-icon')].every(
-                (icon) => {
-                  const style = getComputedStyle(
-                    icon.querySelector('.site-icon-face'),
-                  );
+                return (
+                  icon.dataset.finish === 'beveled' &&
+                  face &&
+                  (getComputedStyle(icon).filter.match(/drop-shadow\(/g) || [])
+                    .length === 2 &&
+                  getComputedStyle(face).maskImage !== 'none' &&
+                  getComputedStyle(face, '::before').backgroundImage.startsWith(
+                    'linear-gradient(',
+                  )
+                );
+              }),
+              localIcons: [
+                ...document.querySelectorAll('.site-icon'),
+              ].every((icon) => {
+                const style = getComputedStyle(
+                  icon.querySelector('.site-icon-face'),
+                );
 
-                  const resolveSource = () => {
-                    if (style.maskImage !== 'none') {
-                      return style.maskImage;
-                    }
+                const resolveSource = () => {
+                  if (style.maskImage !== 'none') {
+                    return style.maskImage;
+                  }
 
-                    return style.backgroundImage;
-                  };
+                  return style.backgroundImage;
+                };
 
-                  const source = resolveSource();
+                const source = resolveSource();
 
-                  return (
-                    new URL(source.slice(5, -2), location.href).origin ===
-                    location.origin
-                  );
-                },
-              ),
+                return (
+                  new URL(source.slice(5, -2), location.href).origin ===
+                  location.origin
+                );
+              }),
               externalLinks: [
                 ...document.querySelectorAll(
                   '.link-button[href^="http"],.quick-contact-link[href^="http"]',
@@ -1045,7 +1114,9 @@ const checks = [];
               }),
               statisticsImages:
                 document.querySelectorAll('.statistics img').length,
-              numericValuesFit: [...document.querySelectorAll('.statistic dd')]
+              numericValuesFit: [
+                ...document.querySelectorAll('.statistic dd'),
+              ]
                 .filter((value) => {
                   return value.getClientRects().length;
                 })
@@ -1056,7 +1127,9 @@ const checks = [];
 
                   return range.getClientRects().length === 1;
                 }),
-              brokenImages: [...document.images].filter((image) => {
+              brokenImages: [
+                ...document.images,
+              ].filter((image) => {
                 return (
                   image.src.startsWith(location.origin) &&
                   image.complete &&
@@ -1118,7 +1191,9 @@ const checks = [];
               ].every((list) => {
                 const style = getComputedStyle(list);
 
-                const items = [...list.children];
+                const items = [
+                  ...list.children,
+                ];
 
                 return (
                   style.rowGap === '0px' &&
@@ -1186,7 +1261,9 @@ const checks = [];
               squareQuickAccess: (() => {
                 const grid = document.querySelector('.quick-contacts');
 
-                const buttons = [...grid.children];
+                const buttons = [
+                  ...grid.children,
+                ];
 
                 const columns =
                   getComputedStyle(grid).gridTemplateColumns.split(' ').length;
@@ -1249,15 +1326,15 @@ const checks = [];
                 );
               })(),
               deferredOrnaments:
-                [...document.querySelectorAll('.suspension-lantern')].every(
-                  (image) => {
-                    return (
-                      image.loading === 'lazy' &&
-                      image.decoding === 'async' &&
-                      image.fetchPriority === 'low'
-                    );
-                  },
-                ) &&
+                [
+                  ...document.querySelectorAll('.suspension-lantern'),
+                ].every((image) => {
+                  return (
+                    image.loading === 'lazy' &&
+                    image.decoding === 'async' &&
+                    image.fetchPriority === 'low'
+                  );
+                }) &&
                 [
                   ...document.querySelectorAll('.suspension-terminal-lower'),
                 ].every((image) => {
@@ -1445,11 +1522,19 @@ const checks = [];
 
           assert.equal(layout.statisticsImages, 0);
           assert.equal(layout.brokenImages, 0);
-          checks.push({ path: route.url, theme, width, passed: true });
+          checks.push({
+            path: route.url,
+            theme,
+            width,
+            passed: true,
+          });
 
           if (
             route.language === config.language_options[0].id &&
-            [390, 1440].includes(width)
+            [
+              390,
+              1440,
+            ].includes(width)
           ) {
             await page.evaluate(() => {
               document.activeElement?.blur();
@@ -1470,11 +1555,14 @@ const checks = [];
             return cards.map((card) => {
               return {
                 id: card.dataset.category,
-                previews: [...card.querySelectorAll('[data-preview-id]')].map(
-                  (link) => {
-                    return { id: link.dataset.previewId, href: link.href };
-                  },
-                ),
+                previews: [
+                  ...card.querySelectorAll('[data-preview-id]'),
+                ].map((link) => {
+                  return {
+                    id: link.dataset.previewId,
+                    href: link.href,
+                  };
+                }),
               };
             });
           },
@@ -1605,7 +1693,9 @@ const checks = [];
             }),
             expected,
           );
-          await page.reload({ waitUntil: 'networkidle2' });
+          await page.reload({
+            waitUntil: 'networkidle2',
+          });
         }
       }
 
@@ -1648,7 +1738,11 @@ const checks = [];
 
       if (
         route.language === config.language_options[0].id &&
-        ['home', ...config.navigation.sections, 'now'].includes(route.id)
+        [
+          'home',
+          ...config.navigation.sections,
+          'now',
+        ].includes(route.id)
       ) {
         const original = await page.evaluate(() => {
           return [
@@ -1668,12 +1762,20 @@ const checks = [];
 
             element.textContent = text.repeat(6);
 
-            return [{ selector, text }];
+            return [
+              {
+                selector,
+                text,
+              },
+            ];
           });
         });
 
         for (const width of widths) {
-          await page.setViewport({ width, height: 900 });
+          await page.setViewport({
+            width,
+            height: 900,
+          });
           assert.equal(
             await page.evaluate(() => {
               return document.documentElement.scrollWidth > innerWidth;
@@ -1698,7 +1800,10 @@ const checks = [];
         });
 
         for (const width of widths) {
-          await page.setViewport({ width, height: 900 });
+          await page.setViewport({
+            width,
+            height: 900,
+          });
 
           const enlarged = await page.evaluate(() => {
             return {
@@ -1738,10 +1843,13 @@ const checks = [];
 
       const control =
         (await page.$('.link-button')) ||
-        (await page.$('.section-switcher-trigger'));
+        (await page.$('.header-navigation-links a'));
 
       await control.evaluate((element) => {
-        return element.scrollIntoView({ block: 'center', behavior: 'instant' });
+        return element.scrollIntoView({
+          block: 'center',
+          behavior: 'instant',
+        });
       });
 
       const before = await control.boundingBox();
@@ -1760,12 +1868,18 @@ const checks = [];
       );
       await page.mouse.move(0, 0);
       await page.mouse.up();
-      await page.setViewport({ width: 320, height: 640 });
+      await page.setViewport({
+        width: 320,
+        height: 640,
+      });
 
       const headerBefore = await page.$eval('.profile', (element) => {
         const { left, width } = element.getBoundingClientRect();
 
-        return { left, width };
+        return {
+          left,
+          width,
+        };
       });
 
       await page.click('[data-settings-open]');
@@ -1773,7 +1887,9 @@ const checks = [];
       const settings = await page.$eval('#settings-dialog', (dialog) => {
         const rect = dialog.getBoundingClientRect();
 
-        const languages = [...dialog.querySelectorAll('.language-select')];
+        const languages = [
+          ...dialog.querySelectorAll('.language-select'),
+        ];
 
         return {
           open: dialog.open,
@@ -1801,13 +1917,19 @@ const checks = [];
           settings.singleLanguageControl &&
           settings.noOverflow &&
           settings.controlsFit,
-        JSON.stringify({ path: route.url, ...settings }),
+        JSON.stringify({
+          path: route.url,
+          ...settings,
+        }),
       );
       assert.deepEqual(
         await page.$eval('.profile', (element) => {
           const { left, width } = element.getBoundingClientRect();
 
-          return { left, width };
+          return {
+            left,
+            width,
+          };
         }),
         headerBefore,
         'Opening settings must not move the identity panel',
@@ -1846,11 +1968,18 @@ const checks = [];
         }),
         false,
       );
-      console.log(JSON.stringify({ path: route.url, layout: 'passed' }));
+      console.log(
+        JSON.stringify({
+          path: route.url,
+          layout: 'passed',
+        }),
+      );
     }
 
     assert.deepEqual(
-      [...represented].sort(),
+      [
+        ...represented,
+      ].sort(),
       visibleLinks(config)
         .map((entry) => {
           return entry.id;
@@ -1861,7 +1990,9 @@ const checks = [];
     await page.setJavaScriptEnabled(false);
 
     for (const route of routes) {
-      await page.goto(href(route.url), { waitUntil: 'networkidle2' });
+      await page.goto(href(route.url), {
+        waitUntil: 'networkidle2',
+      });
 
       if (!route.url.includes('/terminal/')) {
         assert.equal(
@@ -1883,16 +2014,8 @@ const checks = [];
         );
       }
 
-      await page.focus('.section-switcher-trigger');
-      await page.keyboard.press('Enter');
       assert.equal(
-        await page.$eval('.section-switcher', (details) => {
-          return details.open;
-        }),
-        true,
-      );
-      assert.equal(
-        await page.$eval('.section-menu-link', (tab) => {
+        await page.$eval('.header-navigation-links a', (tab) => {
           return tab.getBoundingClientRect().height >= 44;
         }),
         true,
@@ -1900,12 +2023,16 @@ const checks = [];
 
       const destination = pagesFor(config, route.language).find((entry) => {
         return (
-          entry.id !== route.id && ['home', 'links-page'].includes(entry.type)
+          entry.id !== route.id &&
+          [
+            'home',
+            'links-page',
+          ].includes(entry.type)
         );
       });
 
       await page.focus(
-        `.section-menu-link[href="${new URL(href(destination.url)).pathname}"]`,
+        `.header-navigation-links a[href="${new URL(href(destination.url)).pathname}"]`,
       );
       assert.equal(
         await page.$eval(':focus', (element) => {
@@ -1914,7 +2041,9 @@ const checks = [];
         'solid',
       );
       await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle2' }),
+        page.waitForNavigation({
+          waitUntil: 'networkidle2',
+        }),
         page.keyboard.press('Enter'),
       ]);
       assert.equal(page.url(), href(destination.url));
@@ -1928,8 +2057,15 @@ const checks = [];
     await page.setJavaScriptEnabled(true);
 
     for (const language of config.language_options) {
-      for (const id of ['start-here', 'networks', 'personal']) {
-        for (const suffix of ['/', '']) {
+      for (const id of [
+        'start-here',
+        'networks',
+        'personal',
+      ]) {
+        for (const suffix of [
+          '/',
+          '',
+        ]) {
           const response = await fetch(href(`${language.path}${id}${suffix}`), {
             redirect: 'manual',
           });
@@ -1950,7 +2086,9 @@ const checks = [];
     await page.$eval('#motion-off', (option) => {
       return option.click();
     });
-    await page.reload({ waitUntil: 'networkidle2' });
+    await page.reload({
+      waitUntil: 'networkidle2',
+    });
     assert.equal(
       await page.$eval('html', (root) => {
         return root.dataset.motion;
@@ -1959,7 +2097,10 @@ const checks = [];
     );
     await page.click('[data-settings-open]');
     await page.emulateMediaFeatures([
-      { name: 'prefers-reduced-motion', value: 'reduce' },
+      {
+        name: 'prefers-reduced-motion',
+        value: 'reduce',
+      },
     ]);
     await page.$eval('#motion-on', (option) => {
       return option.click();
@@ -1971,7 +2112,10 @@ const checks = [];
       'off',
     );
     await page.emulateMediaFeatures([
-      { name: 'prefers-color-scheme', value: 'light' },
+      {
+        name: 'prefers-color-scheme',
+        value: 'light',
+      },
     ]);
     await page.$eval('#theme-system', (option) => {
       return option.click();
@@ -2005,6 +2149,11 @@ const checks = [];
       reportDirectory,
     );
     await require('./check-terminal-browser.cjs')(
+      browser,
+      base.href,
+      reportDirectory,
+    );
+    await require('./check-bios-browser.cjs')(
       browser,
       base.href,
       reportDirectory,

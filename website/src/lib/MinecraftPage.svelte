@@ -5,14 +5,11 @@
   import LinkList from './LinkList.svelte';
   import EditorialList from './EditorialList.svelte';
   import SectionCard from './SectionCard.svelte';
-  import SectionMenuItem from './SectionMenuItem.svelte';
+  import NavigationLinks from './NavigationLinks.svelte';
+  import OrnamentLabel from './OrnamentLabel.svelte';
   import SuspensionRails from './SuspensionRails.svelte';
-  import {
-    currentPage,
-    emptyAttribute,
-    destinationFor,
-    profileInitials,
-  } from './render-utils.ts';
+  import { requiredText } from './validation-primitives.ts';
+  import { destinationFor, profileInitials } from './render-utils.ts';
   import type {
     DisplayLinkRecord,
     LinkRecord,
@@ -39,18 +36,17 @@
     now,
   } = $derived(data);
 
-  let language = $derived(
-    data.languageRoutes.find((entry) => {
-      return entry.id === locale;
-    }),
-  );
-
   let home = $derived(page.id === 'home');
 
   let nowActivities = $derived(
-    Object.entries(nowActivity).filter(([key, value]) => {
-      return key !== 'updated' && typeof value === 'string' && value.trim();
-    }),
+    Object.entries(nowActivity).filter(
+      ([
+        key,
+        value,
+      ]) => {
+        return key !== 'updated' && typeof value === 'string' && value.trim();
+      },
+    ),
   );
 
   let profile = $derived({
@@ -59,15 +55,7 @@
     birthDate: config.profile.birth_date,
   });
 
-  let homeURL = $derived(
-    pages.find((entry) => {
-      return entry.id === 'home';
-    })?.url ||
-      language?.path ||
-      `/${locale}/`,
-  );
-
-  let footerNav = $derived(
+  let navigationPages = $derived(
     pages.filter((entry) => {
       return (
         entry.type === 'home' ||
@@ -85,7 +73,11 @@
     return (
       1 +
       pages.filter((entry) => {
-        return ['writing', 'games', 'now'].includes(entry.id);
+        return [
+          'writing',
+          'games',
+          'now',
+        ].includes(entry.id);
       }).length
     );
   });
@@ -94,6 +86,10 @@
     item: Pick<LinkRecord, 'url' | 'target'>,
   ): LinkDestination {
     return destinationFor(config, item, locale, 'minecraft');
+  }
+
+  function uiText(key: string): string {
+    return requiredText(localized.ui[key], `locales.${locale}.ui.${key}`);
   }
 
   function nowSectionLinks(entry: PageRecord): DisplayLinkRecord[] {
@@ -136,7 +132,7 @@
         <p class="profile-username">@{profile.username}</p>
         <p class="profile-bio">{profile.bio}</p>
         <p class="profile-uptime">
-          <span class="profile-section-label">{localized.ui.uptime_label}</span>
+          <OrnamentLabel as="span" label={uiText('uptime_label')} />
           <time
             datetime={profile.birthDate}
             data-uptime={profile.birthDate}
@@ -145,9 +141,10 @@
             {profile.birthDate}
           </time>
         </p>
-        <h2 class="profile-section-label" id="profile-quick-access-title">
-          {localized.ui.quick_access_title}
-        </h2>
+        <OrnamentLabel
+          id="profile-quick-access-title"
+          label={uiText('quick_access_title')}
+        />
         <div
           class="quick-contacts"
           role="group"
@@ -167,69 +164,24 @@
               <span class="quick-contact-label">{item.title}</span>
             </a>{/each}
         </div>
+        <nav
+          class="profile-navigation"
+          aria-labelledby="profile-navigation-title"
+        >
+          <OrnamentLabel
+            id="profile-navigation-title"
+            label={uiText('navigation_label')}
+          />
+          <NavigationLinks
+            pages={navigationPages}
+            currentID={page.id}
+            placement="header"
+          />
+        </nav>
       </div>
     </header>
     <div class="suspended-content">
       <SuspensionRails {lanternCount} />
-      <div class="quick-access">
-        <nav class="page-navigation" aria-label={localized.ui.navigation_label}>
-          <a
-            class="navigation-home"
-            href={homeURL}
-            aria-current={currentPage(home)}
-          >
-            <IconButton name={config.navigation.home.icon} />
-            <span class="navigation-home-title">
-              {config.navigation.home.labels[locale]}
-            </span>
-          </a>
-          <span
-            class="quick-navigation-divider quick-navigation-divider-start"
-            aria-hidden="true"
-          ></span>
-          <details class="section-switcher" data-section-switcher>
-            <summary
-              class="section-switcher-trigger"
-              aria-controls="section-menu"
-              aria-label={localized.ui.navigation_sections}
-            >
-              <IconButton name="map" />
-              <span class="section-switcher-title">
-                {localized.ui.navigation_sections}
-              </span>
-              <span class="navigation-chevron">
-                <IconButton name="chevron-right" />
-              </span>
-            </summary>
-            <nav
-              class="section-menu"
-              id="section-menu"
-              aria-label={localized.ui.navigation_sections}
-            >
-              <ul class="section-menu-list">
-                {#each pages.filter((entry) => {
-                  return entry.type === 'home' || entry.type === 'links-page';
-                }) as entry}
-                  <li>
-                    <SectionMenuItem {entry} active={entry.id === page.id} />
-                  </li>
-                {/each}
-              </ul>
-              <div class="section-menu-updates">
-                {#each pages.filter((entry) => {
-                  return entry.id === 'now';
-                }) as entry}
-                  <SectionMenuItem
-                    {entry}
-                    active={entry.id === page.id}
-                    nowShortcut
-                  />
-                {/each}
-              </div>
-            </nav>
-          </details>
-        </nav>
-      </div>
       <main class="page-content" id="main-content">
         {#if home}
           <section class="presentation-group">
@@ -399,21 +351,16 @@
       ></span>
       <span class="frame-ornament frame-ornament-end" aria-hidden="true"></span>
       <nav class="footer-navigation" aria-labelledby="footer-navigation-title">
-        <h2 class="footer-navigation-title" id="footer-navigation-title">
-          {localized.ui.navigation_label}
-        </h2>
-        <ul class="footer-navigation-links">
-          {#each footerNav as entry}<li>
-              <a
-                data-navigation-page={entry.id}
-                data-now-shortcut={emptyAttribute(entry.id === 'now')}
-                href={entry.url}
-                aria-current={currentPage(entry.id === page.id)}
-              >
-                {entry.title}
-              </a>
-            </li>{/each}
-        </ul>
+        <OrnamentLabel
+          id="footer-navigation-title"
+          label={uiText('navigation_label')}
+          variant="footer"
+        />
+        <NavigationLinks
+          pages={navigationPages}
+          currentID={page.id}
+          placement="footer"
+        />
       </nav>
       <nav
         class="site-footer-content"

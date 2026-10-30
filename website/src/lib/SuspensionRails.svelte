@@ -3,7 +3,12 @@
 
   let { lanternCount }: { lanternCount: number } = $props();
 
-  const lanternPositions = ['upper', 'middle', 'lower', 'bottom'];
+  const lanternPositions = [
+    'upper',
+    'middle',
+    'lower',
+    'bottom',
+  ];
 
   const couplingURL = '/assets/generated/rail-coupling.png';
 

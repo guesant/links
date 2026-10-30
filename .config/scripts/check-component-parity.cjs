@@ -4,14 +4,23 @@ const { createRequire } = require('node:module');
 const { resolve } = require('node:path');
 const { readConfiguration } = require('./configuration.cjs');
 
-const widths = [320, 390, 768, 1024, 1440];
+const widths = [
+  320,
+  390,
+  768,
+  1024,
+  1440,
+];
 
 async function inspectControlReadiness(context, baseURL, minecraft) {
   const page = await context.newPage();
 
   try {
     await page.setCacheEnabled(false);
-    await page.setViewport({ width: 1280, height: 900 });
+    await page.setViewport({
+      width: 1280,
+      height: 900,
+    });
     await page.setRequestInterception(true);
     page.on('request', (request) => {
       if (!request.url().endsWith('/assets/js/link-view.js')) {
@@ -33,7 +42,9 @@ async function inspectControlReadiness(context, baseURL, minecraft) {
 
     const navigation = page.goto(
       new URL(`pt-br/${resolveNavigation()}code/`, baseURL).href,
-      { waitUntil: 'domcontentloaded' },
+      {
+        waitUntil: 'domcontentloaded',
+      },
     );
 
     const request = await script;
@@ -88,7 +99,9 @@ async function inspectComponents(page, expected, minecraft) {
         ),
       ];
 
-      const links = [...document.querySelectorAll('.link-button')];
+      const links = [
+        ...document.querySelectorAll('.link-button'),
+      ];
 
       const own = (url) => {
         return expected.domains.some((domain) => {
@@ -127,28 +140,28 @@ async function inspectComponents(page, expected, minecraft) {
         .querySelector('.profile-avatar')
         .textContent.trim();
 
-      const frames = [...document.querySelectorAll('.quick-contact-link')].map(
-        (link) => {
-          const style = getComputedStyle(link);
+      const frames = [
+        ...document.querySelectorAll('.quick-contact-link'),
+      ].map((link) => {
+        const style = getComputedStyle(link);
 
-          const iconStyle = getComputedStyle(
-            link.querySelector('.quick-contact-icon'),
-          );
+        const iconStyle = getComputedStyle(
+          link.querySelector('.quick-contact-icon'),
+        );
 
-          return {
-            source: style.borderImageSource,
-            width: parseFloat(style.borderTopWidth),
-            repeat: style.borderImageRepeat,
-            background: style.backgroundColor,
-            innerBorder: iconStyle.borderTopWidth,
-            innerBackground: iconStyle.backgroundColor,
-          };
-        },
-      );
+        return {
+          source: style.borderImageSource,
+          width: parseFloat(style.borderTopWidth),
+          repeat: style.borderImageRepeat,
+          background: style.backgroundColor,
+          innerBorder: iconStyle.borderTopWidth,
+          innerBackground: iconStyle.backgroundColor,
+        };
+      });
 
       const icons = [
         ...document.querySelectorAll(
-          '.section-menu .site-icon, .statistic dt .site-icon',
+          '.quick-contact-icon .site-icon, .statistic dt .site-icon',
         ),
       ]
         .filter((icon) => {
@@ -160,13 +173,15 @@ async function inspectComponents(page, expected, minecraft) {
           return {
             width: box.width,
             height: box.height,
-            wrapped: icon.parentElement.classList.contains('button-icon'),
+            wrapped: icon.parentElement.matches(
+              '.button-icon, .quick-contact-icon',
+            ),
           };
         });
 
       const activeCheck = Boolean(
         document.querySelector(
-          '.section-menu-link[aria-current="page"] .navigation-check .button-icon',
+          '.header-navigation-links a[aria-current="page"]',
         ),
       );
 
@@ -182,15 +197,11 @@ async function inspectComponents(page, expected, minecraft) {
         .querySelector('.profile-uptime')
         .getBoundingClientRect();
 
-      const navigation = document.querySelector('.page-navigation');
+      const navigation = document.querySelector('.profile-navigation');
 
-      const homeBox = navigation
-        .querySelector('.navigation-home')
-        .getBoundingClientRect();
-
-      const sectionsBox = navigation
-        .querySelector('.section-switcher-trigger')
-        .getBoundingClientRect();
+      const ornaments = [
+        ...document.querySelectorAll('.profile .ornament-label'),
+      ];
 
       return {
         badgesCorrect,
@@ -199,6 +210,22 @@ async function inspectComponents(page, expected, minecraft) {
         frames,
         icons,
         activeCheck,
+        sharedOrnaments:
+          ornaments.length === 3 &&
+          ornaments.every((label) => {
+            const before = getComputedStyle(label, '::before');
+
+            const after = getComputedStyle(label, '::after');
+
+            return (
+              before.width === after.width &&
+              before.flexGrow === '0' &&
+              before.content === '""'
+            );
+          }) &&
+          document
+            .querySelector('#footer-navigation-title')
+            .classList.contains('ornament-label-footer'),
         shortcutsInHeader:
           shortcuts.closest('.profile') !== null &&
           shortcuts.children.length === 8 &&
@@ -208,16 +235,35 @@ async function inspectComponents(page, expected, minecraft) {
           shortcutsBox.right <= profileBox.right,
         navigationSeparated:
           !navigation.querySelector('.quick-contacts') &&
-          !document.querySelector('.quick-access .section-toolbar') &&
-          navigation.querySelectorAll(':scope > a, :scope > details').length ===
-            2,
-        navigationAligned:
-          Math.abs(homeBox.width - sectionsBox.width) < 1 &&
-          Math.abs(homeBox.top - sectionsBox.top) < 1 &&
-          Math.abs(homeBox.height - sectionsBox.height) < 1,
+          navigation.closest('.profile') !== null &&
+          navigation.getBoundingClientRect().top >= shortcutsBox.bottom &&
+          !document.querySelector('.quick-access') &&
+          !navigation.querySelector('details, button, summary') &&
+          navigation.querySelectorAll('.navigation-links a').length ===
+            document.querySelectorAll('.footer-navigation-links a').length,
+        navigationAligned: [
+          ...navigation.querySelectorAll('a'),
+        ].every((link) => {
+          return link.getBoundingClientRect().height >= 44;
+        }),
+        navigationText: [
+          ...navigation.querySelectorAll('a'),
+        ].every((control) => {
+          const style = getComputedStyle(control);
+
+          return (
+            style.borderImageSource === 'none' &&
+            style.borderWidth === '0px' &&
+            style.backgroundColor === 'rgba(0, 0, 0, 0)' &&
+            style.boxShadow === 'none'
+          );
+        }),
       };
     },
-    { expected, minecraft },
+    {
+      expected,
+      minecraft,
+    },
   );
 
   assert.equal(actual.badgesCorrect, true, 'translated text in every badge');
@@ -234,6 +280,7 @@ async function inspectComponents(page, expected, minecraft) {
   }
 
   assert.equal(actual.avatar, 'GA');
+  assert.equal(actual.sharedOrnaments, true, 'shared header/footer ornaments');
   assert.equal(
     actual.shortcutsInHeader,
     true,
@@ -242,13 +289,14 @@ async function inspectComponents(page, expected, minecraft) {
   assert.equal(
     actual.navigationSeparated,
     true,
-    'navigation only contains Home and Sections',
+    'header uses the same full link list as footer, without dropdown',
   );
   assert.equal(
     actual.navigationAligned,
     true,
-    'navigation controls share equal columns and height',
+    'text navigation links preserve accessible target heights',
   );
+  assert.equal(actual.navigationText, true, 'navigation has no button frame');
   assert(actual.frames.length > 0);
 
   for (const frame of actual.frames) {
@@ -276,9 +324,11 @@ async function setPresentation(page, theme, view) {
     ({ theme, view }) => {
       document.documentElement.dataset.theme = theme;
       document.documentElement.dataset.linkView = view;
-      document.querySelector('.section-switcher')?.setAttribute('open', '');
     },
-    { theme, view },
+    {
+      theme,
+      view,
+    },
   );
   await page.evaluate(() => {
     return new Promise((accept) => {
@@ -289,31 +339,25 @@ async function setPresentation(page, theme, view) {
   });
 }
 
-async function captureComponents(page, directory, name, minecraft) {
+async function captureComponents(page, directory, name) {
   await page.evaluate(() => {
     scrollTo(0, 0);
   });
-  await page.screenshot({ path: resolve(directory, `${name}-header.png`) });
-
-  if (minecraft) {
-    await page.$eval('.section-switcher', (element) => {
-      element.open = false;
-    });
-  }
+  await page.screenshot({
+    path: resolve(directory, `${name}-header.png`),
+  });
 
   await page.$eval('.content-link-group, .terminal-link-list', (element) => {
-    element.scrollIntoView({ block: 'start' });
+    element.scrollIntoView({
+      block: 'start',
+    });
   });
-  await page.screenshot({ path: resolve(directory, `${name}-links.png`) });
+  await page.screenshot({
+    path: resolve(directory, `${name}-links.png`),
+  });
   await page.evaluate(() => {
     scrollTo(0, 0);
   });
-
-  if (minecraft) {
-    await page.$eval('.section-switcher', (element) => {
-      element.open = true;
-    });
-  }
 }
 
 async function inspectRoute(
@@ -336,10 +380,19 @@ async function inspectRoute(
   const checks = [];
 
   for (const width of widths) {
-    await page.setViewport({ width, height: 900 });
+    await page.setViewport({
+      width,
+      height: 900,
+    });
 
-    for (const theme of ['dark', 'light']) {
-      for (const view of ['compact', 'detailed']) {
+    for (const theme of [
+      'dark',
+      'light',
+    ]) {
+      for (const view of [
+        'compact',
+        'detailed',
+      ]) {
         await setPresentation(page, theme, view);
         await inspectComponents(page, expected, route.minecraft);
 
@@ -354,7 +407,7 @@ async function inspectRoute(
         const name = `${route.language}-${resolveName()}-${route.id}-${width}-${theme}-${view}`;
 
         if (screenshots && route.language === 'pt-br') {
-          await captureComponents(page, directory, name, route.minecraft);
+          await captureComponents(page, directory, name);
         }
 
         checks.push(name);
@@ -376,15 +429,16 @@ async function inspectNavigation(page, baseURL, minecraft, expected) {
 
   const prefix = `pt-br/${resolvePrefix()}`;
 
-  await page.goto(new URL(prefix, baseURL).href, { waitUntil: 'networkidle0' });
+  await page.goto(new URL(prefix, baseURL).href, {
+    waitUntil: 'networkidle0',
+  });
   await page.evaluate(() => {
     window.componentParityNavigation = true;
-    document.querySelector('.section-switcher')?.setAttribute('open', '');
   });
 
   const resolveSelector = () => {
     if (minecraft) {
-      return '.section-menu-link[data-navigation-page="career"]';
+      return '.header-navigation-links a[data-navigation-page="career"]';
     }
 
     return '.terminal-navigation a[href$="/career/"]';
@@ -403,16 +457,20 @@ async function inspectNavigation(page, baseURL, minecraft, expected) {
     true,
     'internal navigation stays client-side',
   );
-  await page.evaluate(() => {
-    document.querySelector('.section-switcher')?.setAttribute('open', '');
-  });
   await inspectComponents(page, expected, minecraft);
 }
 
 function componentRoutes(config) {
   return config.language_options.flatMap((language) => {
-    return [true, false].flatMap((minecraft) => {
-      return ['home', 'career', 'code'].map((id) => {
+    return [
+      true,
+      false,
+    ].flatMap((minecraft) => {
+      return [
+        'home',
+        'career',
+        'code',
+      ].map((id) => {
         const resolvePath = () => {
           if (minecraft) {
             return '';
@@ -454,14 +512,19 @@ async function checkComponentParity(
 
   const directory = resolve(reportDirectory, 'component-parity');
 
-  await fs.mkdir(directory, { recursive: true });
+  await fs.mkdir(directory, {
+    recursive: true,
+  });
 
   const context = await browser.createBrowserContext();
 
   const checks = [];
 
   try {
-    for (const minecraft of [true, false]) {
+    for (const minecraft of [
+      true,
+      false,
+    ]) {
       await inspectControlReadiness(context, baseURL, minecraft);
     }
 
@@ -469,7 +532,10 @@ async function checkComponentParity(
 
     await page.setCacheEnabled(false);
     await page.emulateMediaFeatures([
-      { name: 'prefers-reduced-motion', value: 'reduce' },
+      {
+        name: 'prefers-reduced-motion',
+        value: 'reduce',
+      },
     ]);
 
     for (const route of componentRoutes(config)) {
@@ -485,7 +551,10 @@ async function checkComponentParity(
       );
     }
 
-    for (const minecraft of [true, false]) {
+    for (const minecraft of [
+      true,
+      false,
+    ]) {
       await inspectNavigation(page, baseURL, minecraft, {
         label: config.locales['pt-br'].ui.third_party,
         domains: config.site.first_party_domains,
@@ -494,7 +563,10 @@ async function checkComponentParity(
 
     await page.setJavaScriptEnabled(false);
 
-    for (const minecraft of [true, false]) {
+    for (const minecraft of [
+      true,
+      false,
+    ]) {
       const resolveValue = () => {
         if (minecraft) {
           return '';
@@ -506,19 +578,26 @@ async function checkComponentParity(
       await page.goto(new URL(`pt-br/${resolveValue()}career/`, baseURL).href, {
         waitUntil: 'networkidle0',
       });
-      await page.$eval('details.section-switcher, .terminal-app', (element) => {
-        element.setAttribute('open', '');
-      });
       await inspectComponents(
         page,
-        { label: 'Terceiros', domains: config.site.first_party_domains },
+        {
+          label: 'Terceiros',
+          domains: config.site.first_party_domains,
+        },
         minecraft,
       );
     }
 
     await fs.writeFile(
       resolve(directory, 'checks.json'),
-      JSON.stringify({ passed: checks.length, checks }, null, 2),
+      JSON.stringify(
+        {
+          passed: checks.length,
+          checks,
+        },
+        null,
+        2,
+      ),
     );
     console.log(
       `Component parity: ${checks.length} presentations, SPA and no-JavaScript checks passed.`,
@@ -539,7 +618,10 @@ if (require.main === module) {
     const browser = await puppeteer.launch({
       executablePath: '/usr/bin/chromium',
       headless: true,
-      args: ['--no-sandbox', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+      ],
     });
 
     try {

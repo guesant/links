@@ -16,7 +16,13 @@ function harness({
 
   const timers = new Map();
 
-  const state = { bootCount: 0, writes: [], replaced: [], assigned: [] };
+  const state = {
+    bootCount: 0,
+    bootFocusCount: 0,
+    writes: [],
+    replaced: [],
+    assigned: [],
+  };
 
   const browserLocation = {
     href,
@@ -25,19 +31,37 @@ function harness({
     },
   };
 
-  const postLines = [1, 4, 8, 11, 13, 15, 17].map((biosStep) => {
+  const postLines = [
+    1,
+    4,
+    8,
+    11,
+    13,
+    15,
+    17,
+  ].map((biosStep) => {
     return {
-      dataset: { biosStep: String(biosStep) },
+      dataset: {
+        biosStep: String(biosStep),
+      },
       hidden: true,
     };
   });
 
-  const bootLine = { hidden: true };
+  const bootLine = {
+    hidden: true,
+  };
 
-  const progress = { textContent: '' };
+  const progress = {
+    textContent: '',
+  };
 
   const root = {
-    dataset: { theme: 'light', motion: 'on', interface: current },
+    dataset: {
+      theme: 'light',
+      motion: 'on',
+      interface: current,
+    },
   };
 
   let identifier = 0;
@@ -79,6 +103,9 @@ function harness({
 
   const bios = {
     open: false,
+    focus() {
+      state.bootFocusCount++;
+    },
     showModal() {
       this.open = true;
       state.bootCount++;
@@ -88,7 +115,9 @@ function harness({
     },
     querySelector(selector) {
       if (selector === '[data-bios-interface]') {
-        return { textContent: '' };
+        return {
+          textContent: '',
+        };
       }
 
       if (selector === '[data-bios-boot-line]') {
@@ -129,13 +158,18 @@ function harness({
     },
     querySelectorAll(selector) {
       if (selector === 'dialog[open]' && bios.open) {
-        return [bios];
+        return [
+          bios,
+        ];
       }
 
       return [];
     },
     addEventListener(name, callback) {
-      events.set(name, [...(events.get(name) || []), callback]);
+      events.set(name, [
+        ...(events.get(name) || []),
+        callback,
+      ]);
     },
   };
 
@@ -152,7 +186,9 @@ function harness({
       },
     },
     matchMedia: () => {
-      return { matches: reduced };
+      return {
+        matches: reduced,
+      };
     },
     setTimeout(callback, delay) {
       assert.equal(delay, 80);
@@ -181,10 +217,15 @@ function harness({
     state,
     bios,
     select(value) {
-      emit('change', { target: new HTMLInputElement(value) });
+      emit('change', {
+        target: new HTMLInputElement(value),
+      });
     },
     finish() {
-      for (const [id, callback] of timers) {
+      for (const [
+        id,
+        callback,
+      ] of timers) {
         timers.delete(id);
         callback();
       }
@@ -199,7 +240,10 @@ function harness({
       biosEvents.get('skip')();
     },
     tick() {
-      const [id, callback] = timers.entries().next().value;
+      const [
+        id,
+        callback,
+      ] = timers.entries().next().value;
 
       timers.delete(id);
       callback();
@@ -208,13 +252,17 @@ function harness({
     bootLine,
     progress,
     escape() {
-      biosEvents.get('cancel')({ preventDefault() {} });
+      biosEvents.get('cancel')({
+        preventDefault() {},
+      });
     },
   };
 }
 
 test('interface route is independent from appearance and stored preferences', () => {
-  const h = harness({ current: 'terminal' });
+  const h = harness({
+    current: 'terminal',
+  });
 
   assert.equal(h.root.dataset.interface, 'terminal');
   assert.equal(h.root.dataset.theme, 'light');
@@ -227,6 +275,7 @@ test('BIOS reveals the mock POST progressively after opening the Terminal route'
   });
 
   assert.equal(h.state.bootCount, 1);
+  assert.equal(h.state.bootFocusCount, 1);
   h.tick();
   assert.equal(h.postLines[0].hidden, false);
   assert.equal(h.postLines[1].hidden, true);
@@ -275,7 +324,10 @@ test('Reboot consumes its marker once and preserves Terminal route, query and ha
   );
 });
 
-for (const method of ['skip', 'escape']) {
+for (const method of [
+  'skip',
+  'escape',
+]) {
   test(`BIOS ${method} cancels its timer`, () => {
     const h = harness({
       current: 'terminal',

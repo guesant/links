@@ -1,7 +1,10 @@
 (() => {
   const root = document.documentElement;
 
-  const interfaces = new Set(['minecraft', 'terminal']);
+  const interfaces = new Set([
+    'minecraft',
+    'terminal',
+  ]);
 
   const selected = root.dataset.interface;
 
@@ -120,6 +123,9 @@
       bootLineElement.hidden = true;
       progressElement.textContent = '▓▒░';
       biosDialog.showModal();
+      biosDialog.focus({
+        preventScroll: true,
+      });
 
       function advance() {
         bootStep++;

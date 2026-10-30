@@ -1,0 +1,224 @@
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('{{ .terminalFontLatinExt }}') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('{{ .terminalFontLatin }}') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+html:has(#bios-dialog[open]) {
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+#bios-dialog {
+  all: revert;
+
+  --bios-zero: 0;
+  --bios-full: 100%;
+  --bios-viewport-width: 100vw;
+  --bios-viewport-height: 100dvh;
+  --bios-padding: clamp(1rem, 3vw, 1.875rem);
+  --bios-space-1: 0.25rem;
+  --bios-space-2: 0.5rem;
+  --bios-space-3: 0.75rem;
+  --bios-space-4: 1rem;
+  --bios-space-5: 1.5rem;
+  --bios-border-width: 0.0625rem;
+  --bios-outline-width: 0.125rem;
+  --bios-font-size: 0.8125rem;
+  --bios-small-size: 0.6875rem;
+  --bios-label-size: 0.625rem;
+  --bios-control-height: 2.75rem;
+  --bios-cursor-width: 0.5rem;
+  --bios-cursor-height: 0.875rem;
+  --bios-hidden-size: 0.0625rem;
+  --bios-background: #000;
+  --bios-text: #ccc;
+  --bios-heading: #aaa;
+  --bios-muted: #999;
+  --bios-border: #555;
+  --bios-green: #0f0;
+  --bios-font: 'JetBrains Mono', 'SFMono-Regular', consolas, monospace;
+
+  position: fixed;
+  inset: var(--bios-zero);
+  box-sizing: border-box;
+  width: var(--bios-viewport-width);
+  height: var(--bios-viewport-height);
+  max-width: none;
+  max-height: none;
+  margin: var(--bios-zero);
+  padding: var(--bios-zero);
+  border: var(--bios-zero);
+  outline: none;
+  background: var(--bios-background);
+  color: var(--bios-text);
+  color-scheme: dark;
+  font-family: var(--bios-font);
+  font-size: var(--bios-font-size);
+  font-weight: 400;
+  line-height: 1.9;
+  text-align: start;
+  text-shadow: none;
+  cursor: default;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+#bios-dialog * {
+  all: revert;
+  box-sizing: border-box;
+  margin: var(--bios-zero);
+  padding: var(--bios-zero);
+  border: var(--bios-zero);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-shadow: none;
+  cursor: inherit;
+}
+
+#bios-dialog [hidden],
+#bios-dialog:not([open]) {
+  display: none;
+}
+
+#bios-dialog::backdrop {
+  background: var(--bios-background, #000);
+  backdrop-filter: none;
+}
+
+#bios-dialog .bios-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bios-space-2);
+  min-height: var(--bios-full);
+  padding: var(--bios-padding);
+}
+
+#bios-dialog .bios-header,
+#bios-dialog .bios-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--bios-space-2) var(--bios-space-4);
+}
+
+#bios-dialog .bios-header {
+  color: var(--bios-heading);
+  line-height: 1.6;
+}
+
+#bios-dialog .bios-status-badge {
+  padding: var(--bios-space-1) var(--bios-space-2);
+  border: var(--bios-border-width) solid var(--bios-border);
+  color: var(--bios-muted);
+  font-size: var(--bios-label-size);
+}
+
+#bios-dialog .bios-post {
+  flex: 1;
+  margin-block: var(--bios-space-5);
+  overflow-wrap: anywhere;
+}
+
+#bios-dialog .bios-post-muted,
+#bios-dialog .bios-build-stamp {
+  color: var(--bios-muted);
+}
+
+#bios-dialog .bios-post-drive {
+  padding-inline-start: var(--bios-space-4);
+}
+
+#bios-dialog .bios-boot-line {
+  margin-block-start: var(--bios-space-3);
+}
+
+#bios-dialog [data-bios-interface] {
+  color: var(--bios-green);
+}
+
+#bios-dialog [data-bios-progress] {
+  color: var(--bios-muted);
+}
+
+#bios-dialog .bios-cursor {
+  display: inline-block;
+  width: var(--bios-cursor-width);
+  height: var(--bios-cursor-height);
+  background: var(--bios-green);
+  vertical-align: text-bottom;
+  animation: bios-cursor 1s steps(1, end) infinite;
+}
+
+#bios-dialog .bios-footer {
+  align-items: center;
+  padding-block-start: var(--bios-space-2);
+  border-block-start: var(--bios-border-width) solid var(--bios-border);
+  color: var(--bios-muted);
+  font-size: var(--bios-small-size);
+}
+
+#bios-dialog .bios-footer button {
+  appearance: none;
+  min-height: var(--bios-control-height);
+  padding-inline: var(--bios-space-2);
+  color: var(--bios-text);
+}
+
+#bios-dialog .bios-footer button:hover {
+  color: var(--bios-green);
+}
+
+#bios-dialog .bios-footer button:focus-visible {
+  outline: var(--bios-outline-width) solid var(--bios-green);
+  outline-offset: var(--bios-space-1);
+}
+
+#bios-dialog .bios-build-stamp {
+  font-size: var(--bios-label-size);
+}
+
+#bios-dialog .bios-announcement {
+  position: absolute;
+  width: var(--bios-hidden-size);
+  height: var(--bios-hidden-size);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes bios-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bios-dialog .bios-cursor {
+    animation: none;
+  }
+}
+
+html[data-motion='off'] #bios-dialog .bios-cursor {
+  animation: none;
+}

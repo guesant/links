@@ -27,15 +27,27 @@ const assets = resolve('website/src/assets');
 
 const generated = resolve(output, 'assets/generated');
 
-await rm(output, { recursive: true, force: true });
-await mkdir(generated, { recursive: true });
-await cp(resolve('website/src/static'), output, { recursive: true });
+await rm(output, {
+  recursive: true,
+  force: true,
+});
+await mkdir(generated, {
+  recursive: true,
+});
+await cp(resolve('website/src/static'), output, {
+  recursive: true,
+});
 
 const runtimeAssets = resolve(output, 'assets');
 
-await mkdir(runtimeAssets, { recursive: true });
+await mkdir(runtimeAssets, {
+  recursive: true,
+});
 
-for (const directory of ['css', 'fonts']) {
+for (const directory of [
+  'css',
+  'fonts',
+]) {
   await cp(resolve(assets, directory), resolve(runtimeAssets, directory), {
     recursive: true,
   });
@@ -43,7 +55,9 @@ for (const directory of ['css', 'fonts']) {
 
 const runtimeScripts = resolve(runtimeAssets, 'js');
 
-await mkdir(runtimeScripts, { recursive: true });
+await mkdir(runtimeScripts, {
+  recursive: true,
+});
 
 for (const entry of await readdir(resolve(assets, 'js'))) {
   if (!entry.endsWith('.ts')) {
@@ -65,29 +79,48 @@ for (const entry of await readdir(resolve(assets, 'js'))) {
   );
 }
 
-await mkdir(resolve(runtimeAssets, 'audio'), { recursive: true });
+await mkdir(resolve(runtimeAssets, 'audio'), {
+  recursive: true,
+});
 
-for (const sound of ['mouse-press.wav', 'mouse-release.wav']) {
+for (const sound of [
+  'mouse-press.wav',
+  'mouse-release.wav',
+]) {
   await cp(
     resolve(assets, 'audio', sound),
     resolve(runtimeAssets, 'audio', sound),
   );
 }
 
-await mkdir(resolve(runtimeAssets, 'icons'), { recursive: true });
+await mkdir(resolve(runtimeAssets, 'icons'), {
+  recursive: true,
+});
 
-for (const icon of ['pixel.png', 'pixel-compact.png']) {
+for (const icon of [
+  'pixel.png',
+  'pixel-compact.png',
+]) {
   await cp(
     resolve(assets, 'icons', icon),
     resolve(runtimeAssets, 'icons', icon),
   );
 }
 
-await mkdir(resolve(runtimeAssets, 'images', 'ui'), { recursive: true });
-await cp(
-  resolve(assets, 'images', 'ui', 'clouds.png'),
-  resolve(runtimeAssets, 'images', 'ui', 'clouds.png'),
-);
+await mkdir(resolve(runtimeAssets, 'images', 'ui'), {
+  recursive: true,
+});
+
+for (const image of [
+  'clouds.png',
+  'section-toolbar-rail.png',
+  'section-toolbar-terminal.png',
+]) {
+  await cp(
+    resolve(assets, 'images', 'ui', image),
+    resolve(runtimeAssets, 'images', 'ui', image),
+  );
+}
 
 const images = resolve(assets, 'images');
 
@@ -107,7 +140,10 @@ const railLeft = Math.floor((railMetadata.width - geometry.width) / 2);
 
 const slices = {};
 
-for (const [name, slice] of Object.entries(geometry.slices)) {
+for (const [
+  name,
+  slice,
+] of Object.entries(geometry.slices)) {
   const path = resolve(generated, `rail-${name}.png`);
 
   await sharp(resolve(ui, 'suspension-rail.png'))
@@ -117,27 +153,36 @@ for (const [name, slice] of Object.entries(geometry.slices)) {
       width: geometry.width,
       height: slice.height,
     })
-    .png({ compressionLevel: 9, adaptiveFiltering: true })
+    .png({
+      compressionLevel: 9,
+      adaptiveFiltering: true,
+    })
     .toFile(path);
   slices[name] = `/assets/generated/rail-${name}.png`;
 }
 
-for (const name of ['coupling', 'lantern']) {
+for (const name of [
+  'coupling',
+  'lantern',
+]) {
   const pngPath = resolve(generated, `rail-${name}.png`);
 
   const webpPath = resolve(generated, `rail-${name}.webp`);
 
-  await sharp(pngPath).webp({ lossless: true, effort: 6 }).toFile(webpPath);
+  await sharp(pngPath)
+    .webp({
+      lossless: true,
+      effort: 6,
+    })
+    .toFile(webpPath);
 
-  const png = await sharp(pngPath)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const png = await sharp(pngPath).ensureAlpha().raw().toBuffer({
+    resolveWithObject: true,
+  });
 
-  const webp = await sharp(webpPath)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const webp = await sharp(webpPath).ensureAlpha().raw().toBuffer({
+    resolveWithObject: true,
+  });
 
   for (let index = 0; index < png.data.length; index += 4) {
     if (png.data[index + 3] === 0 && webp.data[index + 3] === 0) {
@@ -164,63 +209,117 @@ const imagesToGenerate = [
     'stone-frame.webp',
     resolve(ui, 'stone-frame.png'),
     {
-      extract: { left: 57, top: 57, width: 1140, height: 1140 },
-      resize: { width: 384 },
+      extract: {
+        left: 57,
+        top: 57,
+        width: 1140,
+        height: 1140,
+      },
+      resize: {
+        width: 384,
+      },
     },
   ],
   [
     'oak-frame.webp',
     resolve(ui, 'oak-frame.png'),
     {
-      extract: { left: 57, top: 57, width: 1140, height: 1140 },
-      resize: { width: 512 },
+      extract: {
+        left: 57,
+        top: 57,
+        width: 1140,
+        height: 1140,
+      },
+      resize: {
+        width: 512,
+      },
     },
   ],
   [
     'oak-drape-start.webp',
     resolve(ui, 'oak-frame.png'),
     {
-      extract: { left: 0, top: 0, width: 384, height: 448 },
-      resize: { width: 160 },
+      extract: {
+        left: 0,
+        top: 0,
+        width: 384,
+        height: 448,
+      },
+      resize: {
+        width: 160,
+      },
     },
   ],
   [
     'oak-drape-end.webp',
     resolve(ui, 'oak-frame.png'),
     {
-      extract: { left: 870, top: 57, width: 384, height: 448 },
-      resize: { width: 160 },
+      extract: {
+        left: 870,
+        top: 57,
+        width: 384,
+        height: 448,
+      },
+      resize: {
+        width: 160,
+      },
     },
   ],
   [
     'stone-foot-start.webp',
     resolve(ui, 'stone-frame.png'),
     {
-      extract: { left: 0, top: 998, width: 384, height: 256 },
-      resize: { width: 160 },
+      extract: {
+        left: 0,
+        top: 998,
+        width: 384,
+        height: 256,
+      },
+      resize: {
+        width: 160,
+      },
     },
   ],
   [
     'stone-foot-end.webp',
     resolve(ui, 'stone-frame.png'),
     {
-      extract: { left: 870, top: 998, width: 384, height: 256 },
-      resize: { width: 160 },
+      extract: {
+        left: 870,
+        top: 998,
+        width: 384,
+        height: 256,
+      },
+      resize: {
+        width: 160,
+      },
     },
   ],
   [
     'profile-lantern.webp',
     resolve(generated, 'rail-profile-lantern.png'),
-    { resize: { width: 96 } },
+    {
+      resize: {
+        width: 96,
+      },
+    },
   ],
   [
     'aged-oak.webp',
     resolve(ui, 'charcoal-planks.png'),
-    { resize: { width: 160 } },
+    {
+      resize: {
+        width: 160,
+      },
+    },
   ],
 ];
 
-for (const [name, path, options] of imagesToGenerate) {
+for (const [
+  name,
+  path,
+  options,
+] of imagesToGenerate) {
   let image = sharp(path);
 
   if (options.extract) {
@@ -229,51 +328,102 @@ for (const [name, path, options] of imagesToGenerate) {
 
   await image
     .resize(options.resize)
-    .webp({ quality: 82 })
+    .webp({
+      quality: 82,
+    })
     .toFile(resolve(generated, name));
 }
 
-for (const [name, path, resize] of [
-  ['night-desktop.webp', resolve(scenery, 'night-canyon.png'), { width: 1536 }],
+for (const [
+  name,
+  path,
+  resize,
+] of [
+  [
+    'night-desktop.webp',
+    resolve(scenery, 'night-canyon.png'),
+    {
+      width: 1536,
+    },
+  ],
   [
     'night-mobile.webp',
     resolve(scenery, 'night-canyon.png'),
-    { width: 384, height: 576, fit: 'cover' },
+    {
+      width: 384,
+      height: 576,
+      fit: 'cover',
+    },
   ],
-  ['day-desktop.webp', resolve(scenery, 'day.png'), { width: 1536 }],
+  [
+    'day-desktop.webp',
+    resolve(scenery, 'day.png'),
+    {
+      width: 1536,
+    },
+  ],
   [
     'day-mobile.webp',
     resolve(scenery, 'day.png'),
-    { width: 384, height: 576, fit: 'cover' },
+    {
+      width: 384,
+      height: 576,
+      fit: 'cover',
+    },
   ],
 ]) {
   await sharp(path)
     .resize(resize)
-    .webp({ quality: 78 })
+    .webp({
+      quality: 78,
+    })
     .toFile(resolve(generated, name));
 }
 
-for (const [name, path, resize] of [
+for (const [
+  name,
+  path,
+  resize,
+] of [
   [
     'night-desktop-preview.webp',
     resolve(scenery, 'night-canyon.png'),
-    { width: 384 },
+    {
+      width: 384,
+    },
   ],
   [
     'night-mobile-preview.webp',
     resolve(scenery, 'night-canyon.png'),
-    { width: 96, height: 144, fit: 'cover' },
+    {
+      width: 96,
+      height: 144,
+      fit: 'cover',
+    },
   ],
-  ['day-desktop-preview.webp', resolve(scenery, 'day.png'), { width: 384 }],
+  [
+    'day-desktop-preview.webp',
+    resolve(scenery, 'day.png'),
+    {
+      width: 384,
+    },
+  ],
   [
     'day-mobile-preview.webp',
     resolve(scenery, 'day.png'),
-    { width: 96, height: 144, fit: 'cover' },
+    {
+      width: 96,
+      height: 144,
+      fit: 'cover',
+    },
   ],
 ]) {
   await sharp(path)
     .resize(resize)
-    .webp({ quality: 48, effort: 4 })
+    .webp({
+      quality: 48,
+      effort: 4,
+    })
     .toFile(resolve(generated, name));
 }
 
@@ -289,6 +439,8 @@ const substitutions = {
   oakFrame: '/assets/generated/oak-frame.webp',
   oakDrapeStart: '/assets/generated/oak-drape-start.webp',
   oakDrapeEnd: '/assets/generated/oak-drape-end.webp',
+  sectionToolbarRail: '/assets/images/ui/section-toolbar-rail.png',
+  sectionToolbarTerminal: '/assets/images/ui/section-toolbar-terminal.png',
   stoneFootStart: '/assets/generated/stone-foot-start.webp',
   stoneFootEnd: '/assets/generated/stone-foot-end.webp',
   profileLantern: '/assets/generated/profile-lantern.webp',
@@ -306,10 +458,17 @@ const substitutions = {
 
 const preparedStylesheets = {};
 
-for (const file of ['main.css', 'terminal.css']) {
+for (const file of [
+  'main.css',
+  'terminal.css',
+  'bios.css',
+]) {
   let css = await readFile(resolve(assets, 'css', file), 'utf8');
 
-  for (const [key, value] of Object.entries(substitutions)) {
+  for (const [
+    key,
+    value,
+  ] of Object.entries(substitutions)) {
     css = css.replaceAll(`{{ .${key} }}`, value);
   }
 
@@ -333,19 +492,35 @@ const editorialStylesheet = await readFile(
 
 await writeFile(
   resolve(output, 'assets/css', 'minecraft.css'),
-  [resetStylesheet, preparedStylesheets['main.css'], editorialStylesheet].join(
-    '\n',
-  ),
+  [
+    resetStylesheet,
+    preparedStylesheets['main.css'],
+    editorialStylesheet,
+    preparedStylesheets['bios.css'],
+  ].join('\n'),
+);
+
+await writeFile(
+  resolve(output, 'assets/css', 'terminal.css'),
+  [
+    preparedStylesheets['terminal.css'],
+    preparedStylesheets['bios.css'],
+  ].join('\n'),
 );
 
 const data = await getSiteData(websiteRoot);
 
 const searchDirectory = resolve(output, 'search');
 
-await mkdir(searchDirectory, { recursive: true });
+await mkdir(searchDirectory, {
+  recursive: true,
+});
 
 for (const language of data.links.language_options) {
-  for (const interfaceName of ['minecraft', 'terminal']) {
+  for (const interfaceName of [
+    'minecraft',
+    'terminal',
+  ]) {
     const pages = pagesFor(data, language.id, interfaceName).filter((page) => {
       return !page.fallback;
     });
@@ -483,7 +658,10 @@ for (const language of data.links.language_options) {
 }
 
 for (const language of data.links.language_options) {
-  for (const interfaceName of ['minecraft', 'terminal']) {
+  for (const interfaceName of [
+    'minecraft',
+    'terminal',
+  ]) {
     const resolveStart = () => {
       if (interfaceName === 'terminal') {
         return 'terminal/';
@@ -494,7 +672,9 @@ for (const language of data.links.language_options) {
 
     const start = `/${language.id}/${resolveStart()}`;
 
-    await mkdir(resolve(output, 'manifests'), { recursive: true });
+    await mkdir(resolve(output, 'manifests'), {
+      recursive: true,
+    });
     await writeFile(
       resolve(
         output,
@@ -541,7 +721,9 @@ const sitemapContent = `<?xml version="1.0" encoding="utf-8"?><urlset xmlns="htt
 await writeFile(resolve(output, 'sitemap.xml'), sitemapContent);
 
 for (const language of data.links.language_options) {
-  await mkdir(resolve(output, language.id), { recursive: true });
+  await mkdir(resolve(output, language.id), {
+    recursive: true,
+  });
   await writeFile(resolve(output, language.id, 'sitemap.xml'), sitemapContent);
 }
 

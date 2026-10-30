@@ -1,6 +1,11 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { readConfiguration } = require('./configuration.cjs');
+const {
+  responsiveWidths,
+  useBrowserLanguages,
+  applyAppearance,
+} = require('./browser-presentation.cjs');
 
 module.exports = async function checkCompactControls(
   browser,
@@ -16,30 +21,33 @@ module.exports = async function checkCompactControls(
   try {
     const page = await context.newPage();
 
-    await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'languages', {
-        get: () => {
-          return ['en-US'];
-        },
-      });
-    });
+    await useBrowserLanguages(page);
 
     for (const language of config.language_options) {
-      for (const suffix of ['', 'career/']) {
+      for (const suffix of [
+        '',
+        'career/',
+      ]) {
         const url = new URL(
           `${language.path}${suffix}`.replace(/^\//, ''),
           baseURL,
         ).href;
 
-        await page.goto(url, { waitUntil: 'networkidle2' });
+        await page.goto(url, {
+          waitUntil: 'networkidle2',
+        });
 
-        for (const theme of ['dark', 'light']) {
-          await page.evaluate((value) => {
-            document.documentElement.dataset.theme = value;
-          }, theme);
+        for (const theme of [
+          'dark',
+          'light',
+        ]) {
+          await applyAppearance(page, theme);
 
-          for (const width of [320, 390, 768, 1024, 1440]) {
-            await page.setViewport({ width, height: 900 });
+          for (const width of responsiveWidths) {
+            await page.setViewport({
+              width,
+              height: 900,
+            });
 
             const actual = await page.evaluate(() => {
               const footer = document
@@ -66,7 +74,9 @@ module.exports = async function checkCompactControls(
                 document.querySelector('.link-view-toolbar'),
               );
 
-              const controls = [...document.querySelectorAll('.icon-control')];
+              const controls = [
+                ...document.querySelectorAll('.icon-control'),
+              ];
 
               const size =
                 parseFloat(
@@ -113,7 +123,9 @@ module.exports = async function checkCompactControls(
                   );
                 }),
                 iconOnly: controls.every((control) => {
-                  return [...control.childNodes]
+                  return [
+                    ...control.childNodes,
+                  ]
                     .filter((node) => {
                       return node.nodeType === Node.TEXT_NODE;
                     })
@@ -160,17 +172,33 @@ module.exports = async function checkCompactControls(
               `${url} ${theme} ${width} overflow`,
             );
 
-            for (const [key, value] of Object.entries(actual)) {
-              if (!['count', 'overflow'].includes(key)) {
+            for (const [
+              key,
+              value,
+            ] of Object.entries(actual)) {
+              if (
+                ![
+                  'count',
+                  'overflow',
+                ].includes(key)
+              ) {
                 assert.equal(value, true, `${url} ${theme} ${width} ${key}`);
               }
             }
 
-            checks.push({ language: language.id, suffix, theme, width });
+            checks.push({
+              language: language.id,
+              suffix,
+              theme,
+              width,
+            });
           }
         }
 
-        await page.setViewport({ width: 320, height: 900 });
+        await page.setViewport({
+          width: 320,
+          height: 900,
+        });
         await page.evaluate(() => {
           document.documentElement.style.fontSize = '200%';
         });
@@ -208,8 +236,14 @@ module.exports = async function checkCompactControls(
       waitUntil: 'networkidle2',
     });
 
-    for (const width of [320, 1024]) {
-      await page.setViewport({ width, height: 900 });
+    for (const width of [
+      320,
+      1024,
+    ]) {
+      await page.setViewport({
+        width,
+        height: 900,
+      });
 
       for (const selector of [
         'label[for=link-view-compact]',
@@ -232,7 +266,10 @@ module.exports = async function checkCompactControls(
         const rect = await page.$eval(tooltip, (element) => {
           const r = element.getBoundingClientRect();
 
-          return { left: r.left, right: r.right };
+          return {
+            left: r.left,
+            right: r.right,
+          };
         });
 
         assert(
@@ -334,7 +371,10 @@ module.exports = async function checkCompactControls(
         element.focus();
       });
 
-      for (const selector of ['.link-view-control', '.site-footer']) {
+      for (const selector of [
+        '.link-view-control',
+        '.site-footer',
+      ]) {
         const element = await page.$(selector);
 
         await element.screenshot({
@@ -345,10 +385,20 @@ module.exports = async function checkCompactControls(
 
     fs.writeFileSync(
       `${reportDirectory}/compact-controls.json`,
-      JSON.stringify({ passed: checks.length, checks }, null, 2),
+      JSON.stringify(
+        {
+          passed: checks.length,
+          checks,
+        },
+        null,
+        2,
+      ),
     );
     console.log(
-      JSON.stringify({ compactControlsChecks: checks.length, failures: [] }),
+      JSON.stringify({
+        compactControlsChecks: checks.length,
+        failures: [],
+      }),
     );
   } finally {
     await context.close();

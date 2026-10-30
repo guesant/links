@@ -44,9 +44,14 @@
   });
 
   let nowActivities = $derived(
-    Object.entries(data.nowActivity).filter(([key, value]) => {
-      return key !== 'updated' && typeof value === 'string' && value.trim();
-    }),
+    Object.entries(data.nowActivity).filter(
+      ([
+        key,
+        value,
+      ]) => {
+        return key !== 'updated' && typeof value === 'string' && value.trim();
+      },
+    ),
   );
 
   function destination(

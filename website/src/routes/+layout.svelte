@@ -43,7 +43,11 @@
         return window.localStorage;
       },
       languages: () => {
-        return navigator.languages || [navigator.language];
+        return (
+          navigator.languages || [
+            navigator.language,
+          ]
+        );
       },
       navigate: async (url) => {
         await goto(url, {
