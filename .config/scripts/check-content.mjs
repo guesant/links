@@ -25,6 +25,58 @@ const { linksForSection } = createRequire(import.meta.url)(
 
 const data = await getSiteData(websiteRoot);
 
+async function assertBuildLabels(runID) {
+  const repositoryURL = `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${process.env.GITHUB_REPOSITORY || data.links.site.repository}`;
+
+  for (const language of data.links.language_options) {
+    for (const prefix of [
+      '',
+      'terminal/',
+    ]) {
+      const page = await loadPageData(`${language.id}/${prefix}`);
+
+      const labels = data.links.locales[language.id].ui;
+
+      if (runID) {
+        assert.equal(page.build.buildLabel, labels.footer_workflow);
+        assert.notEqual(page.build.buildLabel, labels.local_build);
+        assert.equal(
+          page.build.workflowURL,
+          `${repositoryURL}/actions/runs/${runID}`,
+        );
+
+        continue;
+      }
+
+      assert.equal(page.build.buildLabel, labels.local_build);
+      assert.equal(page.build.workflowURL, repositoryURL);
+    }
+  }
+}
+
+test('build labels match workflow metadata in every locale and interface', async () => {
+  const previousRunID = process.env.GITHUB_RUN_ID;
+
+  try {
+    delete process.env.GITHUB_RUN_ID;
+    await assertBuildLabels();
+
+    for (const runID of [
+      '',
+      '123456',
+    ]) {
+      process.env.GITHUB_RUN_ID = runID;
+      await assertBuildLabels(runID);
+    }
+  } finally {
+    if (previousRunID === undefined) {
+      delete process.env.GITHUB_RUN_ID;
+    } else {
+      process.env.GITHUB_RUN_ID = previousRunID;
+    }
+  }
+});
+
 test('neutral home shares all localized content without duplicating its route', async () => {
   const initial = await loadPageData(
     data.links.language_preference.default,

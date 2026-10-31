@@ -92,12 +92,20 @@ export async function loadPageData(
     return repositoryURL;
   };
 
+  const resolveBuildLabel = (): string => {
+    if (runID) {
+      return uiText('footer_workflow');
+    }
+
+    return uiText('local_build');
+  };
+
   const build = {
     commitLabel: resolveCommitLabel(),
     commitURL: `${repositoryURL}/commit/${commitSHA}`,
     versionLabel: uiText('footer_version'),
     workflowLabel: uiText('footer_workflow'),
-    buildLabel: uiText('local_build'),
+    buildLabel: resolveBuildLabel(),
     workflowURL: resolveWorkflowURL(),
   };
 
